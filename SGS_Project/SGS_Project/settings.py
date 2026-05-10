@@ -60,7 +60,7 @@ ROOT_URLCONF = 'SGS_Project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -88,7 +88,6 @@ DATABASES = {
         'PORT': config('DB_PORT'),
     }
 }
-
 
 ADMINISTRADOR__ID = 1
 
