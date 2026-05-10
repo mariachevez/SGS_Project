@@ -1,11 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<!doctype html>
+<html lang="en" class="h-100">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inicio</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
 </head>
-<body>
-    <p>PRUBEA DE CONTENIDO</p>
+
+<body class="w-100 h-100">
+    <div class="d-flex flex-1 h-100 w-lg-25 w-50">
+        <nav class="bg-secondary ">Hola</nav>
+        <div class="row row-cols-2">
+            <div class="col">1</div>
+            <div class="col">2</div>
+            <div class="col">3</div>
+        </div>
+        <div>
+            {% block contenido %}
+            {%endblock%}
+        </div>
+    </div>
+
 </body>
+
 </html>
