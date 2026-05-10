@@ -17,7 +17,6 @@ local_settings.py
 
 # Archivos de Medios y Estáticos (Subidas de usuarios y archivos generados)
 media/
-static/
 staticfiles/
 /site
 

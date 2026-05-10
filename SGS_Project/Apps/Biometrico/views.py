@@ -5,4 +5,4 @@ from django.views.generic import TemplateView, ListView, CreateView
 
 class PruebaView(TemplateView):
     template_name = 'index.html'
-        
+    
