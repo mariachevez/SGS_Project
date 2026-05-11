@@ -1,0 +1,30 @@
+.bg-sidebar {
+  background-color: #1c3247;
+}
+
+.btn-nav {
+  transition: all 0.2s ease-in-out;
+  color: white;
+  font-size: 16px;
+  padding: 10px 15px;
+  &:hover {
+    background-color: #6f3a3a;
+    border-left: 3px solid;
+    border-radius: 0 10px 0 10px;
+  }
+}
+
+.btn-logout {
+  color: white;
+  transition: all 0.2s ease-in-out;
+  &:hover {
+    background-color: white;
+    color: black;
+  }
+}
+
+.btn-nav.active {
+  background-color: #6f3a3a;
+  border-left: 5px solid;
+  border-radius: 0 10px 0 10px;
+}

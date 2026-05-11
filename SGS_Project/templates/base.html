@@ -7,21 +7,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inicio</title>
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css'%}">
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
 </head>
 
 <body class="w-100 h-100">
-    <div class="d-flex flex-1 h-100 w-lg-25 w-50">
-        <nav class="bg-secondary ">Hola</nav>
-        <div class="row row-cols-2">
-            <div class="col">1</div>
-            <div class="col">2</div>
-            <div class="col">3</div>
-        </div>
-        <div>
+    <div class="d-flex h-100">
+
+        <aside class="d-flex flex-column bg-sidebar shadow-lg p-3 w-25">
+
+            <div class="d-flex flex-column align-items-center">
+                <div class="d-inline-flex bg-white rounded-circle p-2 shadow-sm">
+                    <img class="img-fluid p-1" width="50" height="50" src="{% static 'img/user-icon.svg' %}"
+                        alt="user-icon">
+                </div>
+
+                <span class="text-white fw-bold mt-2">
+                    - Nombre del Usuario -
+                </span>
+            </div>
+
+            <nav class="d-flex flex-column gap-2 mt-5 flex-grow-1">
+
+                <a class="text-decoration-none btn-nav" href="#">PRUEBA</a>
+                <a class="text-decoration-none btn-nav" href="#">PRUEBA
+                    1</a>
+                <a class="text-decoration-none btn-nav" href="#">PRUEBA
+                    2</a>
+
+            </nav>
+
+            <div class="mt-auto d-flex align-items-center justify-content-center">
+                <a href="#"
+                    class="d-block btn-logout text-center fw-bold border border-2 border-white rounded-3 text-decoration-none p-2">
+                    Cerrar sesión <i class="fa-solid text-center fa-arrow-right-from-bracket"></i>
+                </a>
+            </div>
+
+        </aside>
+
+        <main class="flex-grow-1 p-4">
             {% block contenido %}
-            {%endblock%}
-        </div>
+            {% endblock %}
+        </main>
+
     </div>
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
 
 </body>
 
