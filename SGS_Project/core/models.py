@@ -38,6 +38,10 @@ class ModeloBase(models.Model):
     usuario_modificacion = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+',verbose_name='Usuario de modificacion', blank=True, null=True)
     status = models.BooleanField(verbose_name='Estado del registro', default=True)
 
+    def delete_status(self):
+        self.status = False
+        self.save()
+
     def save(self, *args, **kwargs):
         usuario = None
         fecha_modificacion = datetime.now()
@@ -73,10 +77,18 @@ class ModeloBase(models.Model):
 
 class Pais(ModeloBase):
     nombre = models.TextField(verbose_name='Pais', blank=True, null=True)
-    codigo = models.TextField(verbose_name='Codigo de pais', blank=True, null=True)
+    prefijo = models.TextField(verbose_name='Prefijo del pais', blank=True, null=True)
     
     def __str__(self):
         return self.nombre or ""
+    
+    def save(self, *args, **kwargs):
+        self.nombre = self.nombre.strip().upper()
+
+        if self.prefijo:
+            self.prefijo = self.prefijo.strip().upper()
+            
+        super().save(*args, **kwargs)
     
     class Meta:
         verbose_name = u"Pais"

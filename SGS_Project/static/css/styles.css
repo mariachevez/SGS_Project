@@ -1,5 +1,5 @@
 .bg-sidebar {
-  background-color: #1c3247;
+  background-color: #1c3247 !important;
 }
 
 .btn-nav {
@@ -7,6 +7,7 @@
   color: white;
   font-size: 16px;
   padding: 10px 15px;
+
   &:hover {
     background-color: #6f3a3a;
     border-left: 3px solid;
@@ -17,6 +18,7 @@
 .btn-logout {
   color: white;
   transition: all 0.2s ease-in-out;
+
   &:hover {
     background-color: white;
     color: black;
@@ -27,4 +29,14 @@
   background-color: #6f3a3a;
   border-left: 5px solid;
   border-radius: 0 10px 0 10px;
+}
+
+
+.bg-cardheader {
+  background-color: #1c3247 !important;
+  color: white !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
