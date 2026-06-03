@@ -1,9 +1,16 @@
 {% extends 'base.html' %} {% block block_nav %}
-
-<a class="text-decoration-none btn-nav" href="{% url 'listado_persona' %}"
-  >Personal</a
->
-<a class="text-decoration-none btn-nav" href="{% url 'listado_pais' %}"
-  >Paises</a
->
+<div class="d-flex flex-column gap-2">
+  <a
+    class="text-decoration-none btn-nav {% if request.resolver_match.url_name == 'listado_persona' %}active{% endif %}"
+    href="{% url 'listado_persona' %}"
+  >
+    <i class="fa-solid fa-user"></i> Personal</a
+  >
+  <a
+    class="text-decoration-none btn-nav {% if request.resolver_match.url_name == 'listado_pais' %}active{% endif %}"
+    href="{% url 'listado_pais' %}"
+  >
+    <i class="fa-solid fa-earth"></i> Paises</a
+  >
+</div>
 {% endblock %}

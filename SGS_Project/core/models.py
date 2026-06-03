@@ -1,6 +1,10 @@
 from django.db import models
+from django.contrib import messages
+from django.http import JsonResponse
 from django.contrib.auth.models import *
 from datetime import timedelta, date, time, datetime
+from django.shortcuts import redirect, get_object_or_404
+from django.views import View
 from SGS_Project.settings import ADMINISTRADOR__ID
 from django.db.models import TextChoices
 
@@ -73,6 +77,18 @@ class ModeloBase(models.Model):
 
     class Meta:
         abstract = True
+
+class EliminarBase(View):
+    model = None
+
+    def post(self, request, pk, *args, **kwargs):
+        obj = get_object_or_404(self.model, pk=pk, status=True)
+        messages.success(request, 'Registro eliminado con éxito')
+        obj.delete_status()
+        return JsonResponse({
+            'success': True,
+            'message': 'Registro eliminado correctamente'
+        })
 
 
 class Pais(ModeloBase):

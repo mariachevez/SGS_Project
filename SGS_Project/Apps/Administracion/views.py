@@ -2,21 +2,10 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, View
+from django.views.generic import ListView, CreateView, UpdateView
 from .models import *
 from .forms import *
-
-class EliminarBase(View):
-    model = None
-
-    def post(self, request, pk, *args, **kwargs):
-        obj = get_object_or_404(self.model, pk=pk, status=True)
-        messages.success(request, 'Registro eliminado con éxito')
-        obj.delete_status()
-        return JsonResponse({
-            'success': True,
-            'message': 'Registro eliminado correctamente'
-        })
+from core.models import EliminarBase
     
     
 class ListadoPersona(ListView):
