@@ -14,4 +14,7 @@ urlpatterns = [
     path('acualizar_pais/<int:pk>/', EditarPais.as_view(), name='editar_pais'),
     path('eliminar_pais/<int:pk>/', EliminarPais.as_view(), name='eliminar_pais'),
 
+    # Provincia
+    path('listado_provincia/', ListadoProvincia.as_view(), name='listado_provincia'),
+    path('crear_provincia/', CrearProvincia.as_view(), name='crear_provincia'),
 ]

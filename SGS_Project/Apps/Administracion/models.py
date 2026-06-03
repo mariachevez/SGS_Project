@@ -17,8 +17,7 @@ class Persona(ModeloBase):
     telefono = models.CharField(default='', max_length=50, verbose_name=u"Telefono movil")
     email = models.CharField(default='', max_length=200, verbose_name=u"Correo electronico personal")
     usuario = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    foto = models.FileField(upload_to='foto_persona/', blank=True, null=True, verbose_name=u'Foto de la persona.')
-
+    foto = models.FileField(upload_to='foto_persona/', blank=True, null=True, verbose_name='Foto de la persona.')
     def __str__(self):
         return u'%s %s %s' % (self.apellido1, self.apellido2, self.nombres)
 
@@ -42,6 +41,7 @@ class Persona(ModeloBase):
                 return u'%s' % (nombrepersona)
         except Exception as ex:
             return self.nombres.capitalize()
+        
     def primerNombre(self):
         if self.nombres:
             return self.nombres.split()[0]

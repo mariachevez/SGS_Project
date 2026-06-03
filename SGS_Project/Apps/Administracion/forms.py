@@ -28,8 +28,8 @@ class PersonaForm(FormModeloBase):
             self.fields[field].error_messages = {'required': 'Este campo es obligatorio'}
             
 class PaisForm(FormModeloBase):
-    nombre = forms.CharField(label='Nombre del país:', widget=forms.TextInput(attrs={'col': '6', 'placeholder': 'Ejm: Ecuador'}))
-    prefijo = forms.CharField(label='Prefijo del país:', required=False, widget=forms.TextInput(attrs={'col': '6', 'placeholder': 'Ejm: Ec'}))
+    nombre = forms.CharField(label='Nombre del País:', widget=forms.TextInput(attrs={'col': '6', 'placeholder': 'Ejm: Ecuador'}))
+    prefijo = forms.CharField(label='Prefijo del país:', required=False, widget=forms.TextInput(attrs={'col': '6', 'placeholder': 'Ejm: 593'}))
     
     class Meta:
         model = Pais
@@ -37,3 +37,15 @@ class PaisForm(FormModeloBase):
         
     def __init__(self, *args, **kwargs):
         super(PaisForm, self).__init__(*args, **kwargs)
+
+class ProvinciaForm(FormModeloBase):
+    pais = forms.ModelChoiceField(label='País:', queryset=Pais.objects.filter(status=True),  widget=forms.Select(attrs={'col':'12', 'class':'form-select'}))
+    nombre = forms.CharField(label='Nombre de la Provincia:', widget=forms.TextInput(attrs={'col': '12', 'placeholder': 'Ejm: Guayas'}))
+    
+    class Meta:
+        model = Provincia
+        fields = ['pais', 'nombre']
+    
+    def __init__(self, *args, **kwargs):
+        super(ProvinciaForm, self).__init__(*args, **kwargs)
+    

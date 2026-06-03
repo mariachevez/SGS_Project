@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de sesión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #202b46 0%, #353085 100%);
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --accent-primary: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Contenedor Principal Estilo Glassmorphism */
+        .form-container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem 2.25rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 
+                        0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: #ffffff;
+            margin-bottom: 1.75rem;
+            text-align: center;
+        }
+
+        /* Estilos de los Grupos de Entrada */
+        .custom-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .custom-input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .custom-input-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: #ffffff;
+            font-size: 0.95rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-input-group input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Botón de Ingreso Elegante */
+        .sign {
+            background: var(--accent-primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.025em;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        .sign:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+            opacity: 0.95;
+        }
+
+        .sign:active {
+            transform: translateY(0);
+        }
+
+        /* Separador personalizado */
+        .custom-hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
+            margin: 1.75rem 0;
+        }
+
+        /* Alertas y Errores estilizados */
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+            font-size: 0.9rem;
+        }
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .error-text {
+            font-size: 0.8rem;
+            color: #f87171;
+            margin-top: 0.35rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+                
+                {% if messages %}
+                    <div class="messages mb-3">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-container">
+                    <p class="title">Iniciar Sesión</p>
+                    
+                    <form class="form" method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger p-2mb-3" role="alert">
+                                {% for error in form.non_field_errors %}
+                                    <p class="m-0 small">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="custom-input-group mb-3">
+                            <label for="username">Usuario o Correo</label>
+                            <input 
+                                type="text" 
+                                name="username" 
+                                id="username" 
+                                placeholder="Introduce tu usuario" 
+                                autocomplete="off"
+                                value="{{ form.username.value|default:'' }}"
+                                required
+                            >
+                            {% if form.username.errors %}
+                                {% for error in form.username.errors %}
+                                    <span class="error-text">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="custom-input-group mb-3">
+                            <label for="password">Contraseña</label>
+                            <input 
+                                type="password" 
+                                name="password" 
+                                id="password" 
+                                placeholder="••••••••"
+                                required
+                            >
+                            {% if form.password.errors %}
+                                {% for error in form.password.errors %}
+                                    <span class="error-text">{{ error }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="custom-hr"></div>
+
+                        <button type="submit" class="sign w-100">Ingresar</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

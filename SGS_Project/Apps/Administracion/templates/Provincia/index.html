@@ -1,0 +1,26 @@
+{% extends 'nav.html' %} {% block btn_add %}
+<a
+  onclick='formModal("{% url "crear_provincia" %}", "Adicionar provincia")'
+  class="btn btn-success btn-sm d-flex align-items-center gap-3 px-3 py-2 rounded-2 fs-7"
+  ><i class="fa-solid fa-plus fs-7"></i>
+  <span class="fw-medium">Adicionar</span>
+</a>
+{% endblock %} {% block block_thead %}
+<tr>
+  <th>Provincia</th>
+  <th>País</th>
+  <th>Acciones</th>
+</tr>
+{% endblock %} {% block block_tbody %} {% for provincia in provincias %}
+<tr>
+    <td> {{ provincia.nombre }} </td>
+    <td> {{ provincia.pais }} </td>
+  <td></td>
+</tr>
+{% empty %}
+<tr>
+  <td colspan="3" class="text-muted fs-7 text-center">
+    Aún no se registran Provincias
+  </td>
+</tr>
+{% endfor %} {% endblock %}

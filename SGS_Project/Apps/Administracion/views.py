@@ -6,6 +6,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 from .models import *
 from .forms import *
 from core.models import EliminarBase
+from core.funciones import validar_cedula
     
     
 class ListadoPersona(ListView):
@@ -29,13 +30,18 @@ class CrearPersona(CreateView):
     success_url = reverse_lazy('listado_persona')
     
     def form_valid(self, form):
+        persona_form = form.save(commit=False)
+        cedula = persona_form.cleaned_data.get('cedula')
+        try:
+            validar_cedula(cedula)
+        except Exception as ex:
+            return self.form_invalid(form)
         messages.success(self.request, 'Se ha guardado exitosamente')
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('crear_persona')
-        # context['cancelar'] = reverse('listado_persona')
         return context
 
 class ListadoPaises(ListView):
@@ -88,4 +94,32 @@ class EditarPais(UpdateView):
 class EliminarPais(EliminarBase):
     model = Pais
     success_url = reverse_lazy('listado_pais')
+
+class ListadoProvincia(ListView):
+    model = Provincia
+    template_name = 'Provincia/index.html'
+    paginate_by = 10
+    context_object_name = 'provincias'
     
+    def get_queryset(self):
+        return Provincia.objects.filter(status=True)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['nombre_tabla'] = 'Listado de Provincias'
+        return context
+    
+class CrearProvincia(CreateView):
+    model = Provincia
+    form_class = ProvinciaForm
+    template_name = 'formulario.html'
+    success_url = reverse_lazy('listado_provincia')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Se ha guardado exitosamente')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['guardar'] = reverse('crear_provincia')
+        return context
