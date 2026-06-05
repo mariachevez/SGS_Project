@@ -1,22 +1,22 @@
 {% extends 'nav.html' %} {% block btn_add %}
 <a
-  onclick='formModal("{% url "crear_provincia" %}", "Adicionar provincia")'
+  onclick='formModal("{% url "crear_canton" %}", "Adicionar Cantón")'
   class="btn btn-success btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-2 fs-7 shadow-sm"
-  ><i class="fa-solid fa-plus fs-7"></i>
-  <span class="fw-medium">Adicionar</span>
-</a>
+  ><i class="fa-solid fa-plus fs-7"></i
+  ><span class="fw-medium">Adicionar</span></a
+>
 {% endblock %} {% block block_thead %}
 <tr>
   <th class="fs-7">#</th>
+  <th class="fs-7">Cantón</th>
   <th class="fs-7">Provincia</th>
-  <th class="fs-7">País</th>
   <th class="fs-7">Acciones</th>
 </tr>
-{% endblock %} {% block block_tbody %} {% for provincia in provincias %}
+{% endblock %} {% block block_tbody %} {% for canton in cantones %}
 <tr>
   <td class="fs-7">{{ forloop.counter }}</td>
-  <td class="fs-7">{{ provincia.nombre }}</td>
-  <td class="fs-7">{{ provincia.pais.nombre }}</td>
+  <td class="fs-7">{{ canton.nombre }}</td>
+  <td class="fs-7">{{ canton.provincia.nombre }}</td>
   <td class="fs-7">
     <div class="dropdown">
       <button
@@ -31,7 +31,7 @@
       <ul class="dropdown-menu dropdown-menu-start dropdown-menu-dark">
         <li>
           <a
-            onclick='formModal("{% url "editar_provincia" provincia.pk %}", "Editar la provincia")'
+            onclick='formModal("{% url "editar_canton" canton.pk %}", "Editar un Cantón")'
             class="dropdown-item cursor-pointer fs-7"
           >
             <i class="fa-solid fa-pen"></i> Editar</a
@@ -39,19 +39,14 @@
         </li>
         <li>
           <a
-            onclick="eliminarAjax('Está por eliminar una provincia', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_provincia' provincia.pk%}')"
+            onclick="eliminarAjax('Está por eliminar un cantón', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_canton' canton.pk %}')"
             class="dropdown-item cursor-pointer fs-7"
-            ><i class="fa-solid fa-trash"></i> Eliminar
+          >
+            <i class="fa-solid fa-trash"></i> Eliminar
           </a>
         </li>
       </ul>
     </div>
-  </td>
-</tr>
-{% empty %}
-<tr>
-  <td colspan="4" class="text-muted fs-7 text-center">
-    Aún no se registran Provincias
   </td>
 </tr>
 {% endfor %} {% endblock %}

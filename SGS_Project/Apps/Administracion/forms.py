@@ -48,4 +48,16 @@ class ProvinciaForm(FormModeloBase):
     
     def __init__(self, *args, **kwargs):
         super(ProvinciaForm, self).__init__(*args, **kwargs)
+
+class CantonForm(FormModeloBase):
+    provincia = forms.ModelChoiceField(label='Provincia:', queryset=Provincia.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-select'}))
+    nombre = forms.CharField(label='Nombre del Cantón:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Milagro'}))
+    
+    class Meta:
+        model = Canton
+        fields = ['provincia', 'nombre']
+        
+    def __init__(self, *args, **kwargs):
+        super(CantonForm, self).__init__(*args, **kwargs)
+    
     

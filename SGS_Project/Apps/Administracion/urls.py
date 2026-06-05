@@ -17,4 +17,13 @@ urlpatterns = [
     # Provincia
     path('listado_provincia/', ListadoProvincia.as_view(), name='listado_provincia'),
     path('crear_provincia/', CrearProvincia.as_view(), name='crear_provincia'),
+    path('editar_provincia/<int:pk>', EditarProvincia.as_view(), name='editar_provincia'),
+    path('eliminar_provincia/<int:pk>', EliminarProvincia.as_view(), name='eliminar_provincia'),
+    
+    # Canton
+    path('listado_canton/', ListadoCanton.as_view(), name='listado_canton'),
+    path('crear_canton/', CrearCanton.as_view(), name='crear_canton'),
+    path('editar_canton/<int:pk>', EditarCanton.as_view(), name='editar_canton'),
+    path('eliminar_canton/<int:pk>', EliminarCanton.as_view(), name='eliminar_canton'),
+    
 ]

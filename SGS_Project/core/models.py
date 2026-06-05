@@ -107,8 +107,8 @@ class Pais(ModeloBase):
         super().save(*args, **kwargs)
     
     class Meta:
-        verbose_name = u"Pais"
-        verbose_name_plural = u"Paises"
+        verbose_name = "Pais"
+        verbose_name_plural = "Paises"
         ordering = ['nombre']
 
     
@@ -120,8 +120,8 @@ class Provincia(ModeloBase):
         return self.nombre or ""
     
     class Meta:
-        verbose_name = u"Provincia"
-        verbose_name_plural = u"Provincias"
+        verbose_name = "Provincia"
+        verbose_name_plural = "Provincias"
         ordering = ['pais__nombre', 'nombre']
 
 class Canton(ModeloBase):
