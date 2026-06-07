@@ -31,10 +31,18 @@ function formModal(url, titulo, modal_size = '') {
             modal.show();
         })
         .fail(function (xhr, status, error) {
-            console.error('❌ Error AJAX:');
-            console.error('Status:', status);
-            console.error('Error:', error);
-            console.error('Response:', xhr.responseText);
+            const data = xhr.responseJSON;
+            Swal.fire({
+                icon: 'error',
+                toast: true,
+                theme: 'dark',
+                position: 'bottom-end',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                title: 'No se pudo cargar',
+                text: data?.message || 'Error inesperado en el servidor.'
+            });
         });
 }
 

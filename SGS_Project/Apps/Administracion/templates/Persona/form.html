@@ -1,0 +1,22 @@
+{% extends 'formulario.html' %} {% block extra_js %}
+<script>
+  $(function () {
+    $("#id_pais").on("change", function () {
+      pais = $(this).val();
+      if (pais === "") {
+        $("#id_provincia, #id_canton")
+          .empty()
+          .append(`<option>Seleccione una opción</option>`)
+          .trigger("change");
+          return false
+      }
+      $.ajax({
+        type: 'GET',
+        url: 'buscar_provincias',
+        data: {'id': pais},
+
+      })
+    });
+  });
+</script>
+{%endblock%}

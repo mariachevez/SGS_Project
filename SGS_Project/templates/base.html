@@ -160,5 +160,22 @@
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
     <script src="{% static 'js/modal.js' %}"></script>
+    <!-- <script>
+      $(document).ajaxStart(function () {
+        Swal.fire({
+          title: "Cargando...",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+      });
+      $(document).ajaxStop(function () {
+        setTimeout(() => {
+          Swal.close();
+        }, 500);
+      });
+    </script> -->
   </body>
 </html>

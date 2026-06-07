@@ -8,7 +8,21 @@ from .forms import *
 from core.models import EliminarBase
 from core.funciones import validar_cedula
     
-    
+
+class AjaxExceptionMixin:
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            response = super().dispatch(request, *args, **kwargs)
+            if hasattr(response, 'render'):
+                response.render()
+
+            return response
+        except Exception as ex:
+            return JsonResponse({
+                'result': False,
+                'message': f'Ocurrió un error: {ex}',
+            }, status=500)
+
 class ListadoPersona(ListView):
     model = Persona
     template_name = 'index.html'
@@ -23,10 +37,10 @@ class ListadoPersona(ListView):
         context['nombre_tabla'] = 'Listado del Personal'
         return context
     
-class CrearPersona(CreateView):
+class CrearPersona(AjaxExceptionMixin, CreateView):
     model = Persona
     form_class = PersonaForm
-    template_name = 'formulario.html'
+    template_name = 'Persona/form.html'
     success_url = reverse_lazy('listado_persona')
     
     def form_valid(self, form):
@@ -60,7 +74,7 @@ class ListadoPaises(ListView):
 
 
 # PAÍS
-class CrearPais(CreateView):
+class CrearPais(AjaxExceptionMixin, CreateView):
     model = Pais
     form_class = PaisForm
     template_name = 'formulario.html'
@@ -114,7 +128,7 @@ class ListadoProvincia(ListView):
         context['nombre_tabla'] = 'Listado de Provincias'
         return context
     
-class CrearProvincia(CreateView):
+class CrearProvincia(AjaxExceptionMixin, CreateView):
     model = Provincia
     form_class = ProvinciaForm
     template_name = 'formulario.html'
@@ -167,7 +181,7 @@ class ListadoCanton(ListView):
         context['nombre_tabla'] = 'Listado de Cantones'
         return context
 
-class CrearCanton(CreateView):
+class CrearCanton(AjaxExceptionMixin, CreateView):
     model = Canton
     form_class = CantonForm
     template_name = 'formulario.html'
