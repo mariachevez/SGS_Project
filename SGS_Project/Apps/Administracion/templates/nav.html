@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block block_nav %}
-<div class="d-flex flex-column gap-2">
+<div class="d-flex flex-column gap-2 px-2">
   <a
     class="text-decoration-none btn-nav {% if request.resolver_match.url_name == 'listado_persona' %}active{% endif %}"
     href="{% url 'listado_persona' %}"
@@ -46,5 +46,10 @@
       </a>
     </div>
   </div>
+  <a
+    class="text-decoration-none btn-nav {% if request.resolver_match.url_name == 'listado_areas' %}active{% endif %}"
+    href="{% url 'listado_areas' %}"
+    ><i class="fa-regular fa-building"></i> Áreas
+  </a>
 </div>
 {% endblock %}

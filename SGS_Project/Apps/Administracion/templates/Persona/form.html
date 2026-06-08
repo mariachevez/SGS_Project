@@ -3,19 +3,56 @@
   $(function () {
     $("#id_pais").on("change", function () {
       pais = $(this).val();
+      $("#id_provincia, #id_canton")
+        .empty()
+        .append(`<option value="">Seleccione una opción</option>`)
+        .trigger("change");
       if (pais === "") {
-        $("#id_provincia, #id_canton")
-          .empty()
-          .append(`<option>Seleccione una opción</option>`)
-          .trigger("change");
-          return false
+        return false;
       }
       $.ajax({
-        type: 'GET',
-        url: 'buscar_provincias',
-        data: {'id': pais},
+        type: "GET",
+        url: "{% url 'buscar_provincias' %}",
+        data: { id: pais },
+        success: function (data) {
+          if (data.result) {
+            data.provincias.forEach(function (e) {
+              $("#id_provincia").append(
+                `<option value="${e.id}">${e.nombre}</option>`,
+              );
+            });
+          } else {
+            ToastDanger(data.mensaje);
+          }
+        },
+      });
+    });
 
-      })
+    $("#id_provincia").on("change", function () {
+      provincia = $(this).val();
+      $("#id_canton")
+        .empty()
+        .append(`<option value="">Seleccione una opción</option>`)
+        .trigger("change");
+      if (provincia === "") {
+        return false;
+      }
+      $.ajax({
+        type: "GET",
+        url: '{% url "buscar_cantones" %}',
+        data: { id: provincia },
+        success: function (data) {
+          if (data.result) {
+            data.cantones.forEach(function (e) {
+              $("#id_canton").append(
+                `<option value="${e.id}">${e.nombre}</option>`,
+              );
+            });
+          } else {
+            ToastDanger(data.mensaje);
+          }
+        },
+      });
     });
   });
 </script>

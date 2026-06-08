@@ -1,12 +1,12 @@
 from django.urls import path
 from .views import *
 
-
 urlpatterns = [
     
     # Persona
     path('listado_personal/', ListadoPersona.as_view(), name='listado_persona'),
     path('crear_persona/', CrearPersona.as_view(), name='crear_persona'),
+    path('editar_persona/<int:pk>', EditarPersona.as_view(), name='editar_persona'),
     
     # Pais
     path('listado_pais/', ListadoPaises.as_view(), name='listado_pais'),
@@ -26,4 +26,14 @@ urlpatterns = [
     path('editar_canton/<int:pk>', EditarCanton.as_view(), name='editar_canton'),
     path('eliminar_canton/<int:pk>', EliminarCanton.as_view(), name='eliminar_canton'),
     
+    # Areas
+    path('listado_areas/', ListarArea.as_view(), name='listado_areas'),
+    path('crear_area/', CrearArea.as_view(), name='crear_area'),
+    path('editar_area/<int:pk>', EditarArea.as_view(), name='editar_area'),
+    path('eliminararea/<int:pk>', EliminarArea.as_view(), name='eliminar_area'),
+    path('asignar_director/<int:pk>', AsignarDirectorArea.as_view(), name='asignar_director'),
+    
+    # Búsquedas Ajax
+    path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),
+    path('buscar_cantones/', ObtenerCantones.as_view(), name='buscar_cantones'),
 ]
