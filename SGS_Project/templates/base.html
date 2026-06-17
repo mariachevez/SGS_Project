@@ -93,9 +93,11 @@
 
             <div class="card-body px-4 pb-4 pt-2">
               <div class="rounded-3 border border-light-subtle">
-                <table class="table text-center table-hover align-middle mb-0">
+                <table
+                  class="table text-center table-hover align-middle mb-0 custom-table"
+                >
                   <thead
-                    class="table-light text-uppercase fs-7.5 fw-semibold text-muted border-bottom"
+                    class="text-uppercase fs-7.5 fw-semibold text-muted border-bottom"
                   >
                     {% block block_thead %} {% endblock %}
                   </thead>
@@ -138,20 +140,6 @@
             <div class="modal-body p-4" id="modalBaseBody"></div>
 
             <div class="modal-footer border-top-0 px-4 pb-4 pt-2 gap-2">
-              <button
-                type="button"
-                class="btn btn-danger border-0 fw-medium text-white px-4 py-2 rounded-2 fs-7"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                form="formModal"
-                class="btn btn-success fw-medium px-4 py-2 rounded-2 fs-7 shadow-sm"
-              >
-                Guardar cambios
-              </button>
             </div>
           </div>
         </div>
@@ -159,8 +147,11 @@
     </div>
 
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'select2/css/select2.min.css' %}">
-    <link rel="stylesheet" href="{% static 'select2/css/select2-bootstrap-5-theme.min.css' %}">
+    <link rel="stylesheet" href="{% static 'select2/css/select2.min.css' %}" />
+    <link
+      rel="stylesheet"
+      href="{% static 'select2/css/select2-bootstrap-5-theme.min.css' %}"
+    />
     <script src="{% static 'select2/js/select2.min.js' %}"></script>
     <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
     <script src="{% static 'js/modal.js' %}"></script>

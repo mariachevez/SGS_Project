@@ -1,6 +1,5 @@
 <form method="post" id="formModal" action="{{ guardar }}" class="px-3 py-2">
-  {% csrf_token %}
-
+  {% csrf_token %} {% block block_form %}
   <div class="row g-2">
     {% for field in form %}
     <div
@@ -37,6 +36,24 @@
     </div>
     {% endfor %}
   </div>
+  {% endblock %} {% block buttons %}
+  <div class="d-flex justify-content-evenly my-2">
+    <button
+      type="submit"
+      form="formModal"
+      class="btn btn-success fw-medium px-4 py-2 rounded-2 fs-7 shadow-sm"
+    >
+      Guardar cambios
+    </button>
+    <button
+      type="button"
+      class="btn btn-danger border-0 fw-medium text-white px-4 py-2 rounded-2 fs-7"
+      data-bs-dismiss="modal"
+    >
+      Cancelar
+    </button>
+  </div>
+  {% endblock %}
 </form>
 <script>
   $(".select2").select2({

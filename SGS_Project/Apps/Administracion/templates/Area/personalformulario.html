@@ -1,0 +1,231 @@
+{% extends 'formulario.html' %} {% block block_form %}
+<style>
+  .worker-panel {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2rem;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  .worker-avatar-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
+
+  .worker-avatar {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e9ecef;
+    border: 5px solid #fff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  }
+
+  .worker-check {
+    position: absolute;
+    right: 2px;
+    bottom: 6px;
+    width: 24px;
+    height: 24px;
+    background: #20c997;
+    color: #fff;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+  }
+
+  .worker-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #06142f;
+    margin-bottom: 0.25rem;
+  }
+
+  .worker-role {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .worker-id {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    color: #334155;
+    background: #fff;
+  }
+</style>
+
+<input type="hidden" name="persona_seleccionada" id="persona_seleccionada" />
+
+<div class="row g-4 align-items-center">
+  <div class="col-lg-5 col-md-12">
+    <div class="mb-3">
+      <label for="area" class="form-label fw-bolder">ÁREA SELECCIONADA:</label>
+      <select disabled class="form-select" name="area" id="area">
+        <option selected value="{{ area.pk }}">{{ area.nombre }}</option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label for="persona" class="form-label fw-bolder">TRABAJADOR:</label>
+      <select class="form-select select2" name="persona" id="persona">
+        <option value="">Seleccione una opción</option>
+        {% for persona in personas %}
+        <option value="{{ persona.pk }}">
+          {{ persona.nombre_completo_minus }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="button" id="btn-add" class="btn btn-outline-dark">
+      <i class="fas fa-plus-circle"></i> Añadir
+    </button>
+  </div>
+
+  <div class="col-lg-7 col-md-12">
+    <div class="worker-panel mx-4">
+      <div class="text-center" id="worker-preview">
+        <div class="text-muted">
+          Seleccione un trabajador para ver su perfil
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-end gap-2 mt-4">
+  <span class="btn btn-outline-dark rounded-3" id="btn-confirmar">
+    <i class="fas fa-save"></i> Confirmar Asignación
+  </span>
+  <span
+    class="btn btn-danger border-0 fw-medium px-4 py-2 rounded-2 fs-7"
+    data-bs-dismiss="modal"
+  >
+    Cerrar
+  </span>
+</div>
+{% endblock %} {% block buttons %}{% endblock %} {% block extra_js %}
+<script>
+  $(function () {
+    $(".select2").select2({
+      theme: "bootstrap-5",
+      dropdownParent: $("#modalBase"),
+      placeholder: "Seleccione una opción",
+      width: "100%",
+      allowClear: true,
+    });
+
+    $("#btn-add").on("click", function () {
+      const persona = $("#persona").val();
+
+      if (!persona) {
+        ToastDanger("Primero seleccione una persona");
+        return false;
+      }
+
+      $.ajax({
+        type: "GET",
+        url: "/personal/buscar_persona",
+        data: { id: persona },
+        success: function (data) {
+          if (data.result) {
+            $("#persona_seleccionada").val(persona);
+
+            $("#worker-preview").html(`
+                  <div id="worker-card" data-id="${data.id}">
+                      <div class="worker-avatar-wrap">
+                          <img class="worker-avatar"
+                              src="${data.foto}"
+                              alt="Foto de ${data.nombres}">
+                          <span class="worker-check">
+                          <i class="fas fa-check"></i>
+                          </span>
+                      </div>
+
+                      <div class="worker-name">${data.nombres}</div>
+                      <div class="worker-role">Trabajador</div>
+
+                      <div class="worker-id">
+                          <i class="far fa-id-card"></i>
+                          ID: ${data.identificacion || ""}
+                      </div>
+                  </div>
+              `);
+
+            $("#persona").val("").trigger("change");
+          } else {
+            ToastDanger(data.mensaje);
+          }
+        },
+      });
+    });
+    $("#btn-confirmar").on("click", function () {
+      persona = $("#worker-card").data("id");
+      area = $("#area").val();
+      if (!persona) {
+        ToastDanger("Seleccione una persona antes de guardar la asignación");
+        return false;
+      }
+      console.log(persona);
+      $.ajax({
+        type: "POST",
+        url: "/personal/guardar_asignacion",
+        data: {
+          persona_id: persona,
+          csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+          area_id: area,
+        },
+        success: function (data) {
+          if (data.result) {
+            console.log(data.personas);
+            $("#persona")
+              .empty()
+              .append(`<option value="">Seleccione una opción</option>`)
+              .val("")
+              .trigger("change");
+            data.personas.forEach(function (e) {
+              $("#persona")
+                .append(
+                  `
+                <option value="${e.id}">${e.nombres}</option>
+              `,
+                )
+                .trigger("change");
+            });
+            $("#worker-preview").empty().append(`
+                <div class="text-muted">
+                    Seleccione un trabajador para ver su perfil
+                </div>
+            `);
+            ToastSuccess("Se ha guardado con éxito el registro");
+          } else {
+            ToastDanger(data.mensaje);
+          }
+        },
+        error: function (xhr) {
+          console.log(xhr.responseText);
+          ToastDanger("Error al guardar la asignación");
+        },
+      });
+    });
+  });
+</script>
+{% endblock %}

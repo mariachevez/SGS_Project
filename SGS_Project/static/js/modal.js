@@ -86,7 +86,19 @@ function eliminarAjax(titulo, mensaje, url) {
 function ToastDanger(mensaje) {
     Swal.fire({
         icon: 'error',
-        title: 'Surgió un error',
+        text: mensaje,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        theme: 'dark'
+    });
+}
+
+function ToastSuccess(mensaje) {
+    Swal.fire({
+        icon: 'success',
         text: mensaje,
         toast: true,
         position: 'top-end',

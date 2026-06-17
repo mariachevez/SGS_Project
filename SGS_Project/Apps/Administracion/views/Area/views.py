@@ -73,13 +73,14 @@ class AsignarDirectorArea(AjaxExceptionMixin, UpdateView):
         return super().form_valid(form)
 
 class AgregarResponsables(AjaxExceptionMixin, View):
-    template_name = 'personalformulario.html'
-    def get(self, request, pk):
-        area = Area.objects.filter(status=True, pk=pk)
+    template_name = 'Area/personalformulario.html'
+    def get(self, request, pk): 
+        area = Area.objects.get(status=True, pk=pk)
+        personas = Persona.objects.filter(status=True, areas_trabajo__isnull=True, areas_dirigidas__isnull=True)
         if not area:
             return JsonResponse({'result': False, 'mensaje': 'Error al obtener el área'})
     
-        return render(request, self.template_name, {'area': area})
+        return render(request, self.template_name, {'area': area, 'personas': personas})
     
     def post(self, request, pk):
         area = Area.objects.filter(status=True, pk=pk)
@@ -90,3 +91,40 @@ class AgregarResponsables(AjaxExceptionMixin, View):
             personas = json.loads(request.POST['personas_list'])
         except Exception as ex:
             return JsonResponse({'result': False, 'mensaje': f'{ex}'})
+
+class BuscarPersona(View):
+    
+    def get(self, request):
+        persona = request.GET.get('id')
+        if not persona:
+            return JsonResponse({'result': False, 'mensaje': 'Por favor, seleccione una persona'})
+        persona = Persona.objects.get(pk=persona)
+        return JsonResponse({'result': True,
+                             'id': persona.pk,
+                             'foto': request.build_absolute_uri(persona.get_foto()), 
+                             'nombres': persona.nombre_completo_minus(), 
+                             'identificacion': persona.identificacion})
+
+class GuardarAsignacion(AjaxExceptionMixin, View):
+    def post(self, request):
+        try:
+            ePersona = request.POST.get('persona_id')
+            area = request.POST.get('area_id')
+            personas_list = []
+            if not ePersona:
+                return JsonResponse({'result': False, 'mensaje': 'Seleccione una persona'})
+            if not area:
+                return JsonResponse({'result': False, 'mensaje': 'No se recibió un área'})
+            
+            persona_existe = AreaPersona.objects.filter(area_id=area, persona_id=ePersona, status=True)
+            if not persona_existe.exists():
+                AreaPersona(area_id=area, persona_id=ePersona).save(request)
+                personas = Persona.objects.filter(status=True, areas_trabajo__isnull=True, areas_dirigidas__isnull=True)
+                for persona in personas:
+                    personas_list.append({'id': persona.pk, 'nombres': persona.nombre_completo_minus()})
+                return JsonResponse({'result': True, 'personas': personas_list})
+            else:
+                return JsonResponse({'result': False, 'mensaje': 'Esta persona ya está actualmente en un área'})
+        except Exception as ex:
+            return JsonResponse({'result': False, 'mensaje': f'Error: {ex}'})
+        

@@ -66,6 +66,19 @@ class Persona(ModeloBase):
         completo = '{} {} {}'.format(str(self.nombre_minus()), str(apellido1), str(apellido2))
         return u'%s' % (completo)
 
+    def get_foto(self):
+        try:
+            if self.foto:
+                return self.foto.url
+            else:
+                if self.sexo:
+                    if self.sexo == 'M':
+                        return '/static/img/icono-hombre.svg'
+                    else:
+                        return '/static/img/icono-mujer.svg'
+        except Exception:
+            return '/static/img/icono-hombre.svg'
+
 
 class Area(ModeloBase):
     director = models.ForeignKey(Persona, verbose_name='Director del Área', blank=True, 

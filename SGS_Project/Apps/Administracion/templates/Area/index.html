@@ -54,6 +54,11 @@
             ><i class="fa-solid fa-user"></i> Asignar Director</a
           >
         </li>
+        <li>
+          <a onclick='formModal("{% url "adicionar_personal" area.pk %}", "Adición de personal al departamento: {{ area.nombre }}", "modal-lg")' class="dropdown-item fs-7 cursor-pointer">
+            <i class="fa-solid fa-user-plus"></i> Adicionar Personal
+          </a>
+        </li>
       </ul>
     </div>
   </td>

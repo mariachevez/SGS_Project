@@ -32,6 +32,9 @@ urlpatterns = [
     path('editar_area/<int:pk>', EditarArea.as_view(), name='editar_area'),
     path('eliminararea/<int:pk>', EliminarArea.as_view(), name='eliminar_area'),
     path('asignar_director/<int:pk>', AsignarDirectorArea.as_view(), name='asignar_director'),
+    path('adicionar_personal/<int:pk>', AgregarResponsables.as_view(), name='adicionar_personal'),
+    path('buscar_persona', BuscarPersona.as_view(), name='buscar_persona'),
+    path('guardar_asignacion', GuardarAsignacion.as_view(), name='guardar_asignacion'),
     
     # Búsquedas Ajax
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),
