@@ -1,8 +1,11 @@
-{% extends 'formulario.html' %} {% block extra_js %}
+{% extends 'formulario.html' %}
+
+
+{% block extra_js %}
 <script>
   $(function () {
     $("#id_pais").on("change", function () {
-      pais = $(this).val();
+      const pais = $(this).val();
       $("#id_provincia, #id_canton")
         .empty()
         .append(`<option value="">Seleccione una opción</option>`)
@@ -22,14 +25,14 @@
               );
             });
           } else {
-            ToastDanger(data.mensaje);
+            ToastDanger(data.mensaje); // Asegúrate de tener esta función definida en tu base global
           }
         },
       });
     });
 
     $("#id_provincia").on("change", function () {
-      provincia = $(this).val();
+      const provincia = $(this).val();
       $("#id_canton")
         .empty()
         .append(`<option value="">Seleccione una opción</option>`)
@@ -56,4 +59,4 @@
     });
   });
 </script>
-{%endblock%}
+{% endblock %}

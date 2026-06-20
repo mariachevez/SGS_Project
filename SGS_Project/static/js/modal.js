@@ -97,14 +97,17 @@ function ToastDanger(mensaje) {
 }
 
 function ToastSuccess(mensaje) {
-    Swal.fire({
+    // Agregamos el return para que devuelva la promesa de SweetAlert
+    return Swal.fire({
         icon: 'success',
         text: mensaje,
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 3000,
+        timer: 2000,
         timerProgressBar: true,
         theme: 'dark'
+        // Nota: Asegúrate de que 'theme' sea una propiedad válida de tu configuración,
+        // usualmente se maneja importando el CSS de temas oscuros de Swal.
     });
 }

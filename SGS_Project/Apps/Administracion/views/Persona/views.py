@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView
+from SGS_Project.forms_utils import BaseCreateView, UpdateView, BaseDeleteView
 from ...models import *
 from ...forms import *
 from core.models import EliminarBase
@@ -12,7 +13,7 @@ from core.funciones import validar_cedula
 class ListadoPersona(ListView):
     model = Persona
     template_name = 'Persona/index.html'
-    paginate_by = 10
+    paginate_by = 25
     context_object_name = 'personas'
 
     def get_queryset(self):
@@ -22,53 +23,27 @@ class ListadoPersona(ListView):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado del Personal'
         return context
-    
-class CrearPersona(AjaxExceptionMixin, CreateView):
+
+class CrearPersona(BaseCreateView):
     model = Persona
     form_class = PersonaForm
     template_name = 'Persona/form.html'
     success_url = reverse_lazy('listado_persona')
-    
-    def form_valid(self, form):
-        persona = form.save(commit=False)
-        cedula = form.cleaned_data.get('identificacion')
-        email = form.cleaned_data.get('email')
-        apellido1 = form.cleaned_data.get('apellido1') or ''
-        apellido2 = form.cleaned_data.get('apellido2') or ''
-        first_name = form.cleaned_data.get('nombres')
-        last_name = f'{apellido1} {apellido2}'.strip()
-        anio_nacimiento = form.cleaned_data.get('nacimiento').year
-        try:
-            with transaction.atomic():
-                
-                validar_cedula(cedula)
-                
-                password = f'{cedula}'+'*'+f'{anio_nacimiento}'
-                print(password)
-                
-                user = User.objects.create_user(username=cedula, 
-                                         first_name=first_name, 
-                                         last_name=last_name, 
-                                         email=email, 
-                                         password=password)
-                persona.user = user
-                persona.save()
-        except Exception as ex:
-            form.add_error(None, str(ex))
-            return self.form_invalid(form)
-        messages.success(self.request, 'Se ha guardado exitosamente')
-        self.object = persona
-        return redirect(self.get_success_url())
-    
-    def form_invalid(self, form):
-        return self.render_to_response(
-            self.get_context_data(form=form)
-        )
-        
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('crear_persona')
         return context
+
+    def form_valid(self, form):
+        try:
+            # Al llamar al super, la clase base llamará a form.save(),
+            # ejecutando la lógica interna del formulario, guardando la FK,
+            # haciendo los logs de auditoría y respondiendo el JSON correcto.
+            return super().form_valid(form)
+        except Exception as ex:
+            form.add_error(None, str(ex))
+            return self.form_invalid(form)
 
 class EditarPersona(AjaxExceptionMixin, UpdateView):
     model = Persona

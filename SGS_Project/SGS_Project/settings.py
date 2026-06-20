@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'SGS_Project.middleware.GlobalRequestMiddleware'
 ]
 
 ROOT_URLCONF = 'SGS_Project.urls'
@@ -68,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'SGS_Project.context_processors.entidades_sesion_context',
             ],
         },
     },
@@ -87,7 +89,17 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT'),
+    },
+    
+    'data_select': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_DATA_SELECT_NAME'),
+        'USER': config('DB_DATA_SELECT_USERNAME'),
+        'PASSWORD': config('DB_DATA_SELECT_PASSWORD'),
+        'HOST': config('DB_DATA_SELECT_HOST'),
+        'PORT': config('DB_DATA_SELECT_PORT'),
     }
+    
 }
 
 ADMINISTRADOR__ID = 1
@@ -117,11 +129,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Guayaquil'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
