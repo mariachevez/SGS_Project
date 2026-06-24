@@ -18,12 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.decorators import login_not_required
 from django.contrib.auth import views as auth_views
-
+from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', login_not_required(auth_views.LoginView.as_view()), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('', include('Apps.Biometrico.urls')),
+    path('', TemplateView.as_view(template_name='index.html'), name=''),
     path('personal/', include('Apps.Administracion.urls')),
     path('password_reset/', 
      auth_views.PasswordResetView.as_view(

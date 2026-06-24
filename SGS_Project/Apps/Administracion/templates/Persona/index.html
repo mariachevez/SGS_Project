@@ -1,4 +1,5 @@
-{% extends 'nav.html' %} {% block btn_add %}
+{% extends 'base.html' %} {% block content %} {% block btn_add %}
+
 <a
   onclick='formModal("{% url "crear_persona" %}", "Adicionar un personal", "modal-lg")'
   class="btn btn-success btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-2 fs-7 shadow-sm"
@@ -52,4 +53,4 @@
     AÚN NO SE REGISTRA UN PERSONAL
   </td>
 </tr>
-{% endfor %} {% endblock %}
+{% endfor %} {% endblock %} {%endblock %}
