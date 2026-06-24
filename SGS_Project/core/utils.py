@@ -6,6 +6,14 @@ Ejecución en consola: python poblar_lugares.py
 import os
 import django
 import requests
+from pathlib import Path
+
+import sys
+import os
+
+# Obtener la raíz del proyecto
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
 
 # 1. Configurar y levantar el entorno de Django manualmente
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SGS_Project.settings")
