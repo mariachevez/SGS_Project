@@ -51,7 +51,7 @@ class EliminarArea(BaseDeleteView):
     model = Area
     redirect_url = reverse_lazy('listado_areas')
     
-class AsignarDirectorArea(AjaxExceptionMixin, UpdateView):
+class AsignarDirectorArea(BaseUpdateView):
     model = Area
     template_name = 'formulario.html'
     form_class = AsignacionDirectorForm
@@ -61,10 +61,6 @@ class AsignarDirectorArea(AjaxExceptionMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('asignar_director', kwargs={'pk': self.object.pk})
         return context
-    
-    def form_valid(self, form):
-        messages.success(self.request, 'Se ha asignado el director correctamente')
-        return super().form_valid(form)
 
 class AgregarResponsables(AjaxExceptionMixin, View):
     template_name = 'Area/personalformulario.html'
