@@ -3,7 +3,7 @@ from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView
 
-from SGS_Project.forms_utils import BaseCreateView
+from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
 from ...models import *
 from ...forms import *
 from core.models import EliminarBase
@@ -39,7 +39,7 @@ class CrearProvincia(BaseCreateView):
         context['guardar'] = reverse('crear_provincia')
         return context
     
-class EditarProvincia(AjaxExceptionMixin, UpdateView):
+class EditarProvincia(BaseUpdateView):
     model = Provincia
     form_class = ProvinciaForm
     template_name = 'formulario.html'
@@ -49,14 +49,7 @@ class EditarProvincia(AjaxExceptionMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('editar_provincia', kwargs={'pk': self.object.pk})
         return context
-    
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        
-        self.object.save(usuario_id = self.request.user.id)
-        messages.success(self.request, 'Se ha editado correctamente el registro')
-        return redirect(self.get_success_url())    
 
-class EliminarProvincia(AjaxExceptionMixin, EliminarBase):
+class EliminarProvincia(BaseDeleteView):
     model = Provincia
-    success_url = reverse_lazy('listado_provincia')
+    redirect_url = reverse_lazy('listado_provincia')

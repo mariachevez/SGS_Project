@@ -3,7 +3,7 @@ from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView
 
-from SGS_Project.forms_utils import BaseCreateView
+from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
 from ...models import *
 from ...forms import *
 from core.models import EliminarBase
@@ -36,7 +36,7 @@ class CrearPais(BaseCreateView):
         context['guardar'] = reverse('crear_pais')
         return context
 
-class EditarPais(AjaxExceptionMixin, UpdateView):
+class EditarPais(BaseUpdateView):
     model = Pais
     form_class = PaisForm
     template_name = 'formulario.html'
@@ -47,6 +47,6 @@ class EditarPais(AjaxExceptionMixin, UpdateView):
         context['guardar'] = reverse('editar_pais', kwargs={'pk': self.object.pk})
         return context
 
-class EliminarPais(AjaxExceptionMixin, EliminarBase):
+class EliminarPais(BaseDeleteView):
     model = Pais
-    success_url = reverse_lazy('listado_pais')
+    redirect_url = reverse_lazy('listado_pais')

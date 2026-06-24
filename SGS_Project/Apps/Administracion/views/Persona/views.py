@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView
-from SGS_Project.forms_utils import BaseCreateView, UpdateView, BaseDeleteView
+from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
 from ...models import *
 from ...forms import *
 from core.models import EliminarBase
@@ -45,7 +45,7 @@ class CrearPersona(BaseCreateView):
             form.add_error(None, str(ex))
             return self.form_invalid(form)
 
-class EditarPersona(AjaxExceptionMixin, UpdateView):
+class EditarPersona(BaseUpdateView):
     model = Persona
     form_class = PersonaForm
     template_name = 'Persona/form.html'

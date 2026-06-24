@@ -5,7 +5,7 @@ from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView
 
-from SGS_Project.forms_utils import BaseCreateView
+from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
 from ...models import *
 from ...forms import *
 from core.models import EliminarBase
@@ -31,16 +31,12 @@ class CrearArea(BaseCreateView):
     form_class = AreaForm
     success_url = reverse_lazy('listado_areas')
     
-    def form_valid(self, form):
-        messages.success(self.request, 'Guardado exitoso')
-        return super().form_valid(form)
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('crear_area')
         return context
     
-class EditarArea(AjaxExceptionMixin, UpdateView):
+class EditarArea(BaseUpdateView):
     model = Area
     template_name = 'formulario.html'
     form_class = AreaForm
@@ -51,13 +47,9 @@ class EditarArea(AjaxExceptionMixin, UpdateView):
         context['guardar'] = reverse('editar_area', kwargs={'pk': self.object.pk})
         return context
     
-    def form_valid(self):
-        messages.success(self.request, 'Se ha editado correctamente')
-        return redirect(self.get_success_url())
-    
-class EliminarArea(AjaxExceptionMixin, EliminarBase):
+class EliminarArea(BaseDeleteView):
     model = Area
-    success_url = reverse_lazy('listado_areas')
+    redirect_url = reverse_lazy('listado_areas')
     
 class AsignarDirectorArea(AjaxExceptionMixin, UpdateView):
     model = Area
