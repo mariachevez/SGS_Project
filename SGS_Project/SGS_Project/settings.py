@@ -91,14 +91,14 @@ DATABASES = {
         'PORT': config('DB_PORT'),
     },
     
-    'data_select': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_DATA_SELECT_NAME'),
-        'USER': config('DB_DATA_SELECT_USERNAME'),
-        'PASSWORD': config('DB_DATA_SELECT_PASSWORD'),
-        'HOST': config('DB_DATA_SELECT_HOST'),
-        'PORT': config('DB_DATA_SELECT_PORT'),
-    }
+    # 'data_select': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': config('DB_DATA_SELECT_NAME'),
+    #     'USER': config('DB_DATA_SELECT_USERNAME'),
+    #     'PASSWORD': config('DB_DATA_SELECT_PASSWORD'),
+    #     'HOST': config('DB_DATA_SELECT_HOST'),
+    #     'PORT': config('DB_DATA_SELECT_PORT'),
+    # }
     
 }
 
