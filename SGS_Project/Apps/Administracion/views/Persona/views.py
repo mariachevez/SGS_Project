@@ -50,15 +50,21 @@ class EditarPersona(AjaxExceptionMixin, UpdateView):
     form_class = PersonaForm
     template_name = 'Persona/form.html'
     success_url = reverse_lazy('listado_persona')
-    
-    def form_valid(self, form):
-        messages.success(self.request, 'Edición exitosa del registro')
-        return super().form_valid(form)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('editar_persona', kwargs={'pk': self.object.pk})
         return context
+
+    def form_valid(self, form):
+        try:
+            # Al llamar al super, la clase base llamará a form.save(),
+            # ejecutando la lógica interna del formulario, guardando la FK,
+            # haciendo los logs de auditoría y respondiendo el JSON correcto.
+            return super().form_valid(form)
+        except Exception as ex:
+            form.add_error(None, str(ex))
+            return self.form_invalid(form)
 
 class ObtenerProvincias(View):
     def get(self, request):

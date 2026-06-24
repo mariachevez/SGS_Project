@@ -31,10 +31,6 @@ class CrearPais(BaseCreateView):
     template_name = 'formulario.html'
     success_url = reverse_lazy('listado_pais')
     
-    def form_valid(self, form):
-        messages.success(self.request, 'Se ha guardado exitosamente')
-        return super().form_valid(form)
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('crear_pais')
@@ -50,10 +46,6 @@ class EditarPais(AjaxExceptionMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('editar_pais', kwargs={'pk': self.object.pk})
         return context
-    
-    def form_valid(self):
-        messages.success(self.request, 'Se ha editado correctamente')
-        return redirect(self.get_success_url())
 
 class EliminarPais(AjaxExceptionMixin, EliminarBase):
     model = Pais

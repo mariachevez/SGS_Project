@@ -43,6 +43,7 @@ class BaseCreateView(AjaxExceptionMixin, CreateView):
             accion="add",
             objeto=self.object
         )
+        messages.success(self.request, mensaje)
 
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest' or self.request.META.get(
                 'HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
@@ -52,7 +53,6 @@ class BaseCreateView(AjaxExceptionMixin, CreateView):
                 'url': str(self.get_success_url())
             })
 
-        messages.success(self.request, mensaje)
         return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
@@ -85,15 +85,16 @@ class BaseUpdateView(AjaxExceptionMixin, UpdateView):
         sesion_user = entidades['user']
         sesion_persona = entidades['persona']
 
-        nombre_en_sesion = f'{sesion_persona.nombre_completo_minus()}' if sesion_persona else f'{sesion_user.first_name} {sesion_user.last_name}'
+        nombre_en_sesion = f'{sesion_persona.nombre_completo_minus()}' if sesion_persona else f'{sesion_user.get_full_name()}'
 
         # Auditoría automática en django_admin_log
         log(
             mensaje=f"{nombre_en_sesion} Modificó el registro: {str(self.object)}",
             request=self.request,
-            accion="chg",
+            accion="edit",
             objeto=self.object
         )
+        messages.success(self.request, mensaje)
 
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest' or self.request.META.get(
                 'HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
@@ -103,7 +104,6 @@ class BaseUpdateView(AjaxExceptionMixin, UpdateView):
                 'url': str(self.get_success_url())
             })
 
-        messages.success(self.request, mensaje)
         return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
@@ -164,6 +164,7 @@ class BaseDeleteView(AjaxExceptionMixin, View):
                 accion="chg",
                 objeto=objeto
             )
+            messages.success(request, mensaje)
 
             if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get(
                     'HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
@@ -172,8 +173,6 @@ class BaseDeleteView(AjaxExceptionMixin, View):
                     'message': mensaje,
                     'url': self.get_redirect_url()
                 })
-
-            messages.success(request, mensaje)
 
         except Exception as e:
             mensaje_error = f"Error al cambiar el estado: {str(e)}"

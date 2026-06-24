@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView
+
+from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
 from ...models import *
 from  ...forms import *
 from core.models import EliminarBase
@@ -21,7 +23,7 @@ class ListadoCanton(ListView):
         context['nombre_tabla'] = 'Listado de Cantones'
         return context
 
-class CrearCanton(AjaxExceptionMixin, CreateView):
+class CrearCanton(BaseCreateView):
     model = Canton
     form_class = CantonForm
     template_name = 'formulario.html'
@@ -36,7 +38,7 @@ class CrearCanton(AjaxExceptionMixin, CreateView):
         context['guardar'] = reverse('crear_canton')
         return context
 
-class EditarCanton(AjaxExceptionMixin, UpdateView):
+class EditarCanton(BaseUpdateView):
     model = Canton
     form_class = CantonForm
     template_name = 'formulario.html'
@@ -46,14 +48,11 @@ class EditarCanton(AjaxExceptionMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('editar_canton', kwargs={'pk': self.object.pk})
         return context
-    
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        
-        self.object.save(usuario_id = self.request.user.id)
-        messages.success(self.request, 'Se ha editado correctamente')
-        return redirect(self.get_success_url())
 
-class EliminarCanton(AjaxExceptionMixin, EliminarBase):
+class EliminarCanton(BaseDeleteView):
     model = Canton
-    success_url = reverse_lazy('listado_canton')
+    redirect_url = reverse_lazy('listado_canton')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

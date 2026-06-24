@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView
+
+from SGS_Project.forms_utils import BaseCreateView
 from ...models import *
 from ...forms import *
 from core.models import EliminarBase
@@ -23,7 +25,7 @@ class ListarArea(ListView):
         context['nombre_tabla'] = 'Listado de Áreas'
         return context
     
-class CrearArea(AjaxExceptionMixin, CreateView):
+class CrearArea(BaseCreateView):
     model = Area
     template_name = 'formulario.html'
     form_class = AreaForm

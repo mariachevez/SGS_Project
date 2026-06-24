@@ -100,15 +100,11 @@ $(document).ready(function() {
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
 
-                    // Alerta estética de éxito
-                    ToastSuccess(response.message).then(() => {
-                        // Redireccionamos a la URL de éxito que envía el BaseCreateView
-                        if (response.url) {
-                            window.location.href = response.url;
-                        } else {
-                            window.location.reload();
-                        }
-                    });
+                    if (response.url) {
+                        window.location.href = response.url;
+                    } else {
+                        window.location.reload();
+                    }
                 }
             },
             error: function(xhr) {

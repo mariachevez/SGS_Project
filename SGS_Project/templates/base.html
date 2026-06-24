@@ -10,20 +10,17 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
     <script>
-      $(function () {
-        {% if messages %}
-          {% for message in messages %}
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: '{% if message.tags %}{{ message.tags }}{% endif %}',
-                title: `{{ message }}`,
-                showConfirmButton: false,
-                timer: 4000
-            })
-          {% endfor %}
-        {% endif %}
-      });
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'success' %}
+                        ToastSuccess("{{ message|escapejs }}");
+                    {% elif message.tags == 'error' %}
+                        ToastDanger("{{ message|escapejs }}");
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        });
     </script>
   </head>
 

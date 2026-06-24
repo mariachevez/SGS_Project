@@ -64,8 +64,12 @@ function eliminarAjax(titulo, mensaje, url) {
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                success: function () {
-                    location.reload();
+                success: function (response) {
+                    if (response.url) {
+                        window.location.href = response.url;
+                    } else {
+                        window.location.reload();
+                    }
                 },
                 error: function (xhr) {
                     console.error(xhr.responseText);

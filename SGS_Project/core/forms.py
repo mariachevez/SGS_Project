@@ -52,3 +52,19 @@ class FormModeloBase(forms.ModelForm):
                 field.label = mark_safe(
                     f'{field.label}<span class="text-danger ms-1"><strong>*</strong></span>'
                 )
+    def clean(self):
+        cleaned_data = super().clean()
+
+        for nombre, field in self.fields.items():
+
+            if (
+                isinstance(field, forms.CharField)
+                and isinstance(field.widget, forms.TextInput)
+                and not isinstance(field, forms.EmailField)
+            ):
+                valor = cleaned_data.get(nombre)
+
+                if isinstance(valor, str):
+                    cleaned_data[nombre] = valor.upper()
+
+        return cleaned_data
