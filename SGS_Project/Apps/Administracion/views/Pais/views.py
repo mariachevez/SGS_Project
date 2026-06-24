@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView
+
+from SGS_Project.forms_utils import BaseCreateView
 from ...models import *
 from ...forms import *
 from core.models import EliminarBase
@@ -23,7 +25,7 @@ class ListadoPaises(ListView):
 
 
 # PAÍS
-class CrearPais(AjaxExceptionMixin, CreateView):
+class CrearPais(BaseCreateView):
     model = Pais
     form_class = PaisForm
     template_name = 'formulario.html'
