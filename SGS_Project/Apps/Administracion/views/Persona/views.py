@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
@@ -17,11 +18,25 @@ class ListadoPersona(ListView):
     context_object_name = 'personas'
 
     def get_queryset(self):
-        return Persona.objects.filter(status=True)
+        queryset = super().get_queryset()
+        search = self.request.GET.get('s')
+
+        if search:
+            queryset = queryset.filter(
+                Q(nombres__icontains=search) |
+                Q(apellido1__icontains=search) |
+                Q(apellido2__icontains=search) |
+                Q(identificacion__icontains=search) |
+                Q(usuario__username__icontains=search)
+            )
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado del Personal'
+        context['url_formcrear'] = reverse('crear_persona')
+        context['titulo'] = 'Registrar Personal'
+        context['s'] = self.request.GET.get('s')
         return context
 
 class CrearPersona(BaseCreateView):
@@ -77,10 +92,10 @@ class ObtenerProvincias(View):
                     for provincia in provincias:
                         pronvicia_list.append({'id': provincia.id, 'nombre': provincia.nombre})
                     return JsonResponse({'result': True, 'provincias': pronvicia_list})
-                else: 
+                else:
                     return JsonResponse({'result': False, 'mensaje': f'No hay registros de provincias para este país'})
         except Exception as ex:
-            return JsonResponse({'result': False, 'mensaje': f'{ex}'})    
+            return JsonResponse({'result': False, 'mensaje': f'{ex}'})
 
 class ObtenerCantones(View):
     def get(self, request):
