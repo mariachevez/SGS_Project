@@ -103,7 +103,8 @@
                                                name="{{ campo|default:'s' }}"
                                                value="{{ request.GET.s|default:'' }}"
                                                placeholder="{{ placeholder|default:'Buscar...' }}">
-
+                                        {% block more_filters %}
+                                        {% endblock %}
                                         <button type="submit" class="btn btn-sm btn-primary">
                                             <i class="fa-solid fa-search"></i>
                                         </button>
