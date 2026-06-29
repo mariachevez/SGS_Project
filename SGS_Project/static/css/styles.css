@@ -1,6 +1,146 @@
+/* ==========================================================================
+   1. ESTRUCTURA GLOBAL (Layout tipo Dashboard App)
+   ========================================================================== */
+#wrapper-layout {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden; /* Congela la pantalla principal para evitar scroll doble */
+}
+
+#main-content {
+  flex-grow: 1;
+  min-width: 0; /* Permite que el flexbox encoja el área sin romper las tablas */
+  height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto; /* Scroll vertical exclusivo para la zona de la derecha */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   2. MENÚ LATERAL (Sidebar Base)
+   ========================================================================== */
+#sidebar-wrapper {
+  width: 280px;
+  min-width: 280px;
+  height: 100vh;
+  max-height: 100vh;
+  position: relative;
+  opacity: 1;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s ease,
+              opacity 0.2s ease;
+}
+
+#sidebar-wrapper nav {
+  flex-grow: 1;
+  overflow-y: auto; /* Scroll interno si hay demasiados botones de menú */
+  overflow-x: hidden;
+}
+
+/* Estado oculto controlado por el botón hamburguesa */
+.sidebar-hidden #sidebar-wrapper {
+  width: 0 !important;
+  min-width: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border: 0 !important;
+  opacity: 0;
+}
+
+.bg-sidebar {
+  background-color: #1c3247 !important;
+}
+
+/* ==========================================================================
+   3. BOTONES DE NAVEGACIÓN INTERNA (Items del Sidebar)
+   ========================================================================== */
+.btn-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 10px 16px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  border-radius: 8px;
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-nav:hover {
+  color: #ffffff;
+  background-color: rgba(220, 53, 69, 0.15);
+  border-left-color: rgba(255, 255, 255, 0.4);
+  padding-left: 14px;
+}
+
+.btn-nav.active {
+  color: #ffffff;
+  font-weight: 600;
+  background-color: rgba(220, 53, 69, 0.25);
+  border-left-color: #dc3545;
+  padding-left: 14px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Sub-items (Menú colapsable hijo) */
+.btn-nav-child {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-nav-child:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-nav-child.active {
+  color: #ffffff;
+  background-color: rgba(220, 53, 69, 0.15);
+  border-left-color: #dc3545;
+  font-weight: 600;
+}
+
+.btn-logout {
+  color: white;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-logout:hover {
+  background-color: white;
+  color: black;
+}
+
+/* ==========================================================================
+   4. COMPONENTES Y TABLAS (Contenido)
+   ========================================================================== */
+.bg-cardheader {
+  background-color: #1c3247 !important;
+  color: white !important;
+}
+
 .table-wrapper {
   border-color: #edf2f7 !important;
   box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+}
+
+.table-responsive {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .custom-table {
@@ -8,23 +148,14 @@
   color: #475569;
 }
 
-.custom-table thead {
-  background: linear-gradient(180deg, #41a0ff 0%, #eef4fb 100%) !important;
-  color: #64748b;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: .035em;
-  border-bottom: 1px solid #e2e8f0;
-}
-
 .custom-table thead th {
-    background-color: #1c3247 !important;
-    color: #ffffff !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    font-size: .78rem;
-    border-bottom: 2px solid #e2e8f0 !important;
+  background-color: #1c3247 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-size: .78rem;
+  border-bottom: 2px solid #e2e8f0 !important;
 }
 
 .custom-table tbody td {
@@ -45,83 +176,48 @@
   border-bottom: 0;
 }
 
+.custom-table th,
+.custom-table td {
+  white-space: nowrap; /* Evita que los textos de las celdas hagan saltos de línea feos */
+}
 
-.bg-sidebar {
+/* ==========================================================================
+   5. RESPONSIVO (Móviles e Inteligencia de Pantalla)
+   ========================================================================== */
+@media (max-width: 768px) {
+  #sidebar-wrapper {
+    position: fixed; /* Flota de manera absoluta solo en celulares al abrirse */
+    top: 0;
+    left: 0;
+    width: 0;
+    min-width: 0;
+    opacity: 0;
+    z-index: 1050;
+  }
+
+  /* Invierte el trigger: en móvil abre empujando/flotando sobre la vista */
+  .sidebar-hidden #sidebar-wrapper {
+    width: 280px !important;
+    min-width: 280px !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    opacity: 1;
+  }
+}
+
+/* Color personalizado para la página activa (Combina con cabecera de tabla y sidebar) */
+.bg-dark-custom {
   background-color: #1c3247 !important;
 }
 
-.btn-nav {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  padding: 10px 16px;
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  border-radius: 8px;
-
-  border-left: 4px solid transparent;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    color: #ffffff;
-    background-color: rgba(220, 53, 69, 0.15);
-    border-left-color: rgba(255, 255, 255, 0.4);
-    padding-left: 14px;
-  }
-
-  &.active {
-    color: #ffffff;
-    font-weight: 600;
-    background-color: rgba(220, 53, 69, 0.25);
-    border-left-color: #dc3545;
-    padding-left: 14px;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  }
+/* Efecto hover suave y limpio para los números que no están seleccionados */
+.hover-light:hover {
+  background-color: #e2e8f0 !important;
+  color: #1c3247 !important;
 }
 
-.btn-nav-child {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 12px;
-  color: rgba(255, 255, 255, 0.65);
-  text-decoration: none;
-  border-radius: 6px;
-  border-left: 3px solid transparent;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-
-  &.active {
-    color: #ffffff;
-    background-color: rgba(220, 53, 69, 0.15);
-    border-left-color: #dc3545;
-    font-weight: 600;
-  }
-}
-
-.btn-logout {
-  color: white;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background-color: white;
-    color: black;
-  }
-}
-
-
-.bg-cardheader {
-  background-color: #1c3247 !important;
-  color: white !important;
-}
-
-.cursor-pointer {
-  cursor: pointer;
+/* Eliminar el molesto borde azul brillante de Bootstrap al hacer clic */
+.page-link:focus {
+  box-shadow: none !important;
+  background-color: transparent;
 }

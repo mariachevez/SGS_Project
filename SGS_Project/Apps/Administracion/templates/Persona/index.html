@@ -45,15 +45,15 @@
                     </li>
                     <li>
                         {% if persona.status %}
-                        <a onclick="eliminarAjax('Está por inactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
-                           class="dropdown-item cursor-pointer fs-7">
-                            <i class="fa-solid fa-trash"></i> Inactivar
-                        </a>
+                            <a onclick="eliminarAjax('Está por inactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
+                               class="dropdown-item cursor-pointer fs-7">
+                                <i class="fa-solid fa-trash"></i> Inactivar
+                            </a>
                         {% else %}
-                        <a onclick="eliminarAjax('Está por reactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
-                           class="dropdown-item cursor-pointer fs-7">
-                            <i class="fa-solid fa-check-circle"></i> Activar
-                        </a>
+                            <a onclick="eliminarAjax('Está por reactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
+                               class="dropdown-item cursor-pointer fs-7">
+                                <i class="fa-solid fa-check-circle"></i> Activar
+                            </a>
                         {% endif %}
                     </li>
                 </ul>
