@@ -20,6 +20,7 @@ class ListadoPersona(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         search = self.request.GET.get('s')
+        estado = self.request.GET.get('estado')
 
         if search:
             queryset = queryset.filter(
@@ -29,6 +30,11 @@ class ListadoPersona(ListView):
                 Q(identificacion__icontains=search) |
                 Q(usuario__username__icontains=search)
             )
+
+        if estado in ['true', 'false']:
+            val_bool = estado == 'true'
+            queryset = queryset.filter(status=val_bool)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -37,6 +43,7 @@ class ListadoPersona(ListView):
         context['url_formcrear'] = reverse('crear_persona')
         context['titulo'] = 'Registrar Personal'
         context['s'] = self.request.GET.get('s')
+        context['estado'] = self.request.GET.get('estado')
         return context
 
 class CrearPersona(BaseCreateView):
