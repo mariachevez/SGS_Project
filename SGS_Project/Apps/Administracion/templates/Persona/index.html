@@ -8,6 +8,7 @@
             <th class="fs-7">Cédula</th>
             <th class="fs-7">Correo</th>
             <th class="fs-7">Teléfono</th>
+            <th class="fs-7">Estado</th>
             <th class="fs-7">Acciones</th>
         </tr>
     {% endblock %} {% block block_tbody %} {% for persona in personas %}
@@ -17,6 +18,13 @@
         <td class="fs-7">{{persona.identificacion}}</td>
         <td class="fs-7">{{persona.email}}</td>
         <td class="fs-7">{{persona.telefono}}</td>
+        <td class="fs-7">
+            {% if persona.status %}
+                <i class="fa fa-check-circle fs-7 text-success"></i>
+            {% else %}
+                <i class="fa fa-times-circle fs-7 text-danger"></i>
+            {% endif %}
+        </td>
         <td class="fs-7">
             <div class="dropdown">
                 <button
@@ -36,10 +44,17 @@
                         </a>
                     </li>
                     <li>
+                        {% if persona.status %}
                         <a onclick="eliminarAjax('Está por inactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
                            class="dropdown-item cursor-pointer fs-7">
                             <i class="fa-solid fa-trash"></i> Inactivar
                         </a>
+                        {% else %}
+                        <a onclick="eliminarAjax('Está por reactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
+                           class="dropdown-item cursor-pointer fs-7">
+                            <i class="fa-solid fa-check-circle"></i> Activar
+                        </a>
+                        {% endif %}
                     </li>
                 </ul>
             </div>
