@@ -81,6 +81,10 @@ class EditarPersona(BaseUpdateView):
             form.add_error(None, str(ex))
             return self.form_invalid(form)
 
+class InactivarPersona(BaseDeleteView):
+    model = Persona
+    redirect_url = reverse_lazy('listado_persona')
+
 class ObtenerProvincias(View):
     def get(self, request):
         try:

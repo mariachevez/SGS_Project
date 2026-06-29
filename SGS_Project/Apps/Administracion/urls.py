@@ -7,6 +7,7 @@ urlpatterns = [
     path('listado_personal/', ListadoPersona.as_view(), name='listado_persona'),
     path('crear_persona/', CrearPersona.as_view(), name='crear_persona'),
     path('editar_persona/<int:pk>', EditarPersona.as_view(), name='editar_persona'),
+    path('inactivar_persona/<int:pk>', InactivarPersona.as_view(), name='inactivar_persona'),
     
     # Pais
     path('listado_pais/', ListadoPaises.as_view(), name='listado_pais'),

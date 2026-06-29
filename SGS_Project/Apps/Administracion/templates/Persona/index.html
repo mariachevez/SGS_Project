@@ -30,11 +30,15 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
                     <li>
-                        <a
-                                onclick='formModal("{% url "editar_persona" persona.pk %}", "Edición de datos del personal", "modal-lg")'
-                                class="dropdown-item cursor-pointer fs-7"
-                        >
+                        <a onclick='formModal("{% url "editar_persona" persona.pk %}", "Edición de datos del personal", "modal-lg")'
+                           class="dropdown-item cursor-pointer fs-7">
                             <i class="fa-solid fa-pen"></i> Editar
+                        </a>
+                    </li>
+                    <li>
+                        <a onclick="eliminarAjax('Está por inactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
+                           class="dropdown-item cursor-pointer fs-7">
+                            <i class="fa-solid fa-trash"></i> Inactivar
                         </a>
                     </li>
                 </ul>
