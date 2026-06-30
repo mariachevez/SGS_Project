@@ -145,3 +145,15 @@ class AsignacionDirectorForm(FormModeloBase):
     
     def __init__(self, *args, **kwargs):
         super(AsignacionDirectorForm, self).__init__(*args, **kwargs)
+        
+class CategoriaForm(FormModeloBase):
+    nombre = forms.CharField(label='Nombre de la Categoría:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Administrativo'}))        
+    prioridad = forms.IntegerField(label='Prioridad', widget=forms.NumberInput())
+    
+    class Meta:
+        model = ModuloCategorias
+        fields = ['nombre', 'prioridad']
+    
+    def __init__(self, *args, **kwargs):
+        super(CategoriaForm, self).__init__(*args, **kwargs)
+        

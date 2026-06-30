@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView
 
 from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
 from ...models import *
@@ -120,3 +120,5 @@ class GuardarAsignacion(AjaxExceptionMixin, View):
         except Exception as ex:
             return JsonResponse({'result': False, 'mensaje': f'Error: {ex}'})
         
+class ViewModulosAdministracion(TemplateView):
+    pass

@@ -37,6 +37,9 @@ urlpatterns = [
     path('buscar_persona', BuscarPersona.as_view(), name='buscar_persona'),
     path('guardar_asignacion', GuardarAsignacion.as_view(), name='guardar_asignacion'),
     
+    # Administracion
+    path('modulos_administracion/', TemplateView.as_view(template_name='Administracion/index.html'), name='modulos_administracion'),
+    
     # Búsquedas Ajax
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),
     path('buscar_cantones/', ObtenerCantones.as_view(), name='buscar_cantones'),

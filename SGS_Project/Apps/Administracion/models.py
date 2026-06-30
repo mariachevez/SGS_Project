@@ -132,3 +132,62 @@ class GrupoPersona(ModeloBase):
         verbose_name = 'Grupo de Persona'
         verbose_name_plural = 'Grupos de Persona'
         ordering = ['-id']
+
+class ModuloCategorias(ModeloBase):
+    nombre = models.CharField(max_length=1000, blank=True, null=True, verbose_name='Nombre')
+    prioridad = models.IntegerField(null=True, blank=True)
+
+    def mismodulos(self, mismodulos):
+        return self.modulo_set.values('id', 'icono', 'nombre','descripcion', 'url').filter(status=True, id__in=mismodulos.values_list('id',flat=True))
+
+    def __str__(self):
+        return '{} {}'.format(self.nombre, self.prioridad)
+
+    class Meta:
+        verbose_name = 'Categorias de Módulos'
+        verbose_name_plural = 'Categorias de Módulos'
+        ordering = ('prioridad', 'nombre')
+
+class Modulo(ModeloBase):
+    url = models.CharField(blank=True, null=True, max_length=100, verbose_name='URL')
+    nombre = models.CharField(blank=True, null=True, max_length=100, verbose_name='Nombre')
+    icono = models.CharField(blank=True, null=True, max_length=100, verbose_name='Icono')
+    descripcion = models.CharField(blank=True, null=True, max_length=200, verbose_name='Descripción')
+    activo = models.BooleanField(default=True, verbose_name='Activo')
+    categorias = models.ManyToManyField(ModuloCategorias, verbose_name='Categorias')
+    submodulo = models.BooleanField(default=False, verbose_name=u'¿Es submódulo?')
+
+    
+    def __str__(self):
+        return u'%s (/%s)' % (self.nombre, self.url)
+    
+    class Meta:
+        verbose_name = "Modulo"
+        verbose_name_plural = "Modulos"
+        ordering = ['nombre']
+        unique_together = ('url',)
+
+class ModuloGrupo(ModeloBase):
+    nombre = models.CharField(blank=True, null=True, max_length=100, verbose_name=' Nombre')
+    descripcion = models.CharField(blank=True, null=True, max_length=200, verbose_name='Descripción')
+    modulos = models.ManyToManyField(Modulo, verbose_name='Modulos')
+    grupos = models.ManyToManyField(Grupo, verbose_name='Grupos')
+    prioridad = models.IntegerField(default=0, verbose_name='Prioridad')
+
+    def __str__(self):
+        return u'%s' % self.nombre
+
+    class Meta:
+        verbose_name = 'Grupo de modulos'
+        verbose_name_plural = "Grupos de modulos"
+        ordering = ['nombre']
+        unique_together = ('nombre',)
+
+    def modulos_activos(self):
+        return self.modulos.filter(activo=True)
+
+    def modulos_activos(self):
+        return self.modulos.filter(activo=True)
+
+    def modules(self):
+        return self.modulos.all()
