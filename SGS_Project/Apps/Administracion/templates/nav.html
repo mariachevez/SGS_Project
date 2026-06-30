@@ -2,75 +2,106 @@
 {% load static %}
 
 {% block sidebar %}
-<aside id="sidebar-wrapper" class="bg-dark text-white d-flex flex-column p-3 shadow-sm border-end border-secondary border-opacity-20" style="z-index: 1020;">
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 
-    <div class="d-flex flex-column align-items-center border-bottom border-secondary pb-4 mb-2 position-relative">
+    <aside id="sidebar-wrapper" class="bg-dark text-white d-flex flex-column p-3 shadow-sm border-end border-secondary border-opacity-20" style="z-index: 1020;">
 
-        <button type="button"
-                class="btn-close btn-close-white position-absolute top-0 end-0 shadow-none fs-7 d-md-none"
-                id="sidebarCloseBtn"
-                onclick="document.getElementById('sidebarToggle').click();"
-                aria-label="Cerrar menú">
-        </button>
-
-        <div class="position-relative bg-white bg-opacity-10 rounded-circle p-1 shadow-sm mb-3 mt-2">
-            <img class="rounded-circle bg-white p-1"
-                 width="56"
-                 height="56"
-                 src="{% static 'img/user-icon.svg' %}"
-                 alt="Avatar de usuario"/>
-        </div>
-        <span class="text-white fw-semibold fs-6 text-center px-2 text-truncate w-100">
-            {% if persona_sesion %} {{ persona_sesion }} {% else %} {{ usuario_sesion }} {% endif %}
-        </span>
-        <small class="text-white-50 small opacity-75">Administrador</small>
-    </div>
-
-    <nav class="d-flex flex-column gap-1 flex-grow-1 overflow-y-auto pt-3">
-
-        <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex align-items-center gap-2 {% if request.resolver_match.url_name == 'listado_persona' %}active{% endif %}"
-           href="{% url 'listado_persona' %}">
-            <i class="fa-solid fa-user fa-fw"></i> <span>Personal</span>
-        </a>
-
-        <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}active{% endif %}"
-           data-bs-toggle="collapse"
-           href="#collapseUbicaciones"
-           role="button"
-           aria-expanded="{% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}true{% else %}false{% endif %}"
-           aria-controls="collapseUbicaciones">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-earth-americas fa-fw"></i> <span>Ubicaciones</span>
-            </div>
-            <i class="fa-solid fa-chevron-down small opacity-50"></i>
-        </a>
-
-        <div class="collapse {% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}show{% endif %}" id="collapseUbicaciones">
-            <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
-                <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_pais' %}active{% endif %}"
-                   href="{% url 'listado_pais' %}">Países</a>
-                <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_provincia' %}active{% endif %}"
-                   href="{% url 'listado_provincia' %}">Provincias</a>
-                <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_canton' %}active{% endif %}"
-                   href="{% url 'listado_canton' %}">Cantones</a>
-            </div>
-        </div>
-
-        <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex align-items-center gap-2 {% if request.resolver_match.url_name == 'listado_areas' %}active{% endif %}"
-           href="{% url 'listado_areas' %}">
-            <i class="fa-regular fa-building fa-fw"></i> <span>Áreas</span>
-        </a>
-
-    </nav>
-
-    <div class="mt-auto pt-3 border-top border-secondary">
-        <form action="{% url 'logout' %}" method="post" class="w-100 m-0">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-light border-0 w-100 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-medium btn-logout-modern">
-                <span>Cerrar sesión</span>
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <div class="d-flex flex-column align-items-center border-bottom border-secondary pb-4 mb-2 position-relative">
+            <button type="button"
+                    class="btn-close btn-close-white position-absolute top-0 end-0 shadow-none fs-7 d-md-none"
+                    id="sidebarCloseBtn"
+                    onclick="document.getElementById('sidebarToggle').click();"
+                    aria-label="Cerrar menú">
             </button>
-        </form>
-    </div>
-</aside>
+
+            <div class="position-relative bg-white bg-opacity-10 rounded-circle p-1 shadow-sm mb-3 mt-2">
+                <img class="rounded-circle bg-white p-1"
+                     width="56"
+                     height="56"
+                     src="{% static 'img/user-icon.svg' %}"
+                     alt="Avatar de usuario"/>
+            </div>
+            <span class="text-white fw-semibold fs-6 text-center px-2 text-truncate w-100">
+                {% if persona_sesion %} {{ persona_sesion }} {% else %} {{ usuario_sesion }} {% endif %}
+            </span>
+            <small class="text-white-50 small opacity-75">Administrador</small>
+        </div>
+
+        <nav id="sidebar-nav" class="d-flex flex-column gap-1 flex-grow-1 overflow-y-auto pt-3 no-scrollbar">
+
+            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'listado_persona ruta_ejemplo1_admin ruta_ejemplo2_admin' %}active{% endif %}"
+               data-bs-toggle="collapse"
+               href="#collapseAdministracion"
+               role="button"
+               aria-expanded="{% if request.resolver_match.url_name in 'listado_persona ruta_ejemplo1_admin ruta_ejemplo2_admin' %}true{% else %}false{% endif %}"
+               aria-controls="collapseAdministracion">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-gear fa-fw"></i> <span>Administración</span>
+                </div>
+                <i class="fa-solid fa-chevron-down small opacity-50"></i>
+            </a>
+
+            <div class="collapse {% if request.resolver_match.url_name in 'listado_persona listado_grupos ruta_ejemplo2_admin' %}show{% endif %}"
+                 id="collapseAdministracion"
+                 data-bs-parent="#sidebar-nav">
+                <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_persona' %}active{% endif %}"
+                       href="{% url 'listado_persona' %}">Personas</a>
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_grupos' %}active{% endif %}"
+                       href="{% url 'listado_grupos' %}">Gestión de Grupos</a>
+{#                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'ruta_ejemplo1_admin' %}active{% endif %}"#}
+{#                       href="#">Configuración General</a>#}
+                </div>
+            </div>
+
+            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}active{% endif %}"
+               data-bs-toggle="collapse"
+               href="#collapseUbicaciones"
+               role="button"
+               aria-expanded="{% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}true{% else %}false{% endif %}"
+               aria-controls="collapseUbicaciones">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-earth-americas fa-fw"></i> <span>Ubicaciones</span>
+                </div>
+                <i class="fa-solid fa-chevron-down small opacity-50"></i>
+            </a>
+
+            <div class="collapse {% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}show{% endif %}"
+                 id="collapseUbicaciones"
+                 data-bs-parent="#sidebar-nav">
+                <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_pais' %}active{% endif %}"
+                       href="{% url 'listado_pais' %}">Países</a>
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_provincia' %}active{% endif %}"
+                       href="{% url 'listado_provincia' %}">Provincias</a>
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_canton' %}active{% endif %}"
+                       href="{% url 'listado_canton' %}">Cantones</a>
+                </div>
+            </div>
+
+            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex align-items-center gap-2 {% if request.resolver_match.url_name == 'listado_areas' %}active{% endif %}"
+               href="{% url 'listado_areas' %}">
+                <i class="fa-regular fa-building fa-fw"></i> <span>Áreas</span>
+            </a>
+
+        </nav>
+
+        <div class="mt-auto pt-3 border-top border-secondary">
+            <form action="{% url 'logout' %}" method="post" class="w-100 m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light border-0 w-100 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-medium btn-logout-modern">
+                    <span>Cerrar sesión</span>
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </form>
+        </div>
+    </aside>
 {% endblock %}

@@ -17,7 +17,13 @@ class ListadoProvincia(ListView):
     context_object_name = 'provincias'
     
     def get_queryset(self):
-        return Provincia.objects.filter(status=True)
+        queryset = super().get_queryset()
+        search = self.request.GET.get('s')
+
+        if search:
+            queryset = queryset.filter(nombre__icontains=search)
+
+        return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
