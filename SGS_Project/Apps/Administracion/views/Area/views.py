@@ -23,6 +23,8 @@ class ListarArea(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de Áreas'
+        context['url_formcrear'] = reverse('crear_area')
+        context['titulo'] = 'Registrar Área'
         return context
     
 class CrearArea(BaseCreateView):

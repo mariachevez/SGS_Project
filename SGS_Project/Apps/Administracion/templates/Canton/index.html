@@ -18,34 +18,21 @@
   <td class="fs-7">{{ canton.nombre }}</td>
   <td class="fs-7">{{ canton.provincia.nombre }}</td>
   <td class="fs-7">
-    <div class="dropdown">
-      <button
-        class="btn btn-light btn-rounded rounded-3 btn-sm fs-7"
-        type="button"
-        data-bs-toggle="dropdown"
-        data-bs-display="static"
-        aria-expanded="false"
-      >
-        <i class="fa-solid fa-ellipsis-v"></i>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-start dropdown-menu-dark">
-        <li>
-          <a
-            onclick='formModal("{% url "editar_canton" canton.pk %}", "Editar un Cantón")'
-            class="dropdown-item cursor-pointer fs-7"
-          >
-            <i class="fa-solid fa-pen"></i> Editar</a
-          >
-        </li>
-        <li>
-          <a
-            onclick="eliminarAjax('Está por eliminar un cantón', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_canton' canton.pk %}')"
-            class="dropdown-item cursor-pointer fs-7"
-          >
-            <i class="fa-solid fa-trash"></i> Eliminar
-          </a>
-        </li>
-      </ul>
+    <div class="d-flex justify-content-center align-items-center gap-1">
+      <a onclick='formModal("{% url "editar_canton" canton.pk %}", "Editar un Cantón")' 
+        data-bs-toggle="tooltip" 
+        href="javascript: void(0);"
+        data-bs-placement="top" 
+        title="Editar">
+        <i class="fa-solid fa-pen-to-square fa-fw fs-6 icon-color"></i>
+      </a>
+      <a onclick="eliminarAjax('Está por eliminar un cantón', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_canton' canton.pk %}')"
+          data-bs-toggle="tooltip" 
+          href="javascript: void(0);"
+          data-bs-placement="top" 
+          title="Eliminar">
+          <i class="fa-solid fa-trash fa-fw fs-6 icon-color"></i>
+      </a>
     </div>
   </td>
 </tr>

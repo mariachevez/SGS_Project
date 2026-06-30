@@ -75,12 +75,13 @@ def poblar_todos_los_paises():
 
 def poblar_provincias_y_cantones_prioritarios():
     paises_prioritarios = {
-        "ECUADOR": "Ecuador", "COLOMBIA": "Colombia", "PERU": "Peru",
-        "ARGENTINA": "Argentina", "BRAZIL": "Brazil", "CHILE": "Chile",
-        "VENEZUELA": "Venezuela", "BOLIVIA": "Bolivia", "PARAGUAY": "Paraguay",
-        "URUGUAY": "Uruguay", "SPAIN": "Spain", "ITALY": "Italy", "FRANCE": "France",
-        "GERMANY": "Germany", "CHINA": "China", "MEXICO": "Mexico", "UNITED STATES": "United States",
-        "ENGLAND": "England", "RUSSIA": "Russia", "JAPAN": "Japan"
+        "ECUADOR": "Ecuador"
+        # , "COLOMBIA": "Colombia", "PERU": "Peru",
+        # "ARGENTINA": "Argentina", "BRAZIL": "Brazil", "CHILE": "Chile",
+        # "VENEZUELA": "Venezuela", "BOLIVIA": "Bolivia", "PARAGUAY": "Paraguay",
+        # "URUGUAY": "Uruguay", "SPAIN": "Spain", "ITALY": "Italy", "FRANCE": "France",
+        # "GERMANY": "Germany", "CHINA": "China", "MEXICO": "Mexico", "UNITED STATES": "United States",
+        # "ENGLAND": "England", "RUSSIA": "Russia", "JAPAN": "Japan"
     }
 
     print(f"--- Iniciando carga masiva para {len(paises_prioritarios)} países prioritarios ---")

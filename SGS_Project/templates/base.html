@@ -73,8 +73,8 @@
                                 {% if url_formcrear %}
                                     <a href="javascript:void(0);"
                                        onclick='formModal("{{ url_formcrear }}", "{{ titulo }}", "{{ size|default:"modal-lg" }}")'
-                                       class="btn {{ clase|default:"btn-success" }} btn-sm d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-3">
-                                        <i class="{{ icono|default:"fa-solid fa-plus" }}"></i>
+                                       class="btn {{ clase|default:'btn-success' }} btn-sm d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-3">
+                                        <i class="{{ icono|default:'fa-solid fa-plus' }}"></i>
                                         <span>{{ texto|default:"Adicionar" }}</span>
                                     </a>
                                 {% endif %}
@@ -86,14 +86,16 @@
                                     <form method="get" class="d-flex gap-2 m-0">
                                         {% block more_filters %}
                                         {% endblock %}
-                                        <input type="text"
-                                               class="form-control form-control-sm"
-                                               name="s"
-                                               value="{{ request.GET.s|default:'' }}"
-                                               placeholder="{{ placeholder|default:'Buscar...' }}">
-                                        <button type="submit" class="btn btn-sm btn-primary">
-                                            <i class="fa-solid fa-search"></i>
-                                        </button>
+                                        <div class="input-group">
+                                            <input type="text"
+                                                class="form-control form-control-sm"
+                                                name="s"
+                                                value="{{ request.GET.s|default:'' }}"
+                                                placeholder="{{ placeholder|default:'Buscar...' }}">
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                <i class="fa-solid fa-search"></i>
+                                            </button>
+                                        </div>
                                         {% if request.GET.s %}
                                             <a href="{{ request.path }}" class="btn btn-sm btn-outline-secondary" title="Ver todo">
                                                 <i class="fa-solid fa-rotate-right"></i>
@@ -106,7 +108,7 @@
 
                         <div class="border border-light-subtle rounded-3 shadow-sm bg-white overflow-hidden">
                             <div class="table-responsive">
-                                <table class="table text-center table-hover align-middle mb-0 custom-table">
+                                <table class="table text-center table-striped table-hover align-middle mb-0 custom-table">
                                     <thead class="table-light text-uppercase small fw-semibold text-muted border-bottom">
                                     {% block block_thead %} {% endblock %}
                                     </thead>
@@ -146,5 +148,12 @@
 <script src="{% static 'select2/js/select2.min.js' %}"></script>
 <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
 <script src="{% static 'js/modal.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            new bootstrap.Tooltip(el);
+        });
+    });
+</script>
 </body>
 </html>

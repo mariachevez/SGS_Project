@@ -42,28 +42,31 @@
                 <div class="d-flex align-items-center justify-content-center gap-1">
 
                     {# Botón Editar #}
-                    <button onclick='formModal("{% url "editar_persona" persona.pk %}", "Edición de datos del personal", "modal-lg")'
-                            class="btn btn-sm btn-light text-warning rounded-3 shadow-sm border-0 p-2"
-                            type="button"
+                    <a onclick='formModal("{% url "editar_persona" persona.pk %}", "Edición de datos del personal", "modal-lg")'
+                            href="javascript: void(0);"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
                             title="Editar">
-                        <i class="fa-solid fa-pen-to-square fa-fw fs-6"></i>
-                    </button>
+                        <i class="fa-solid fa-pen-to-square fa-fw fs-6 icon-color"></i>
+                    </a>
 
                     {# Botón Activar / Inactivar #}
                     {% if persona.status %}
-                        <button onclick="eliminarAjax('Está por inactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
-                                class="btn btn-sm btn-light text-danger rounded-3 shadow-sm border-0 p-2"
-                                type="button"
+                        <a onclick="eliminarAjax('Está por inactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
+                                href="javascript: void(0);"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
                                 title="Inactivar">
-                            <i class="fa-solid fa-times-circle fa-fw fs-6"></i>
-                        </button>
+                            <i class="fa-solid fa-times-circle fa-fw fs-6 icon-color"></i>
+                        </a>
                     {% else %}
-                        <button onclick="eliminarAjax('Está por reactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
-                                class="btn btn-sm btn-light text-success rounded-3 shadow-sm border-0 p-2"
-                                type="button"
+                        <a onclick="eliminarAjax('Está por reactivar el acceso al sistema de: {{ persona }}', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_persona' persona.pk %}')"
+                                href="javascript: void(0);"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
                                 title="Activar">
-                            <i class="fa-solid fa-check-circle fa-fw fs-6"></i>
-                        </button>
+                            <i class="fa-solid fa-check-circle fa-fw fs-6 icon-color"></i>
+                        </a>
                     {% endif %}
 
                 </div>
