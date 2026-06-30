@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from .views.Grupo.views import ListadoGrupos, CrearGrupo, EditarGrupo, EliminarGrupo
 
 urlpatterns = [
     
@@ -8,7 +9,13 @@ urlpatterns = [
     path('crear_persona/', CrearPersona.as_view(), name='crear_persona'),
     path('editar_persona/<int:pk>', EditarPersona.as_view(), name='editar_persona'),
     path('inactivar_persona/<int:pk>', InactivarPersona.as_view(), name='inactivar_persona'),
-    
+
+    #Grupos
+    path('listado_grupos/', ListadoGrupos.as_view(), name='listado_grupos'),
+    path('crear_grupo/', CrearGrupo.as_view(), name='crear_grupo'),
+    path('editar_grupo/<int:pk>', EditarGrupo.as_view(), name='editar_grupo'),
+    path('eliminar_grupo/<int:pk>', EliminarGrupo.as_view(), name='eliminar_grupo'),
+
     # Pais
     path('listado_pais/', ListadoPaises.as_view(), name='listado_pais'),
     path('listado_paises/', CrearPais.as_view(), name='crear_pais'),

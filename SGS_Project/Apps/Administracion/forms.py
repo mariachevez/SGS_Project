@@ -145,6 +145,20 @@ class AsignacionDirectorForm(FormModeloBase):
     
     def __init__(self, *args, **kwargs):
         super(AsignacionDirectorForm, self).__init__(*args, **kwargs)
+
+
+class GrupoForm(FormModeloBase):
+    nombre = forms.CharField(label='Nombre del Grupo:',
+                             widget=forms.TextInput(attrs={'col': '12', 'placeholder': 'Ejm: Administrador'}))
+    descripcion = forms.CharField(label='Descripción del grupo:', required=False,
+                              widget=forms.Textarea(attrs={'rows': '3', 'placeholder': 'Ejm: Descripcion del grupo'}))
+
+    class Meta:
+        model = Grupo
+        fields = ['nombre', 'descripcion']
+
+    def __init__(self, *args, **kwargs):
+        super(GrupoForm, self).__init__(*args, **kwargs)
         
 class CategoriaForm(FormModeloBase):
     nombre = forms.CharField(label='Nombre de la Categoría:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Administrativo'}))        
