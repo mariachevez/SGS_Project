@@ -123,4 +123,62 @@ class ObtenerCantones(View):
                     return JsonResponse({'result': False, 'mensaje': 'No se encontraron cantones relacionados'})
         except Exception as ex:
             return JsonResponse({'result': False, 'mensaje': f'{ex}'})
+
+class ListadoGrupoPersona(ListView):
+    model = GrupoPersona
+    template_name = 'GrupoPersona/index.html'
+    paginate_by = 25
+    context_object_name = 'grupo_personas'
+
+    def get_queryset(self):
+        queryset = super().get_queryset().select_related('grupo', 'persona')
+        persona_id = self.kwargs['persona_id']
+        if persona_id:
+            queryset = queryset.filter(persona_id=persona_id, status=True)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        persona_id = self.kwargs['persona_id']
+        ePersona = Persona.objects.get(pk=persona_id)
+        context['nombre_tabla'] = f'Grupos en los que se encuentra enrolado: {ePersona.nombre_completo_minus()}'
+        context['url_formcrear'] = reverse('enrolar_persona', kwargs={'persona_id': self.kwargs['persona_id']})
+        context['titulo'] = 'Enrolar persona a grupo'
+        context['ret'] = reverse_lazy('listado_persona')
+        context['s'] = self.request.GET.get('s')
+        return context
+
+class CrearGrupoPersona(BaseCreateView):
+    model = GrupoPersona
+    form_class = PersonaGruposForm
+    template_name = 'formulario.html'
+
+    def get_persona(self):
+        return get_object_or_404(Persona, pk=self.kwargs['persona_id'])
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['persona'] = self.get_persona()
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('listado_grupos_persona', kwargs={'persona_id': self.kwargs['persona_id']})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['persona'] = self.get_persona()
+        context['guardar'] = reverse('enrolar_persona', kwargs={'persona_id': self.kwargs['persona_id']})
+        return context
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except Exception as ex:
+            form.add_error(None, str(ex))
+            return self.form_invalid(form)
+
+
+class InactivarGrupoPersona(BaseDeleteView):
+    model = GrupoPersona
+    redirect_url = reverse_lazy('listado_grupo_persona')
         

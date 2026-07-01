@@ -126,7 +126,7 @@ class GrupoPersona(ModeloBase):
     persona = models.ForeignKey(Persona, verbose_name='Persona', blank=True, null=True, related_name='mis_grupos', on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.grupo
+        return self.grupo.nombre
     
     class Meta:
         verbose_name = 'Grupo de Persona'
@@ -149,8 +149,8 @@ class ModuloCategorias(ModeloBase):
         ordering = ('prioridad', 'nombre')
 
 class GrupoCategoria(ModeloBase):
-    grupo = models.ForeignKey(Grupo, verbose_name='Grupo', related_name='grupo_categorias', blank=True, null=True)
-    categoria = models.ForeignKey(ModuloCategorias, verbose_name='Categoria', related_name='grupo_categorias', blank=True, null=True)
+    grupo = models.ForeignKey(Grupo, verbose_name='Grupo', related_name='grupos_categorias', blank=True, null=True, on_delete=models.CASCADE)
+    categoria = models.ForeignKey(ModuloCategorias, verbose_name='Categoria', related_name='categorias_grupos', blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.grupo.nombre} - {self.categoria.nombre}'
@@ -189,9 +189,6 @@ class ModuloGrupo(ModeloBase):
         verbose_name_plural = "Grupos de modulos"
         ordering = ['nombre']
         unique_together = ('nombre',)
-
-    def modulos_activos(self):
-        return self.modulos.filter(activo=True)
 
     def modulos_activos(self):
         return self.modulos.filter(activo=True)

@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import *
 from .views.Grupo.views import ListadoGrupos, CrearGrupo, EditarGrupo, EliminarGrupo
+from .views.Modulos.views import *
 
 urlpatterns = [
     
@@ -15,6 +16,10 @@ urlpatterns = [
     path('crear_grupo/', CrearGrupo.as_view(), name='crear_grupo'),
     path('editar_grupo/<int:pk>', EditarGrupo.as_view(), name='editar_grupo'),
     path('eliminar_grupo/<int:pk>', EliminarGrupo.as_view(), name='eliminar_grupo'),
+
+    #Enrolar Grupos
+    path('listado_grupos_persona/<int:persona_id>/', ListadoGrupoPersona.as_view(), name='listado_grupos_persona'),
+    path('enrolar_persona/<int:persona_id>/', CrearGrupoPersona.as_view(), name='enrolar_persona'),
 
     # Pais
     path('listado_pais/', ListadoPaises.as_view(), name='listado_pais'),
@@ -46,6 +51,10 @@ urlpatterns = [
     
     # Administracion
     path('modulos_administracion/', TemplateView.as_view(template_name='Administracion/index.html'), name='modulos_administracion'),
+    path('listado_modulo_categorias', ListadoModuloCategorias.as_view(), name='listado_modulo_categorias'),
+    path('crear_modulo_categoria', CrearModuloCategoria.as_view(), name='crear_modulo_categoria'),
+    path('editar_modulo_categoria/<int:pk>/', EditarModuloCategoria.as_view(), name='editar_modulo_categoria'),
+    path('inactivar_modulo_categoria/<int:pk>/', InactivarModuloCategoria.as_view(), name='inactivar_modulo_categoria'),
     
     # Búsquedas Ajax
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),

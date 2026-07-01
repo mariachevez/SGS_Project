@@ -170,4 +170,46 @@ class CategoriaForm(FormModeloBase):
     
     def __init__(self, *args, **kwargs):
         super(CategoriaForm, self).__init__(*args, **kwargs)
+
+class PersonaGruposForm(FormModeloBase):
+    class Meta:
+        model = GrupoPersona
+        fields = ['grupo']
+        widgets = {
+            'grupo': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.persona = kwargs.pop('persona', None)
+        super().__init__(*args, **kwargs)
+        if self.fields['grupo'].queryset is not None:
+            self.fields['grupo'].queryset = Grupo.objects.filter(status=True).order_by('nombre')
+
+    def clean_grupo(self):
+        grupo = self.cleaned_data.get('grupo')
+        if grupo and self.persona:
+            existe = GrupoPersona.objects.filter(
+                persona=self.persona,
+                grupo=grupo,
+                status=True
+            ).exists()
+            if existe:
+                raise forms.ValidationError('Esta persona ya se encuentra enrolada en este grupo.')
+        return grupo
+
+    def save(self, commit=True):
+        grupopersona = super().save(commit=False)
+        grupopersona.persona = self.persona
+        if commit:
+            grupopersona.save()
+        return grupopersona
+
+class ModuloCategoriasForm(FormModeloBase):
+    class Meta:
+        model = ModuloCategorias
+        fields = ['nombre', 'prioridad']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'prioridad': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
         

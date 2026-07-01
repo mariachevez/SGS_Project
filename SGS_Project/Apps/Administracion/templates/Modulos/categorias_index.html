@@ -3,22 +3,22 @@
 {% block block_thead %}
     <tr>
         <th class="fs-7">#</th>
-        <th class="fs-7">Grupo</th>
-        <th class="fs-7">Descripción</th>
+        <th class="fs-7">Categoria</th>
+        <th class="fs-7">Prioridad</th>
         <th class="fs-7 text-center">Acciones</th>
     </tr>
 {% endblock %}
 
 {% block block_tbody %}
-    {% for grupo in grupos %}
+    {% for categoria in categorias %}
         <tr>
             <td class="fs-7">{{ forloop.counter }}</td>
-            <td class="fs-7 fw-semibold">{{ grupo.nombre }}</td>
-            <td class="fs-7 text-muted">{{ grupo.descripcion|default:"Sin descripción" }}</td>
+            <td class="fs-7 fw-semibold">{{ categoria.nombre }}</td>
+            <td class="fs-7 text-muted">{{ categoria.prioridad|default:"Sin prioridad" }}</td>
             <td class="text-center position-relative fs-7">
                 <div class="d-flex align-items-center justify-content-center gap-2">
 
-                    <a onclick='formModal("{% url "editar_grupo" grupo.pk %}", "Editar Grupo")'
+                    <a onclick='formModal("{% url "editar_modulo_categoria" categoria.pk %}", "Editar Categoria")'
                        href="javascript:void(0);"
                        data-bs-toggle="tooltip"
                        data-bs-placement="top"
@@ -26,7 +26,7 @@
                         <i class="fa-solid fa-pen-to-square fs-6 icon-color"></i>
                     </a>
 
-                    <a onclick="eliminarAjax('Está por eliminar un grupo', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_grupo' grupo.pk %}')"
+                    <a onclick="eliminarAjax('Está por eliminar una categoria', '¿Está seguro de realizar esta acción?', '{% url 'inactivar_modulo_categoria' categoria.pk %}')"
                        href="javascript:void(0);"
                        data-bs-toggle="tooltip"
                        data-bs-placement="top"
