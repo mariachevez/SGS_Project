@@ -148,6 +148,13 @@ class ModuloCategorias(ModeloBase):
         verbose_name_plural = 'Categorias de Módulos'
         ordering = ('prioridad', 'nombre')
 
+class GrupoCategoria(ModeloBase):
+    grupo = models.ForeignKey(Grupo, verbose_name='Grupo', related_name='grupo_categorias', blank=True, null=True)
+    categoria = models.ForeignKey(ModuloCategorias, verbose_name='Categoria', related_name='grupo_categorias', blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.grupo.nombre} - {self.categoria.nombre}'
+    
 class Modulo(ModeloBase):
     url = models.CharField(blank=True, null=True, max_length=100, verbose_name='URL')
     nombre = models.CharField(blank=True, null=True, max_length=100, verbose_name='Nombre')
