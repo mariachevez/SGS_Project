@@ -55,7 +55,17 @@ urlpatterns = [
     path('crear_modulo_categoria', CrearModuloCategoria.as_view(), name='crear_modulo_categoria'),
     path('editar_modulo_categoria/<int:pk>/', EditarModuloCategoria.as_view(), name='editar_modulo_categoria'),
     path('inactivar_modulo_categoria/<int:pk>/', InactivarModuloCategoria.as_view(), name='inactivar_modulo_categoria'),
-    
+
+    path('listado_grupos_modulos', ListadoGruposModulos.as_view(), name='listado_grupos_modulos'),
+    path('crear_grupo_modulo', CrearGrupoModulo.as_view(), name='crear_grupo_modulo'),
+    path('editar_grupo_modulo/<int:pk>/', EditarGrupoModulo.as_view(), name='editar_grupo_modulo'),
+    path('inactivar_grupo_modulo/<int:pk>/', InactivarGrupoModulo.as_view(), name='inactivar_grupo_modulo'),
+
+    path('listado_modulos', ListadoModulos.as_view(), name='listado_modulos'),
+    path('crear_modulo', CrearModulo.as_view(), name='crear_modulo'),
+    path('editar_modulo/<int:pk>/', EditarModulo.as_view(), name='editar_modulo'),
+    path('inactivar_modulo/<int:pk>/', InactivarModulo.as_view(), name='inactivar_modulo'),
+
     # Búsquedas Ajax
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),
     path('buscar_cantones/', ObtenerCantones.as_view(), name='buscar_cantones'),

@@ -146,14 +146,19 @@ class ModuloCategorias(ModeloBase):
     class Meta:
         verbose_name = 'Categorias de Módulos'
         verbose_name_plural = 'Categorias de Módulos'
-        ordering = ('prioridad', 'nombre')
+        ordering = ['prioridad', 'nombre']
 
-class GrupoCategoria(ModeloBase):
-    grupo = models.ForeignKey(Grupo, verbose_name='Grupo', related_name='grupos_categorias', blank=True, null=True, on_delete=models.CASCADE)
-    categoria = models.ForeignKey(ModuloCategorias, verbose_name='Categoria', related_name='categorias_grupos', blank=True, null=True, on_delete=models.CASCADE)
+class GrupoModulo(ModeloBase):
+    nombre = models.CharField(max_length=1000, blank=True, null=True, verbose_name='Nombre')
+    descripcion = models.TextField(verbose_name='Descripción', blank=True, null=True)
 
     def __str__(self):
-        return f'{self.grupo.nombre} - {self.categoria.nombre}'
+        return f'{self.nombre}'
+
+    class Meta:
+        verbose_name = 'Grupo de Módulos'
+        verbose_name_plural = 'Grupos de Módulos'
+        ordering = ['nombre']
     
 class Modulo(ModeloBase):
     url = models.CharField(blank=True, null=True, max_length=100, verbose_name='URL')
@@ -161,7 +166,7 @@ class Modulo(ModeloBase):
     icono = models.CharField(blank=True, null=True, max_length=100, verbose_name='Icono')
     descripcion = models.CharField(blank=True, null=True, max_length=200, verbose_name='Descripción')
     activo = models.BooleanField(default=True, verbose_name='Activo')
-    categorias = models.ManyToManyField(ModuloCategorias, verbose_name='Categorias')
+    categorias = models.ForeignKey(ModuloCategorias, verbose_name='Categoria del modulo', blank=True, null=True, on_delete=models.CASCADE)
     submodulo = models.BooleanField(default=False, verbose_name=u'¿Es submódulo?')
 
     
@@ -174,24 +179,26 @@ class Modulo(ModeloBase):
         ordering = ['nombre']
         unique_together = ('url',)
 
-class ModuloGrupo(ModeloBase):
-    nombre = models.CharField(blank=True, null=True, max_length=100, verbose_name=' Nombre')
-    descripcion = models.CharField(blank=True, null=True, max_length=200, verbose_name='Descripción')
-    modulos = models.ManyToManyField(Modulo, verbose_name='Modulos')
-    grupos = models.ManyToManyField(Grupo, verbose_name='Grupos')
-    prioridad = models.IntegerField(default=0, verbose_name='Prioridad')
+class AgrupacionModulos(ModeloBase):
+    grupo_modulo = models.ForeignKey(GrupoModulo, blank=True, null=True, on_delete=models.CASCADE, verbose_name='Grupo de modulos')
+    modulo = models.ForeignKey(Modulo, blank=True, null=True, on_delete=models.CASCADE, verbose_name='Modulos')
 
     def __str__(self):
-        return u'%s' % self.nombre
+        return f'{self.grupo_modulo.nombre} - {self.modulo.nombre}'
 
     class Meta:
-        verbose_name = 'Grupo de modulos'
-        verbose_name_plural = "Grupos de modulos"
-        ordering = ['nombre']
-        unique_together = ('nombre',)
+        verbose_name = 'Agrupar modulos'
+        verbose_name_plural = "Agrupar modulos"
+        ordering = ['grupo_modulo__nombre', 'modulo__nombre']
 
-    def modulos_activos(self):
-        return self.modulos.filter(activo=True)
+class AgrupacionModulosPersona(ModeloBase):
+    grupo_modulo = models.ForeignKey(GrupoModulo, blank=True, null=True, on_delete=models.CASCADE, verbose_name='Grupo de modulos')
+    grupo_persona = models.ForeignKey(Grupo, blank=True, null=True, on_delete=models.CASCADE, verbose_name='Grupo de personas')
 
-    def modules(self):
-        return self.modulos.all()
+    def __str__(self):
+        return f'{self.grupo_modulo.nombre} - {self.grupo_persona.nombre}'
+
+    class Meta:
+        verbose_name = 'Agrupacion de modulos por grupo de personas'
+        verbose_name_plural = "Agrupacion de modulos por grupo de personas"
+        ordering = ['grupo_modulo__nombre', 'grupo_persona__nombre']

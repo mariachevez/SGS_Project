@@ -16,16 +16,25 @@
                         <i class="fa-solid fa-layer-group"></i>
                     </div>
                     <div class="module-title">Categoría</div>
-                    <p class="module-description">Gestión de las Categorías de Módulos</p>
+                    <p class="module-description">Gestión de las categorías de módulos</p>
                 </a>
             </div>
             <div class="col">
-                <a href="" class="module-card">
+                <a href="{% url 'listado_grupos_modulos' %}" class="module-card">
+                    <div class="module-icon">
+                        <i class="fa-solid fa-cubes"></i>
+                    </div>
+                    <div class="module-title">Grupos de módulos</div>
+                    <p class="module-description">Gestión de los grupos de módulos del sistema</p>
+                </a>
+            </div>
+            <div class="col">
+                <a href="{% url 'listado_modulos' %}" class="module-card">
                     <div class="module-icon">
                         <i class="fa-solid fa-cubes"></i>
                     </div>
                     <div class="module-title">Módulos</div>
-                    <p class="module-description">Módulos del sistema</p>
+                    <p class="module-description">Gestión de los módulos del sistema</p>
                 </a>
             </div>
         </div>
