@@ -29,6 +29,7 @@ class ListadoModuloCategorias(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de Categorías'
+        context['ret'] = reverse('modulos_administracion')
         context['url_formcrear'] = reverse('crear_modulo_categoria')
         context['titulo'] = 'Registrar Categoría'
         context['s'] = self.request.GET.get('s')

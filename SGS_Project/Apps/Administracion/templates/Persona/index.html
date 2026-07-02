@@ -33,9 +33,9 @@
             <td class="fs-7">{{persona.telefono}}</td>
             <td class="fs-7">
                 {% if persona.status %}
-                    <i class="fa fa-check-circle fs-7 text-success"></i>
+                    <i title="Activo" data-bs-toggle="tooltip" data-bs-placement="top" class="fa fa-check-circle fs-7 text-success"></i>
                 {% else %}
-                    <i class="fa fa-times-circle fs-7 text-danger"></i>
+                    <i title="Inactivo" data-bs-toggle="tooltip" data-bs-placement="top" class="fa fa-times-circle fs-7 text-danger"></i>
                 {% endif %}
             </td>
             <td class="fs-7 align-middle text-center">
@@ -45,7 +45,7 @@
                        data-bs-toggle="tooltip"
                        data-bs-placement="top"
                        title="Gestionar grupos">
-                        <i class="bi bi-people-fill fs-6 icon-color"></i>
+                        <i class="fa-solid fa-users fs-6 icon-color"></i>
                     </a>
 
                     <a onclick='formModal("{% url "editar_persona" persona.pk %}", "Edición de datos del personal", "modal-lg")'

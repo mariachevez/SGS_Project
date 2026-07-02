@@ -187,6 +187,9 @@ class PersonaGruposForm(FormModeloBase):
 
     def clean_grupo(self):
         grupo = self.cleaned_data.get('grupo')
+        if not grupo:
+            raise forms.ValidationError('Seleccione un grupo')
+        
         if grupo and self.persona:
             existe = GrupoPersona.objects.filter(
                 persona=self.persona,
