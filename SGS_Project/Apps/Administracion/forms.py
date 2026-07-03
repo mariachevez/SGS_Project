@@ -220,29 +220,25 @@ class ModuloCategoriasForm(FormModeloBase):
         }
 
 class GrupoModuloForm(FormModeloBase):
+    nombre = forms.CharField(label='Nombre del Grupo del módulo:', widget=forms.TextInput(attrs={'placeholder': 'Describa el nombre del grupo de módulo'}))
+    descripcion = forms.CharField(label='Descripción breve:', widget=forms.Textarea(attrs={'placeholder': 'Realice una descripción breve del grupo módulo', 'rows': 3}))
+    
     class Meta:
         model = GrupoModulo
         fields = ['nombre', 'descripcion']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'rows': '3', 'placeholder': 'Ejm: Descripcion del grupo'})
-        }
 
 class ModuloForm(FormModeloBase):
+    url = forms.CharField(label='URL del módulo:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: /administracion/listado'}))
+    nombre = forms.CharField(label='Nombre del módulo:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Persona'}))
+    icono = forms.CharField(label='Icono del módulo:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: fa-solid fa-users'}))
+    descripcion = forms.CharField(label='Descripción del módulo:', widget=forms.Textarea(attrs={'placeholder': 'Ejm: Descripción breve del módulo', 'rows': 3}))
+    activo = forms.BooleanField(label='Activo:', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'col': 3}))
+    categorias = forms.ModelChoiceField(label='Categoría del Módulo', required=True, queryset=ModuloCategorias.objects.filter(status=True).order_by('prioridad', 'nombre') ,widget=forms.Select(attrs={'class': 'form-select'}))
+    submodulo = forms.BooleanField(label='¿Es submódulo?', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'col': 3}))
+    
     class Meta:
         model = Modulo
-        fields = ['url', 'nombre', 'icono', 'descripcion', 'activo', 'categorias', 'submodulo']
-        widgets = {
-            'url': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ejm: /administracion/listado'}),
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'icono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ejm: fa-solid fa-users'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': '3', 'placeholder': 'Ejm: Descripción del módulo'}),
-            'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'categorias': forms.Select(attrs={'class': 'form-select', 'id': 'id_categorias'}),
-            'submodulo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
+        fields = ['categorias', 'icono', 'url', 'nombre', 'descripcion', 'activo', 'submodulo']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['categorias'].queryset = ModuloCategorias.objects.filter(status=True).order_by('prioridad', 'nombre')
-        self.fields['categorias'].required = True
