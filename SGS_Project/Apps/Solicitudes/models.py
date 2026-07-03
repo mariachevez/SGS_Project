@@ -13,7 +13,7 @@ class Solicitudes(ModeloBase):
     fecha_resolucion = models.DateTimeField(verbose_name='Fecha de Resolución', blank=True, null=True)
     tipo_solicitud = models.CharField(verbose_name='Tipo de Solicitud', choices=CoreChoices.TipoSolicitud.choices, blank=True, null=True)
     
-    def __str(self):
+    def __str__(self):
         return f'Solicitante: {self.persona.nombre_completo_minus()}, {self.descripcion}'
     
     class Meta:

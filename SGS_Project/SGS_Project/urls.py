@@ -25,6 +25,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', TemplateView.as_view(template_name='index.html'), name=''),
     path('', include('Apps.Administracion.urls')),
+    path('', include('Apps.Solicitudes.urls')),
     path('password_reset/', 
      auth_views.PasswordResetView.as_view(
          template_name='registration/password_reset_form.html',

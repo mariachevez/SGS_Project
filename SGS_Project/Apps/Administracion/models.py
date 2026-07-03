@@ -88,7 +88,7 @@ class Area(ModeloBase):
     
     
     def __str__(self):
-        return f'Area: {self.nombre}'
+        return self.nombre
         #return f'Director: {self.director.nombre_completo_minus()} - {self.nombre}'
 
     class Meta:

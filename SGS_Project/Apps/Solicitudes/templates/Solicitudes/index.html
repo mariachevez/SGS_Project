@@ -1,0 +1,25 @@
+{% extends 'base.html' %} {% block block_thead %}
+<tr>
+  <th>Área</th>
+  <th>Descripcion</th>
+  <th>Tipo de Solicitud</th>
+  <th>Estado Solicitud</th>
+  <th>Fecha Resolución</th>
+  <th>Acciones</th>
+</tr>
+{% endblock %} {% block block_tbody %} {% for solicitud in solicitudes %}
+<tr>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+{% empty %}
+<tr>
+  <td colspan="6" class="text-muted text-center">
+    Aún no se registran solicitudes
+  </td>
+</tr>
+{% endfor %} {% endblock %}
