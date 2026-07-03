@@ -208,11 +208,9 @@ class PersonaGruposForm(FormModeloBase):
         return grupopersona
 
 class ModuloCategoriasForm(FormModeloBase):
+    nombre = forms.CharField(label='Nombre de la Categoría:', required=True, widget=forms.TextInput(attrs={'placeholder': 'Ejm: Administración'}))
+    prioridad = forms.IntegerField(label='Prioridad de la Categoría:', required=True, widget=forms.NumberInput(attrs={'placeholder': 'Ejm: 1'}))
     class Meta:
         model = ModuloCategorias
         fields = ['nombre', 'prioridad']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'prioridad': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
         

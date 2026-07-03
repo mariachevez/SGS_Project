@@ -20,7 +20,9 @@ urlpatterns = [
     #Enrolar Grupos
     path('listado_grupos_persona/<int:persona_id>/', ListadoGrupoPersona.as_view(), name='listado_grupos_persona'),
     path('enrolar_persona/<int:persona_id>/', CrearGrupoPersona.as_view(), name='enrolar_persona'),
-
+    path('eliminar_grupo_persona/<int:pk>/', InactivarGrupoPersona.as_view(), name='eliminar_grupo_persona'),
+    
+    
     # Pais
     path('listado_pais/', ListadoPaises.as_view(), name='listado_pais'),
     path('listado_paises/', CrearPais.as_view(), name='crear_pais'),

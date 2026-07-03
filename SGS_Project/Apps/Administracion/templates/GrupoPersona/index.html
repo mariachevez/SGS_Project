@@ -18,7 +18,7 @@
             <td class="text-center position-relative fs-7">
                 <div class="d-flex align-items-center justify-content-center gap-2">
 
-                    <a onclick="eliminarAjax('Está por desenrolar a {{ grupo.persona.nombre_completo_minus }} del grupo {{ grupo.grupo.nombre }}.', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_grupo' grupo.pk %}')"
+                    <a onclick="eliminarAjax('Está por desenrolar a {{ grupo.persona.nombre_completo_minus }} del grupo {{ grupo.grupo.nombre }}.', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_grupo_persona' grupo.pk %}')"
                        href="javascript:void(0);"
                        data-bs-toggle="tooltip"
                        data-bs-placement="top"

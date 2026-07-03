@@ -180,5 +180,11 @@ class CrearGrupoPersona(BaseCreateView):
 
 class InactivarGrupoPersona(BaseDeleteView):
     model = GrupoPersona
-    redirect_url = reverse_lazy('listado_grupo_persona')
+    def get_redirect_url(self):
+        objeto = self.model.objects.filter(pk=self.kwargs.get('pk')).first()
+
+        return reverse(
+            'listado_grupos_persona',
+            kwargs={'persona_id': objeto.persona_id}
+        )
         

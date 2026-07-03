@@ -53,9 +53,9 @@
                  id="collapseAdministracion"
                  data-bs-parent="#sidebar-nav">
                 <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_persona' %}active{% endif %}"
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_persona' or request.resolver_match.url_name == 'listado_grupos_persona' %}active{% endif %}"
                        href="{% url 'listado_persona' %}">Personas</a>
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_grupos' %}active{% endif %}"
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_grupos' %}active{% endif %}"
                        href="{% url 'listado_grupos' %}">Gestión de Grupos</a>
 {#                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'ruta_ejemplo1_admin' %}active{% endif %}"#}
 {#                       href="#">Configuración General</a>#}

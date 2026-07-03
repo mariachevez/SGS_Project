@@ -73,12 +73,12 @@ function eliminarAjax(titulo, mensaje, url) {
                 },
                 error: function (xhr) {
                     console.error(xhr.responseText);
-
+                    const response = xhr.responseJSON
                     Swal.fire({
                         icon: 'error',
                         // toast: true,
                         title: 'Error',
-                        text: 'No se pudo eliminar el registro.'
+                        text: response?.message || 'No se pudo eliminar el registro.'
                     });
                 }
             });
