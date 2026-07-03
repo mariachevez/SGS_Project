@@ -242,3 +242,62 @@ class ModuloForm(FormModeloBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+class AgruparModuloForm(FormModeloBase):
+    class Meta:
+        model = AgrupacionModulos
+        fields = ['modulo', 'grupo_modulo']
+        widgets = {
+            'modulo': forms.Select(attrs={'class': 'form-select'}),
+            'grupo_modulo': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.grupo_modulo_id = kwargs.pop('grupo_modulo_id', None)
+        self.modulo_id = kwargs.pop('modulo_id', None)
+        super().__init__(*args, **kwargs)
+
+        if self.grupo_modulo_id:
+            # Caso 1: vienes desde el Grupo -> seleccionas el Módulo
+            del self.fields['grupo_modulo']
+            self.fields['modulo'].queryset = Modulo.objects.filter(status=True).order_by('nombre')
+
+        elif self.modulo_id:
+            # Caso 2: vienes desde el Módulo -> seleccionas el Grupo
+            del self.fields['modulo']
+            self.fields['grupo_modulo'].queryset = GrupoModulo.objects.filter(status=True).order_by('nombre')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        modulo = cleaned_data.get('modulo') if self.grupo_modulo_id else None
+        grupo_modulo = cleaned_data.get('grupo_modulo') if self.modulo_id else None
+
+        if self.grupo_modulo_id and modulo:
+            existe = AgrupacionModulos.objects.filter(
+                grupo_modulo_id=self.grupo_modulo_id,
+                modulo=modulo,
+                status=True
+            ).exists()
+            if existe:
+                raise forms.ValidationError('Este módulo ya está agrupado en este grupo.')
+
+        if self.modulo_id and grupo_modulo:
+            existe = AgrupacionModulos.objects.filter(
+                modulo_id=self.modulo_id,
+                grupo_modulo=grupo_modulo,
+                status=True
+            ).exists()
+            if existe:
+                raise forms.ValidationError('Este grupo ya tiene asociado este módulo.')
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        agrupacion = super().save(commit=False)
+        if self.grupo_modulo_id:
+            agrupacion.grupo_modulo_id = self.grupo_modulo_id
+        if self.modulo_id:
+            agrupacion.modulo_id = self.modulo_id
+        if commit:
+            agrupacion.save()
+        return agrupacion

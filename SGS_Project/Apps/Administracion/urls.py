@@ -68,6 +68,14 @@ urlpatterns = [
     path('editar_modulo/<int:pk>/', EditarModulo.as_view(), name='editar_modulo'),
     path('inactivar_modulo/<int:pk>/', InactivarModulo.as_view(), name='inactivar_modulo'),
 
+    path('listado_agrupacionmodulosporgrupo/<int:grupo_modulo_id>', ListadoAgrupacionModulosporGrupo.as_view(),name='listado_agrupacionmodulosporgrupo'),
+    path('agrupar_modulo/<int:grupo_modulo_id>', AgruparModulo.as_view(), name='agrupar_modulo'),
+    path('desagrupar_modulo/<int:pk>', DesagruparModulo.as_view(), name='desagrupar_modulo'),
+
+    path('listado_agrupacionmodulosgrupos/<int:modulo_id>', ListadoAgrupacionModulosGrupos.as_view(),name='listado_agrupacionmodulosgrupos'),
+    path('agrupar_grupo_modulo/<int:modulo_id>', AgruparModuloGrupo.as_view(), name='agrupar_grupo_modulo'),
+    path('desagrupar_grupo_modulo/<int:pk>', DesagruparGrupoModulo.as_view(), name='desagrupar_grupo_modulo'),
+
     # Búsquedas Ajax
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),
     path('buscar_cantones/', ObtenerCantones.as_view(), name='buscar_cantones'),
