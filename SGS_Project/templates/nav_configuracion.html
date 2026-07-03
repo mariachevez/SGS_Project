@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block sidebar %}
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+    <aside id="sidebar-wrapper" class="bg-dark text-white d-flex flex-column p-3 shadow-sm border-end border-secondary border-opacity-20" style="z-index: 1020;">
+
+        <div class="d-flex flex-column align-items-center border-bottom border-secondary pb-4 mb-2 position-relative">
+            <button type="button"
+                    class="btn-close btn-close-white position-absolute top-0 end-0 shadow-none fs-7 d-md-none"
+                    id="sidebarCloseBtn"
+                    onclick="document.getElementById('sidebarToggle').click();"
+                    aria-label="Cerrar menú">
+            </button>
+
+            <div class="position-relative bg-white bg-opacity-10 rounded-circle p-1 shadow-sm mb-3 mt-2">
+                <img class="rounded-circle bg-white p-1"
+                     width="56"
+                     height="56"
+                     src="{% static 'img/user-icon.svg' %}"
+                     alt="Avatar de usuario"/>
+            </div>
+            <span class="text-white fw-semibold fs-6 text-center px-2 text-truncate w-100">
+                {% if persona_sesion %} {{ persona_sesion }} {% else %} {{ usuario_sesion }} {% endif %}
+            </span>
+            <small class="text-white-50 small opacity-75">Administrador</small>
+        </div>
+
+        <nav id="sidebar-nav" class="d-flex flex-column gap-1 flex-grow-1 overflow-y-auto pt-3 no-scrollbar">
+
+            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}active{% endif %}"
+               data-bs-toggle="collapse"
+               href="#collapseModulos"
+               role="button"
+               aria-expanded="{% if request.resolver_match.url_name in 'listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}true{% else %}false{% endif %}"
+               aria-controls="collapseModulos">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-cubes fa-fw"></i> <span>Configuración</span>
+                </div>
+                <i class="fa-solid fa-chevron-down small opacity-50"></i>
+            </a>
+
+            <div class="collapse {% if request.resolver_match.url_name in 'listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}show{% endif %}"
+                 id="collapseModulos"
+                 data-bs-parent="#sidebar-nav">
+                <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_modulo_categorias' %}active{% endif %}"
+                       href="{% url 'listado_modulo_categorias' %}">Categorías</a>
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_grupos_modulos listado_agrupacionmodulosporgrupo' %}active{% endif %}"
+                       href="{% url 'listado_grupos_modulos' %}">Grupos de Módulos</a>
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_modulos listado_agrupacionmodulosgrupos' %}active{% endif %}"
+                       href="{% url 'listado_modulos' %}">Módulos</a>
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_grupos' %}active{% endif %}"
+                       href="{% url 'listado_grupos' %}">Gestión de Grupos</a>
+                </div>
+            </div>
+
+        </nav>
+
+        <div class="mt-auto pt-3 border-top border-secondary">
+            <form action="{% url 'logout' %}" method="post" class="w-100 m-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light border-0 w-100 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-medium btn-logout-modern">
+                    <span>Cerrar sesión</span>
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </form>
+        </div>
+    </aside>
+{% endblock %}

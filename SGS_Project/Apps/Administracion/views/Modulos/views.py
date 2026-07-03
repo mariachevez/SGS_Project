@@ -228,7 +228,7 @@ class ListadoAgrupacionModulosporGrupo(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de modulos que pertenecen al grupo.'
-        context['ret'] = reverse('modulos_administracion')
+        context['ret'] = reverse('listado_grupos_modulos')
         context['url_formcrear'] = reverse('agrupar_modulo', kwargs={'grupo_modulo_id': self.kwargs['grupo_modulo_id']})
         context['titulo'] = 'Agrupar Modulo'
         context['s'] = self.request.GET.get('s')
@@ -289,6 +289,7 @@ class ListadoAgrupacionModulosGrupos(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de grupos asociados a este módulo.'
+        context['ret'] = reverse('listado_modulos')
         context['url_formcrear'] = reverse('agrupar_grupo_modulo', kwargs={'modulo_id': self.kwargs['modulo_id']})
         context['titulo'] = 'Asociar Grupo'
         context['s'] = self.request.GET.get('s')
