@@ -1,7 +1,7 @@
 {% load static %}
 <!doctype html>
 <html lang="es">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -11,303 +11,326 @@
     <title>Panel Principal</title>
 
     <style>
-      :root {
-        --primary-color: #1c3247;
-        --primary-hover: #294967;
-        --background-color: #f4f6f9;
-      }
+        :root {
+            --primary-color: #1c3247;
+            --primary-hover: #294967;
+            --background-color: #f4f6f9;
+        }
 
-      body {
-        background-color: var(--background-color);
-        min-height: 100vh;
-      }
+        body {
+            background-color: var(--background-color);
+            min-height: 100vh;
+        }
 
-      .navbar-custom {
-        background-color: var(--primary-color);
-      }
+        .navbar-custom {
+            background-color: var(--primary-color);
+        }
 
-      .navbar-brand {
-        font-weight: 700;
-        font-size: 1.15rem;
-      }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.15rem;
+        }
 
-      .notification-icon {
-        position: relative;
-        color: white;
-        font-size: 1.2rem;
-      }
+        .notification-icon {
+            position: relative;
+            color: white;
+            font-size: 1.2rem;
+        }
 
-      .notification-badge {
-        position: absolute;
-        top: -6px;
-        right: -8px;
-        font-size: 0.65rem;
-      }
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            font-size: 0.65rem;
+        }
 
-      .user-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: white;
-        color: var(--primary-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-      }
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
 
-      .page-title {
-        color: var(--primary-color);
-        font-weight: 700;
-      }
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
 
-      .module-card {
-        display: block;
-        text-decoration: none;
-        color: #212529;
-        background: white;
-        border-radius: 18px;
-        padding: 24px 18px;
-        height: 100%;
-        transition: all 0.25s ease;
-        border: 1px solid #e9ecef;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
+        .module-card {
+            display: block;
+            text-decoration: none;
+            color: #212529;
+            background: white;
+            border-radius: 18px;
+            padding: 24px 18px;
+            height: 100%;
+            transition: all 0.25s ease;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
 
-      .module-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-        border-color: var(--primary-color);
-        color: inherit;
-      }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+            color: inherit;
+        }
 
-      .module-icon {
-        width: 70px;
-        height: 70px;
-        border-radius: 16px;
-        background: rgba(28, 50, 71, 0.08);
-        color: var(--primary-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: auto auto 15px auto;
-        font-size: 1.8rem;
-      }
+        .module-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            background: rgba(28, 50, 71, 0.08);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto auto 15px auto;
+            font-size: 1.8rem;
+        }
 
-      .module-title {
-        font-weight: 700;
-        font-size: 1rem;
-        margin-bottom: 8px;
-        text-align: center;
-      }
+        .module-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            text-align: center;
+        }
 
-      .module-description {
-        text-align: center;
-        color: #6c757d;
-        font-size: 0.9rem;
-        margin: 0;
-      }
+        .module-description {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin: 0;
+        }
 
-      .dropdown-item:active {
-        background-color: var(--primary-color);
-      }
+        .dropdown-item:active {
+            background-color: var(--primary-color);
+        }
     </style>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm">
-      <div class="container-fluid">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm">
+    <div class="container-fluid">
         <a class="navbar-brand" href="#">
-          <i class="fas fa-layer-group me-2"></i>
-          Sistema Administrativo
+            <i class="fas fa-layer-group me-2"></i>
+            Sistema Administrativo
         </a>
 
         <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarMain"
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarMain"
         >
-          <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarMain">
-          <ul class="navbar-nav ms-auto align-items-center">
-            <li class="nav-item dropdown me-3">
-              <a
-                class="nav-link notification-icon"
-                href="#"
-                data-bs-toggle="dropdown"
-              >
-                <i class="fas fa-bell"></i>
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item dropdown me-3">
+                    <a
+                            class="nav-link notification-icon"
+                            href="#"
+                            data-bs-toggle="dropdown"
+                    >
+                        <i class="fas fa-bell"></i>
 
-                {% if total_notificaciones %}
-                <span class="badge rounded-pill bg-danger notification-badge">
+                        {% if total_notificaciones %}
+                            <span class="badge rounded-pill bg-danger notification-badge">
                   {{ total_notificaciones }}
                 </span>
-                {% endif %}
-              </a>
+                        {% endif %}
+                    </a>
 
-              <ul
-                class="dropdown-menu dropdown-menu-end shadow border-0"
-                style="min-width: 320px"
-              >
-                <li>
-                  <h6 class="dropdown-header">Notificaciones</h6>
+                    <ul
+                            class="dropdown-menu dropdown-menu-end shadow border-0"
+                            style="min-width: 320px"
+                    >
+                        <li>
+                            <h6 class="dropdown-header">Notificaciones</h6>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item py-2" href="#">
+                                Nueva solicitud registrada
+                                <small class="d-block text-muted"> Hace 5 minutos </small>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item py-2" href="#">
+                                Nuevo usuario creado
+                                <small class="d-block text-muted"> Hace 1 hora </small>
+                            </a>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item text-center" href="#"> Ver todas </a>
+                        </li>
+                    </ul>
                 </li>
 
-                <li>
-                  <a class="dropdown-item py-2" href="#">
-                    Nueva solicitud registrada
-                    <small class="d-block text-muted"> Hace 5 minutos </small>
-                  </a>
-                </li>
+                <li class="nav-item dropdown">
+                    <a
+                            class="nav-link dropdown-toggle d-flex align-items-center"
+                            href="#"
+                            data-bs-toggle="dropdown"
+                    >
+                        <div class="me-2">
+                            {% with persona=request.user.persona_set.first %}
+                                <img
+                                        src="{{ persona.get_foto }}"
+                                        class="rounded-circle"
+                                        width="40"
+                                        height="40"
+                                />
+                            {% endwith %}
+                        </div>
 
-                <li>
-                  <a class="dropdown-item py-2" href="#">
-                    Nuevo usuario creado
-                    <small class="d-block text-muted"> Hace 1 hora </small>
-                  </a>
-                </li>
-
-                <li>
-                  <hr class="dropdown-divider" />
-                </li>
-
-                <li>
-                  <a class="dropdown-item text-center" href="#"> Ver todas </a>
-                </li>
-              </ul>
-            </li>
-
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle d-flex align-items-center"
-                href="#"
-                data-bs-toggle="dropdown"
-              >
-                <div class="me-2">
-                  {% with persona=request.user.persona_set.first %}
-                  <img
-                    src="{{ persona.get_foto }}"
-                    class="rounded-circle"
-                    width="40"
-                    height="40"
-                  />
-                  {% endwith %}
-                </div>
-
-                <span>
+                        <span>
                   {{ request.user.get_full_name|default:request.user.username }}
                 </span>
-              </a>
+                    </a>
 
-              <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                <li>
-                  <h6 class="dropdown-header">Mi cuenta</h6>
-                </li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li>
+                            <h6 class="dropdown-header">Mi cuenta</h6>
+                        </li>
 
-                <li>
-                  <a class="dropdown-item" href="#">
-                    <i class="fas fa-user-circle me-2"></i>
-                    Perfil
-                  </a>
-                </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-user-circle me-2"></i>
+                                Perfil
+                            </a>
+                        </li>
 
-                <li>
-                  <a class="dropdown-item" href="{% url 'modulos_administracion' %}">
-                    <i class="fas fa-cog me-2"></i>
-                    Configuración
-                  </a>
-                </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'modulos_administracion' %}">
+                                <i class="fas fa-cog me-2"></i>
+                                Configuración
+                            </a>
+                        </li>
 
-                <li>
-                  <hr class="dropdown-divider" />
-                </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
 
-                <li>
-                  <form
-                    action="{% url 'logout' %}"
-                    method="post"
-                    class="w-100 m-0 dropdown-item"
-                  >
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-dark">
-                      <span>Cerrar sesión</span>
-                      <i class="fa-solid fa-arrow-right-from-bracket fs-7"></i>
-                    </button>
-                  </form>
+                        <li>
+                            <form
+                                    action="{% url 'logout' %}"
+                                    method="post"
+                                    class="w-100 m-0 dropdown-item"
+                            >
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-dark">
+                                    <span>Cerrar sesión</span>
+                                    <i class="fa-solid fa-arrow-right-from-bracket fs-7"></i>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </li>
-              </ul>
-            </li>
-          </ul>
+            </ul>
         </div>
-      </div>
-    </nav>
-    {% block content %}
-    <div class="container py-4">
-      <div class="mb-4">
-        <h2 class="page-title">Panel Principal</h2>
-
-        <p class="text-muted mb-0">
-          Seleccione el módulo que deseas acceder.
-        </p>
-      </div>
-
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-{#        <div class="col">#}
-{#          <a href="{% url 'modulos_administracion' %}" class="module-card">#}
-{#            <div class="module-icon">#}
-{#              <i class="fa-solid fa-gears"></i>#}
-{#            </div>#}
-{##}
-{#            <div class="module-title">Administración</div>#}
-{##}
-{#            <p class="module-description">Gestión de Administración</p>#}
-{#          </a>#}
-{#        </div>#}
-{#        <div class="col">#}
-{#          <a href="{% url 'listado_persona' %}" class="module-card">#}
-{#            <div class="module-icon">#}
-{#              <i class="fas fa-users"></i>#}
-{#            </div>#}
-{##}
-{#            <div class="module-title">Personal</div>#}
-{##}
-{#            <p class="module-description">#}
-{#              Gestión de personas registradas en el sistema.#}
-{#            </p>#}
-{#          </a>#}
-{#        </div>#}
-{#        <div class="col">#}
-{#          <a href="{% url 'listado_pais' %}" class="module-card">#}
-{#            <div class="module-icon">#}
-{#              <i class="fas fa-earth-americas"></i>#}
-{#            </div>#}
-{##}
-{#            <div class="module-title">Ubicaciones</div>#}
-{##}
-{#            <p class="module-description">#}
-{#              Administración de países, provincias y cantones.#}
-{#            </p>#}
-{#          </a>#}
-{#        </div>#}
-{#        <div class="col">#}
-{#          <a href="{% url 'listado_areas' %}" class="module-card">#}
-{#            <div class="module-icon">#}
-{#              <i class="fas fa-building"></i>#}
-{#            </div>#}
-{##}
-{#            <div class="module-title">Áreas</div>#}
-{##}
-{#            <p class="module-description">#}
-{#              Gestión de áreas y asignación de responsables.#}
-{#            </p>#}
-{#          </a>#}
-{#        </div>#}
-      </div>
     </div>
-    {% endblock %}
+</nav>
+{% block content %}
+    <div class="container py-4">
+        <div class="mb-4">
+            <h2 class="page-title">Panel Principal</h2>
+            <p class="text-muted mb-0">
+                Seleccione el módulo que deseas acceder.
+            </p>
+        </div>
 
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-  </body>
+        <div class="accordion border-0" id="accordionCategorias">
+            {% for seccion in secciones %}
+                <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                    <h2 class="accordion-header" id="heading-{{ seccion.categoria.id }}">
+                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} fw-bold"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapse-{{ seccion.categoria.id }}"
+                                aria-expanded="{% if forloop.first %}true{% endif %}"
+                                aria-controls="collapse-{{ seccion.categoria.id }}"
+                                style="background-color: white; color: var(--primary-color); box-shadow: none;">
+                            <i class="fas fa-folder me-2 text-warning"></i> {{ seccion.categoria.nombre }}
+                        </button>
+                    </h2>
+                    <div id="collapse-{{ seccion.categoria.id }}"
+                         class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                         aria-labelledby="heading-{{ seccion.categoria.id }}"
+                         data-bs-parent="#accordionCategorias">
+                        <div class="accordion-body bg-light">
+
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                {% for modulo in seccion.modulos %}
+                                    <div class="col">
+                                        <a href="/{{ modulo.url|lower }}" class="module-card">
+                                            <div class="module-icon">
+                                                <i class="{{ modulo.icono|lower|default:'fa-solid fa-gears' }}"></i>
+                                            </div>
+                                            <div class="module-title">{{ modulo.nombre }}</div>
+                                            <p class="module-description">{{ modulo.descripcion|default:'' }}</p>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-info border-0 shadow-sm rounded-3">
+                    <i class="fas fa-info-circle me-2"></i> No tienes módulos asignados o configurados para tus grupos actuales.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'select2/css/select2.min.css' %}"/>
+<link rel="stylesheet" href="{% static 'select2/css/select2-bootstrap-5-theme.min.css' %}"/>
+<script src="{% static 'select2/js/select2.min.js' %}"></script>
+<script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'js/modal.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Habilitar Tooltips
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            new bootstrap.Tooltip(el);
+        });
+
+        // ==========================================
+        // CAPTURA Y DESPLIEGUE DE MENSAJES DEL MIDDLEWARE
+        // ==========================================
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    if (typeof ToastSuccess === 'function') {
+                        ToastSuccess("{{ message|escapejs }}");
+                    } else {
+                        Swal.fire({ icon: 'success', title: 'Éxito', text: "{{ message|escapejs }}", timer: 3000 });
+                    }
+                {% elif message.tags == 'error' %}
+                    if (typeof ToastDanger === 'function') {
+                        ToastDanger("{{ message|escapejs }}");
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Acceso Denegado', text: "{{ message|escapejs }}" });
+                    }
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    });
+</script>
+</body>
 </html>

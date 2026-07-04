@@ -54,7 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'SGS_Project.middleware.GlobalRequestMiddleware'
+    'SGS_Project.middleware.GlobalRequestMiddleware',
+    'SGS_Project.middleware.ControlAccesoModuloMiddleware',
 ]
 
 ROOT_URLCONF = 'SGS_Project.urls'
