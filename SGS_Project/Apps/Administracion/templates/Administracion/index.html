@@ -9,7 +9,7 @@
                 <i class="fa-solid fa-arrow-left me-1"></i>Atrás
             </a>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
             <div class="col">
                 <a href="{% url 'listado_modulo_categorias' %}" class="module-card">
                     <div class="module-icon">
@@ -35,6 +35,15 @@
                     </div>
                     <div class="module-title">Módulos</div>
                     <p class="module-description">Gestión de los módulos del sistema</p>
+                </a>
+            </div>
+            <div class="col">
+                <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="module-card">
+                    <div class="module-icon">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </div>
+                    <div class="module-title">Accesos</div>
+                    <p class="module-description">Gestiona los grupos que tienen acceso a los módulos del sistema</p>
                 </a>
             </div>
         </div>

@@ -330,3 +330,73 @@ class DesagruparGrupoModulo(BaseDeleteView):
     def get_redirect_url(self):
         agrupacion = get_object_or_404(AgrupacionModulos, pk=self.kwargs.get('pk'))
         return reverse('listado_agrupacionmodulosgrupos', kwargs={'modulo_id': agrupacion.modulo_id})
+
+class ListadoAgrupacionModulosPersona(ListView):
+    model = AgrupacionModulosPersona
+    template_name = 'Modulos/agrupacionmodulospersona_index.html'
+    paginate_by = 25
+    context_object_name = 'agrupaciones'
+
+    def get_queryset(self):
+        queryset = super().get_queryset().select_related('grupo_modulo', 'grupo_persona').filter(status=True)
+        search = self.request.GET.get('s')
+
+        if search:
+            queryset = queryset.filter(
+                Q(grupo_modulo__nombre__icontains=search) |
+                Q(grupo_persona__nombre__icontains=search)
+            )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['nombre_tabla'] = 'Acceso de grupos de personas a grupos de módulos'
+        context['ret'] = reverse('modulos_administracion')
+        context['url_formcrear'] = reverse('crear_agrupacion_modulos_persona')
+        context['titulo'] = 'Asignar Acceso'
+        context['s'] = self.request.GET.get('s')
+        return context
+
+
+class CrearAgrupacionModulosPersona(BaseCreateView):
+    model = AgrupacionModulosPersona
+    form_class = AgrupacionModulosPersonaForm
+    template_name = 'formulario.html'
+    success_url = reverse_lazy('listado_agrupacion_modulos_persona')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['guardar'] = reverse('crear_agrupacion_modulos_persona')
+        return context
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except Exception as ex:
+            form.add_error(None, str(ex))
+            return self.form_invalid(form)
+
+
+class EditarAgrupacionModulosPersona(BaseUpdateView):
+    model = AgrupacionModulosPersona
+    form_class = AgrupacionModulosPersonaForm
+    template_name = 'formulario.html'
+    success_url = reverse_lazy('listado_agrupacion_modulos_persona')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['guardar'] = reverse('editar_agrupacion_modulos_persona', kwargs={'pk': self.object.pk})
+        return context
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except Exception as ex:
+            form.add_error(None, str(ex))
+            return self.form_invalid(form)
+
+
+class InactivarAgrupacionModulosPersona(BaseDeleteView):
+    model = AgrupacionModulosPersona
+    redirect_url = reverse_lazy('listado_agrupacion_modulos_persona')

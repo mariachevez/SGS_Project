@@ -4,7 +4,7 @@ from .views.Grupo.views import ListadoGrupos, CrearGrupo, EditarGrupo, EliminarG
 from .views.Modulos.views import *
 
 urlpatterns = [
-    
+
     # Persona
     path('listado_personal/', ListadoPersona.as_view(), name='listado_persona'),
     path('crear_persona/', CrearPersona.as_view(), name='crear_persona'),
@@ -21,8 +21,8 @@ urlpatterns = [
     path('listado_grupos_persona/<int:persona_id>/', ListadoGrupoPersona.as_view(), name='listado_grupos_persona'),
     path('enrolar_persona/<int:persona_id>/', CrearGrupoPersona.as_view(), name='enrolar_persona'),
     path('eliminar_grupo_persona/<int:pk>/', InactivarGrupoPersona.as_view(), name='eliminar_grupo_persona'),
-    
-    
+
+
     # Pais
     path('listado_pais/', ListadoPaises.as_view(), name='listado_pais'),
     path('listado_paises/', CrearPais.as_view(), name='crear_pais'),
@@ -34,13 +34,13 @@ urlpatterns = [
     path('crear_provincia/', CrearProvincia.as_view(), name='crear_provincia'),
     path('editar_provincia/<int:pk>', EditarProvincia.as_view(), name='editar_provincia'),
     path('eliminar_provincia/<int:pk>', EliminarProvincia.as_view(), name='eliminar_provincia'),
-    
+
     # Canton
     path('listado_canton/', ListadoCanton.as_view(), name='listado_canton'),
     path('crear_canton/', CrearCanton.as_view(), name='crear_canton'),
     path('editar_canton/<int:pk>', EditarCanton.as_view(), name='editar_canton'),
     path('eliminar_canton/<int:pk>', EliminarCanton.as_view(), name='eliminar_canton'),
-    
+
     # Areas
     path('listado_areas/', ListarArea.as_view(), name='listado_areas'),
     path('crear_area/', CrearArea.as_view(), name='crear_area'),
@@ -50,7 +50,7 @@ urlpatterns = [
     path('adicionar_personal/<int:pk>', AgregarResponsables.as_view(), name='adicionar_personal'),
     path('buscar_persona', BuscarPersona.as_view(), name='buscar_persona'),
     path('guardar_asignacion', GuardarAsignacion.as_view(), name='guardar_asignacion'),
-    
+
     # Administracion
     path('modulos_administracion/', TemplateView.as_view(template_name='Administracion/index.html'), name='modulos_administracion'),
     path('listado_modulo_categorias', ListadoModuloCategorias.as_view(), name='listado_modulo_categorias'),
@@ -75,6 +75,11 @@ urlpatterns = [
     path('listado_agrupacionmodulosgrupos/<int:modulo_id>', ListadoAgrupacionModulosGrupos.as_view(),name='listado_agrupacionmodulosgrupos'),
     path('agrupar_grupo_modulo/<int:modulo_id>', AgruparModuloGrupo.as_view(), name='agrupar_grupo_modulo'),
     path('desagrupar_grupo_modulo/<int:pk>', DesagruparGrupoModulo.as_view(), name='desagrupar_grupo_modulo'),
+
+    path('listado_agrupacion_modulos_persona', ListadoAgrupacionModulosPersona.as_view(), name='listado_agrupacion_modulos_persona'),
+    path('crear_agrupacion_modulos_persona', CrearAgrupacionModulosPersona.as_view(), name='crear_agrupacion_modulos_persona'),
+    path('editar_agrupacion_modulos_persona/<int:pk>/', EditarAgrupacionModulosPersona.as_view(), name='editar_agrupacion_modulos_persona'),
+    path('inactivar_agrupacion_modulos_persona/<int:pk>/', InactivarAgrupacionModulosPersona.as_view(), name='inactivar_agrupacion_modulos_persona'),
 
     # Búsquedas Ajax
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),

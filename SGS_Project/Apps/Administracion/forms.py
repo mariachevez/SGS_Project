@@ -301,3 +301,35 @@ class AgruparModuloForm(FormModeloBase):
         if commit:
             agrupacion.save()
         return agrupacion
+
+class AgrupacionModulosPersonaForm(FormModeloBase):
+    class Meta:
+        model = AgrupacionModulosPersona
+        fields = ['grupo_persona', 'grupo_modulo']
+        widgets = {
+            'grupo_persona': forms.Select(attrs={'class': 'form-select'}),
+            'grupo_modulo': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['grupo_persona'].queryset = Grupo.objects.filter(status=True).order_by('nombre')
+        self.fields['grupo_modulo'].queryset = GrupoModulo.objects.filter(status=True).order_by('nombre')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        grupo_persona = cleaned_data.get('grupo_persona')
+        grupo_modulo = cleaned_data.get('grupo_modulo')
+
+        if grupo_modulo and grupo_persona:
+            queryset = AgrupacionModulosPersona.objects.filter(
+                grupo_modulo=grupo_modulo,
+                grupo_persona=grupo_persona,
+                status=True
+            )
+            if self.instance.pk:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise forms.ValidationError('Esta combinación de grupo de módulos y grupo de personas ya existe.')
+
+        return cleaned_data
