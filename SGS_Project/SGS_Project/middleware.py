@@ -65,7 +65,7 @@ class ControlAccesoModuloMiddleware:
             return self.get_response(request)
 
         # 4. URLs de infraestructura básica exceptuadas (Evitan bucles infinitos)
-        urls_publicas = ['panel_principal', 'logout', 'login', 'modulos_administracion', 'buscar_provincias', 'buscar_cantones']
+        urls_publicas = ['panel_principal', 'logout', 'login', 'modulos_administracion', 'buscar_provincias', 'buscar_cantones', 'listado_notificaciones']
         if current_url_name in urls_publicas or request.path_info.startswith('/admin/'):
             return self.get_response(request)
 
