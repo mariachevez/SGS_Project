@@ -28,7 +28,16 @@
                      height="56"
                      src="{% static 'img/user-icon.svg' %}"
                      alt="Avatar de usuario"/>
+
+                {% if tiene_notificaciones %}
+                    <a href="{% url 'listado_notificaciones' %}">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-dark p-2" title="Tienes notificaciones pendientes">
+                            <i class="fa-solid fa-bell text-white fs-7" style="font-size: 0.65rem;"></i>
+                        </span>
+                    </a>
+                {% endif %}
             </div>
+
             <span class="text-white fw-semibold fs-6 text-center px-2 text-truncate w-100">
                 {% if persona_sesion %} {{ persona_sesion }} {% else %} {{ usuario_sesion }} {% endif %}
             </span>

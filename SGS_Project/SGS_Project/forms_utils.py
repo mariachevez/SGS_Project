@@ -161,7 +161,7 @@ class BaseDeleteView(AjaxExceptionMixin, EntidadesSesionMixin, View):
             log(
                 mensaje=f"{self.nombre_en_sesion} Cambió el estado a {'ACTIVO' if objeto.status else 'INACTIVO'} del registro: {str(objeto)}",
                 request=self.request,
-                accion="chg",
+                accion="edit" if objeto.status else "del",
                 objeto=objeto
             )
             messages.success(request, mensaje)

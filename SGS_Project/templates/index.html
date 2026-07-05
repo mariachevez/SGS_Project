@@ -4,12 +4,9 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/all.min.css' %}"/>
-
     <title>Panel Principal</title>
-
     <style>
         :root {
             --primary-color: #1c3247;
@@ -31,17 +28,61 @@
             font-size: 1.15rem;
         }
 
+        /* AJUSTE CLAVE: Contenedor relativo estricto e inline para mantener el badge unido */
         .notification-icon {
             position: relative;
+            display: inline-block;
             color: white;
             font-size: 1.2rem;
+            padding: 0.5rem;
         }
 
+        /* UBICACIÓN RIGUROSA DEL BADGE DELANTE DEL ICONO */
         .notification-badge {
             position: absolute;
-            top: -6px;
-            right: -8px;
+            top: 2px;
+            right: -2px;
             font-size: 0.65rem;
+            padding: 0.25em 0.4em;
+        }
+
+        /* AJUSTES RESPONSIVE Y CONTROL DEL DROPDOWN DE NOTIFICACIONES */
+        .dropdown-notifications {
+            width: 340px;
+            max-width: calc(100vw - 32px); /* Evita que desborde el ancho de la pantalla móvil */
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item-text {
+            white-space: normal !important; /* Permite saltos de línea automáticos */
+            word-break: break-word;        /* Rompe palabras excesivamente largas si es necesario */
+            font-size: 0.85rem;            /* Un toque más pequeño y compacto */
+            line-height: 1.3;
+        }
+
+        /* Permite alineación fluida del menú en móviles */
+        @media (max-width: 991.98px) {
+            .navbar-nav {
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            .nav-item.dropdown {
+                width: 100%;
+                text-align: center;
+                margin-right: 0 !important;
+                margin-bottom: 15px;
+            }
+            /* Mantiene el contenedor centrado en móviles sin estirar el enlace horizontalmente */
+            .nav-item.dropdown .notification-icon {
+                margin: 0 auto;
+            }
+            .dropdown-menu-end {
+                right: 0 !important;
+                left: 0 !important;
+                margin-left: auto;
+                margin-right: auto;
+            }
         }
 
         .user-avatar {
@@ -132,52 +173,49 @@
 
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item dropdown me-3">
-                    <a
-                            class="nav-link notification-icon"
-                            href="#"
-                            data-bs-toggle="dropdown"
-                    >
-                        <i class="fas fa-bell"></i>
 
-                        {% if total_notificaciones %}
-                            <span class="badge rounded-pill bg-danger notification-badge">
-                  {{ total_notificaciones }}
-                </span>
-                        {% endif %}
-                    </a>
+                {% if tiene_notificaciones %}
+                    <li class="nav-item dropdown me-3">
+                        <a class="nav-link notification-icon" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            {% if total_notificaciones %}
+                                <span class="badge rounded-pill bg-danger notification-badge">
+                                    {{ total_notificaciones }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 dropdown-notifications">
+                            <li>
+                                <h6 class="dropdown-header">Notificaciones</h6>
+                            </li>
 
-                    <ul
-                            class="dropdown-menu dropdown-menu-end shadow border-0"
-                            style="min-width: 320px"
-                    >
-                        <li>
-                            <h6 class="dropdown-header">Notificaciones</h6>
-                        </li>
+                            {% for notificacion in mis_notificaciones %}
+                                <li>
+                                    <a class="dropdown-item py-2 notification-item-text" href="/notificaciones/leer/{{ notificacion.id }}/">
+                                        {{ notificacion.descripcion }}
+                                        <small class="d-block text-muted mt-1">
+                                            Hace {{ notificacion.fecha_creacion|timesince }}
+                                        </small>
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li>
+                                    <span class="dropdown-item-text text-muted text-center py-2 small">
+                                        No tienes alertas pendientes
+                                    </span>
+                                </li>
+                            {% endfor %}
 
-                        <li>
-                            <a class="dropdown-item py-2" href="#">
-                                Nueva solicitud registrada
-                                <small class="d-block text-muted"> Hace 5 minutos </small>
-                            </a>
-                        </li>
+                            <li>
+                                <hr class="dropdown-divider"/>
+                            </li>
 
-                        <li>
-                            <a class="dropdown-item py-2" href="#">
-                                Nuevo usuario creado
-                                <small class="d-block text-muted"> Hace 1 hora </small>
-                            </a>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider"/>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item text-center" href="#"> Ver todas </a>
-                        </li>
-                    </ul>
-                </li>
+                            <li>
+                                <a class="dropdown-item text-center py-2 small fw-semibold" href="{% url 'listado_notificaciones' %}"> Ver todas </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
 
                 <li class="nav-item dropdown">
                     <a
@@ -231,9 +269,9 @@
                                     class="w-100 m-0 dropdown-item"
                             >
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-dark">
+                                <button type="submit" class="btn btn-dark w-100 btn-sm">
                                     <span>Cerrar sesión</span>
-                                    <i class="fa-solid fa-arrow-right-from-bracket fs-7"></i>
+                                    <i class="fa-solid fa-arrow-right-from-bracket fs-7 ms-1"></i>
                                 </button>
                             </form>
                         </li>
@@ -306,14 +344,10 @@
 <script src="{% static 'js/modal.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Habilitar Tooltips
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
             new bootstrap.Tooltip(el);
         });
 
-        // ==========================================
-        // CAPTURA Y DESPLIEGUE DE MENSAJES DEL MIDDLEWARE
-        // ==========================================
         {% if messages %}
             {% for message in messages %}
                 {% if message.tags == 'success' %}

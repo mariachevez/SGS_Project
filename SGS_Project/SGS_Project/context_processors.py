@@ -6,6 +6,7 @@ from Apps.Administracion.models import (
     AgrupacionModulos,
     AgrupacionModulosPersona,
 )
+from Apps.Notificaciones.models import Notificaciones
 
 
 def obtener_secciones_sidebar(request):
@@ -96,9 +97,33 @@ def obtener_secciones_sidebar(request):
 
 def entidades_sesion_context(request):
     entidades = obtener_entidades_sesion()
+    persona_sesion = entidades.get('persona')
+
+    tiene_notificaciones_pendientes = False
+    total_notificaciones_pendientes = 0
+    mis_notificaciones_pendientes = []  # Lista vacía por defecto
+
+    if request.user.is_authenticated and persona_sesion:
+        # Obtenemos las notificaciones activas y no leídas
+        notificaciones_qs = Notificaciones.objects.filter(
+            destinatario=persona_sesion,
+            estado_notificacion=False,
+            status=True
+        ).order_by('-id')  # Ordenamos para mostrar siempre las más recientes primero
+
+        tiene_notificaciones_pendientes = notificaciones_qs.exists()
+
+        if tiene_notificaciones_pendientes:
+            total_notificaciones_pendientes = notificaciones_qs.count()
+            # Traemos únicamente las últimas 5 para no saturar visualmente el menú desplegable
+            mis_notificaciones_pendientes = notificaciones_qs[:5]
 
     return {
-        'persona_sesion': entidades.get('persona'),
+        'persona_sesion': persona_sesion,
         'usuario_sesion': entidades.get('user'),
         'secciones_sidebar': obtener_secciones_sidebar(request),
+        'tiene_notificaciones': tiene_notificaciones_pendientes,
+        'total_notificaciones': total_notificaciones_pendientes,
+        # NUEVA VARIABLE: Contiene los objetos reales de la base de datos
+        'mis_notificaciones': mis_notificaciones_pendientes,
     }
