@@ -1,0 +1,53 @@
+<div class="d-flex align-items-center">
+    <!-- Foto -->
+    <img src="{{ person.get_foto }}"
+         alt="Foto de {{ person }}"
+         class="rounded-circle me-2"
+         width="50" height="50">
+
+    <!-- Datos -->
+    <div>
+        <!-- Nombre -->
+        <h5 class="text-title mb-0">{{ person }}</h5>
+
+        <!-- Identificación -->
+        {% if show_dni %}
+            <small class="d-block text-subtitle fw-bold">
+                <i class="bi bi-person-badge"></i>
+                <strong title="Identificación" data-bs-toggle="tooltip">
+                    {{ person.identificacion }}
+                </strong>
+            </small>
+        {% endif %}
+
+        <!-- Teléfono -->
+        {% if person.telefono %}
+            <small class="d-block text-subtitle" title="Telefono" data-bs-toggle="tooltip">
+                <i class="fa fa-phone"></i> {{ person.telefono }}
+                <a href="https://web.whatsapp.com/send?l=en&phone=+593{{ person.telefono }}&text=Hola {{ person.nombre_completo_minus }}"
+                   target="_blank"
+                   class="ms-1"
+                   title="Enviar mensaje por WhatsApp">
+                    <i class="fa fa-whatsapp text-success"></i>
+                </a>
+            </small>
+        {% endif %}
+
+        <!-- Correos -->
+        {% if person.emailinst %}
+            <small class="d-block text-subtitle">
+                <i class="fa fa-envelope"></i> {{ person.emailinst }}
+            </small>
+        {% endif %}
+        {% if person.email %}
+            <small class="d-block text-subtitle">
+                <i class="fa fa-envelope"></i> {{ person.email }}
+            </small>
+        {% endif %}
+
+        <!-- Fallecido -->
+        {% if person.es_fallecido %}
+            <span class="badge bg-danger mt-1">Fallecido</span>
+        {% endif %}
+    </div>
+</div>
