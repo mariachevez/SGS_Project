@@ -4,12 +4,30 @@
     <div class="container py-4">
         <div class="d-flex justify-content-end my-2">
             <a href="{% if ret %}{{ ret }}{% else %}{% block atras %}/{% endblock %}{% endif %}"
-                class="btn btn-outline-secondary btn-sm urlatrasbutton"
-                id="urlatrasbutton">
+               class="btn btn-outline-secondary btn-sm urlatrasbutton"
+               id="urlatrasbutton">
                 <i class="fa-solid fa-arrow-left me-1"></i>Atrás
             </a>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col">
+                <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="module-card">
+                    <div class="module-icon">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div class="module-title">Accesos</div>
+                    <p class="module-description">Gestiona los grupos que tienen acceso a los módulos del sistema</p>
+                </a>
+            </div>
+            <div class="col">
+                <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="module-card">
+                    <div class="module-icon">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div class="module-title">Auditoría</div>
+                    <p class="module-description">Revisar las acciones realizadas por los usuarios dentro del sistema.</p>
+                </a>
+            </div>
             <div class="col">
                 <a href="{% url 'listado_modulo_categorias' %}" class="module-card">
                     <div class="module-icon">
@@ -22,7 +40,7 @@
             <div class="col">
                 <a href="{% url 'listado_grupos_modulos' %}" class="module-card">
                     <div class="module-icon">
-                        <i class="fa-solid fa-cubes"></i>
+                        <i class="fa-solid fa-boxes-stacked"></i>
                     </div>
                     <div class="module-title">Grupos de módulos</div>
                     <p class="module-description">Gestión de los grupos de módulos del sistema</p>
@@ -40,10 +58,10 @@
             <div class="col">
                 <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="module-card">
                     <div class="module-icon">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        <i class="fa-solid fa-users"></i>
                     </div>
-                    <div class="module-title">Accesos</div>
-                    <p class="module-description">Gestiona los grupos que tienen acceso a los módulos del sistema</p>
+                    <div class="module-title">Usuarios</div>
+                    <p class="module-description">Gestiona los datos de los usuarios dentro del sistema.</p>
                 </a>
             </div>
         </div>
