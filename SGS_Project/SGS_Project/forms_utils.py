@@ -28,13 +28,13 @@ class EntidadesSesionMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         entidades = obtener_entidades_sesion()
-        self.sesion_user = entidades.get('user')
-        self.sesion_persona = entidades.get('persona')
+        self.usuario_sesion = entidades.get('user')
+        self.persona_sesion = entidades.get('persona')
 
-        if self.sesion_persona:
-            self.nombre_en_sesion = self.sesion_persona.nombre_completo_minus()
-        elif self.sesion_user:
-            self.nombre_en_sesion = self.sesion_user.get_full_name()
+        if self.persona_sesion:
+            self.nombre_en_sesion = self.persona_sesion.nombre_completo_minus()
+        elif self.usuario_sesion:
+            self.nombre_en_sesion = self.usuario_sesion.get_full_name()
         else:
             self.nombre_en_sesion = "Sistema"
 
