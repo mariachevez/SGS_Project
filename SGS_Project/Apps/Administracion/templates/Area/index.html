@@ -30,7 +30,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
                         <li>
-                            <a onclick='formModal("{% url "editar_area" area.pk %}", "Editar un área")'
+                            <a onclick='formModal("{% url "editar_area" area.pk %}", "Editar un área", "modal-lg")'
                                class="dropdown-item cursor-pointer fs-7">
                                 <i class="fa-solid fa-pen"></i> Editar
                             </a>
@@ -41,12 +41,12 @@
                                 <i class="fa-solid fa-trash"></i> Eliminar
                             </a>
                         </li>
-                        <li>
-                            <a onclick='formModal("{% url "asignar_director" area.pk %}", "Asignación de Director, Área: {{ area.nombre }}", "modal-lg")'
-                               class="dropdown-item cursor-pointer fs-7">
-                                <i class="fa-solid fa-user"></i> Asignar Director
-                            </a>
-                        </li>
+{#                        <li>#}
+{#                            <a onclick='formModal("{% url "asignar_director" area.pk %}", "Asignación de Director, Área: {{ area.nombre }}", "modal-lg")'#}
+{#                               class="dropdown-item cursor-pointer fs-7">#}
+{#                                <i class="fa-solid fa-user"></i> Asignar Director#}
+{#                            </a>#}
+{#                        </li>#}
                         <li>
                             <a onclick='formModal("{% url "adicionar_personal" area.pk %}", "Adición de personal al departamento: {{ area.nombre }}", "modal-lg")'
                                class="dropdown-item fs-7 cursor-pointer">

@@ -162,6 +162,15 @@ class AreaForm(FormModeloBase):
     def __init__(self, *args, **kwargs):
         super(AreaForm, self).__init__(*args, **kwargs)
 
+        director_id = None
+        if self.instance and self.instance.pk:
+            director_id = self.instance.director_id
+        elif self.is_bound:
+            director_id = self.data.get(self.add_prefix('director'))
+
+        if director_id:
+            self.fields['director'].queryset = Persona.objects.filter(pk=director_id)
+
 
 class AsignacionDirectorForm(FormModeloBase):
     director = forms.ModelChoiceField(label='Responsable del Área:', queryset=Persona.objects.filter(status=True),
