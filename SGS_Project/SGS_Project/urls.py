@@ -29,6 +29,8 @@ urlpatterns = [
     path('', PanelPrincipal.as_view(), name='panel_principal'),
     path('', include('Apps.Administracion.urls')),
     path('', include('Apps.Solicitudes.urls')),
+    path('', include('Apps.Notificaciones.urls')),
+
     path('password_reset/', 
      auth_views.PasswordResetView.as_view(
          template_name='registration/password_reset_form.html',

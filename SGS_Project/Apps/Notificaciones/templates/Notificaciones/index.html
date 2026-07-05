@@ -1,0 +1,55 @@
+{% extends 'nav.html' %}
+
+{% block block_thead %}
+    <tr>
+        <th class="fs-7">#</th>
+        <th class="fs-7">Titulo</th>
+        <th class="fs-7">Descripción</th>
+        <th class="fs-7 text-center">Estado</th>
+        <th class="fs-7 text-center">Tipo</th>
+    </tr>
+{% endblock %}
+
+{% block block_tbody %}
+    {% for notificacion in notificaciones %}
+        <tr>
+            <td class="fs-7">{{ forloop.counter }}</td>
+            <td class="fs-7 fw-semibold">{{ notificacion.titulo }}</td>
+            <td class="fs-7 text-muted">{{ notificacion.descripcion|default:"Sin descripción" }}</td>
+            <td class="fs-7">
+                {% if notificacion.estado_notificacion %}
+                    <i title="Leido" data-bs-toggle="tooltip" data-bs-placement="top" class="fa fa-check-double fs-7 text-success"></i>
+                {% else %}
+                    <i title="Sin Leer" data-bs-toggle="tooltip" data-bs-placement="top" class="fa fa-hourglass-half fs-7 text-danger"></i>
+                {% endif %}
+            </td>
+            <td class="fs-7">{{ notificacion.get_tipo_notificacion_display }}</td>
+            <td class="text-center position-relative fs-7">
+                <div class="d-flex align-items-center justify-content-center gap-2">
+
+{#                    <a onclick='formModal("{% url "editar_grupo" grupo.pk %}", "Editar Grupo")'#}
+{#                       href="javascript:void(0);"#}
+{#                       data-bs-toggle="tooltip"#}
+{#                       data-bs-placement="top"#}
+{#                       data-bs-title="Editar">#}
+{#                        <i class="fa-solid fa-pen-to-square fs-6 icon-color"></i>#}
+{#                    </a>#}
+{##}
+{#                    <a onclick="eliminarAjax('Está por eliminar un grupo', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_grupo' grupo.pk %}')"#}
+{#                       href="javascript:void(0);"#}
+{#                       data-bs-toggle="tooltip"#}
+{#                       data-bs-placement="top"#}
+{#                       data-bs-title="Eliminar">#}
+{#                        <i class="fa-solid fa-trash fs-6 icon-color"></i>#}
+{#                    </a>#}
+                </div>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="6" class="text-muted fs-7 text-center py-3">
+                Aún no ha recibido notificaciones
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
