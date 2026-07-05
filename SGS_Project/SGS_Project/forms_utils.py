@@ -85,7 +85,6 @@ class BaseCreateView(AjaxExceptionMixin, EntidadesSesionMixin, CreateView):
                 messages.error(self.request, f"{field}: {error}")
         return super().form_invalid(form)
 
-
 class BaseUpdateView(AjaxExceptionMixin, EntidadesSesionMixin, UpdateView):
     """Vista base de actualización compatible con Modales/AJAX y tradicional."""
 

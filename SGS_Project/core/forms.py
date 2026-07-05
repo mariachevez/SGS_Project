@@ -27,6 +27,10 @@ class FormModeloBase(forms.ModelForm):
             col = field.widget.attrs.pop('col', '12')
             field.col = col
 
+            if isinstance(field, forms.DateField) or isinstance(field.widget, forms.DateInput):
+                field.widget.format = '%Y-%m-%d'
+                field.widget.attrs['type'] = 'date'
+
             if isinstance(field.widget, forms.Select):
                 clase = 'form-select'
             else:
