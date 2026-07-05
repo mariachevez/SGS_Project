@@ -3,10 +3,13 @@
 {% block block_thead %}
     <tr>
         <th class="fs-7">#</th>
+        {% if persona_sesion.usuario.is_superuser or usuario_sesion.is_superuser %}
+            <th class="fs-7">Destinatario</th>
+        {% endif %}
         <th class="fs-7">Titulo</th>
         <th class="fs-7">Descripción</th>
         <th class="fs-7 text-center">Estado</th>
-        <th class="fs-7 text-center">Tipo</th>
+        <th class="fs-7 text-center">Prioridad</th>
     </tr>
 {% endblock %}
 
@@ -14,6 +17,9 @@
     {% for notificacion in notificaciones %}
         <tr>
             <td class="fs-7">{{ forloop.counter }}</td>
+            {% if persona_sesion.usuario.is_superuser or usuario_sesion.is_superuser %}
+                <td class="fs-7">{{ notificacion.destinatario.nombre_completo_minus }}</td>
+            {% endif %}
             <td class="fs-7 fw-semibold">{{ notificacion.titulo }}</td>
             <td class="fs-7 text-muted">{{ notificacion.descripcion|default:"Sin descripción" }}</td>
             <td class="fs-7">
@@ -24,26 +30,26 @@
                 {% endif %}
             </td>
             <td class="fs-7">{{ notificacion.get_tipo_notificacion_display }}</td>
-            <td class="text-center position-relative fs-7">
-                <div class="d-flex align-items-center justify-content-center gap-2">
-
-{#                    <a onclick='formModal("{% url "editar_grupo" grupo.pk %}", "Editar Grupo")'#}
-{#                       href="javascript:void(0);"#}
-{#                       data-bs-toggle="tooltip"#}
-{#                       data-bs-placement="top"#}
-{#                       data-bs-title="Editar">#}
-{#                        <i class="fa-solid fa-pen-to-square fs-6 icon-color"></i>#}
-{#                    </a>#}
-{##}
-{#                    <a onclick="eliminarAjax('Está por eliminar un grupo', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_grupo' grupo.pk %}')"#}
-{#                       href="javascript:void(0);"#}
-{#                       data-bs-toggle="tooltip"#}
-{#                       data-bs-placement="top"#}
-{#                       data-bs-title="Eliminar">#}
-{#                        <i class="fa-solid fa-trash fs-6 icon-color"></i>#}
-{#                    </a>#}
-                </div>
-            </td>
+            {#            <td class="text-center position-relative fs-7">#}
+            {#                <div class="d-flex align-items-center justify-content-center gap-2">#}
+            {##}
+            {#                    <a onclick='formModal("{% url "editar_grupo" grupo.pk %}", "Editar Grupo")'#}
+            {#                       href="javascript:void(0);"#}
+            {#                       data-bs-toggle="tooltip"#}
+            {#                       data-bs-placement="top"#}
+            {#                       data-bs-title="Editar">#}
+            {#                        <i class="fa-solid fa-pen-to-square fs-6 icon-color"></i>#}
+            {#                    </a>#}
+            {##}
+            {#                    <a onclick="eliminarAjax('Está por eliminar un grupo', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_grupo' grupo.pk %}')"#}
+            {#                       href="javascript:void(0);"#}
+            {#                       data-bs-toggle="tooltip"#}
+            {#                       data-bs-placement="top"#}
+            {#                       data-bs-title="Eliminar">#}
+            {#                        <i class="fa-solid fa-trash fs-6 icon-color"></i>#}
+            {#                    </a>#}
+            {#                </div>#}
+            {#            </td>#}
         </tr>
     {% empty %}
         <tr>

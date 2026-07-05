@@ -22,7 +22,25 @@ from core.funciones import log
 
 logger = logging.getLogger(__name__)
 
-class BaseCreateView(AjaxExceptionMixin, CreateView):
+
+class EntidadesSesionMixin(object):
+    """Mixin para inyectar automáticamente el usuario y la persona de la sesión."""
+
+    def dispatch(self, request, *args, **kwargs):
+        entidades = obtener_entidades_sesion()
+        self.sesion_user = entidades.get('user')
+        self.sesion_persona = entidades.get('persona')
+
+        if self.sesion_persona:
+            self.nombre_en_sesion = self.sesion_persona.nombre_completo_minus()
+        elif self.sesion_user:
+            self.nombre_en_sesion = self.sesion_user.get_full_name()
+        else:
+            self.nombre_en_sesion = "Sistema"
+
+        return super().dispatch(request, *args, **kwargs)
+
+class BaseCreateView(AjaxExceptionMixin, EntidadesSesionMixin, CreateView):
     """Vista base de creación compatible con Modales/AJAX y tradicional."""
 
     def form_valid(self, form):
@@ -30,15 +48,10 @@ class BaseCreateView(AjaxExceptionMixin, CreateView):
         nombre_modelo = self.model._meta.verbose_name.capitalize()
         mensaje = f"Registro de {nombre_modelo} guardado exitosamente."
 
-        entidades = obtener_entidades_sesion()
-        sesion_user = entidades['user']
-        sesion_persona = entidades['persona']
-
-        nombre_en_sesion = f'{sesion_persona.nombre_completo_minus()}' if sesion_persona else f'{sesion_user.get_full_name()}'
 
         # Auditoría automática en django_admin_log
         log(
-            mensaje=f"{nombre_en_sesion} Creó el registro: {str(self.object)}",
+            mensaje=f"{self.nombre_en_sesion} Creó el registro: {str(self.object)}",
             request=self.request,
             accion="add",
             objeto=self.object
@@ -73,7 +86,7 @@ class BaseCreateView(AjaxExceptionMixin, CreateView):
         return super().form_invalid(form)
 
 
-class BaseUpdateView(AjaxExceptionMixin, UpdateView):
+class BaseUpdateView(AjaxExceptionMixin, EntidadesSesionMixin, UpdateView):
     """Vista base de actualización compatible con Modales/AJAX y tradicional."""
 
     def form_valid(self, form):
@@ -81,15 +94,9 @@ class BaseUpdateView(AjaxExceptionMixin, UpdateView):
         nombre_modelo = self.model._meta.verbose_name.capitalize()
         mensaje = f"Registro de {nombre_modelo} actualizado exitosamente."
 
-        entidades = obtener_entidades_sesion()
-        sesion_user = entidades['user']
-        sesion_persona = entidades['persona']
-
-        nombre_en_sesion = f'{sesion_persona.nombre_completo_minus()}' if sesion_persona else f'{sesion_user.get_full_name()}'
-
         # Auditoría automática en django_admin_log
         log(
-            mensaje=f"{nombre_en_sesion} Modificó el registro: {str(self.object)}",
+            mensaje=f"{self.nombre_en_sesion} Modificó el registro: {str(self.object)}",
             request=self.request,
             accion="edit",
             objeto=self.object
@@ -123,7 +130,7 @@ class BaseUpdateView(AjaxExceptionMixin, UpdateView):
                 messages.error(self.request, f"{field}: {error}")
         return super().form_invalid(form)
 
-class BaseDeleteView(AjaxExceptionMixin, View):
+class BaseDeleteView(AjaxExceptionMixin, EntidadesSesionMixin, View):
     """
     Vista base optimizada para AJAX que alterna el campo booleano 'status'
     de cualquier modelo enviada mediante un método POST.
@@ -151,15 +158,9 @@ class BaseDeleteView(AjaxExceptionMixin, View):
             accion_str = "activado" if objeto.status else "inactivado"
             mensaje = f"Registro de {nombre_objeto} {accion_str} exitosamente."
 
-            entidades = obtener_entidades_sesion()
-            sesion_user = entidades['user']
-            sesion_persona = entidades['persona']
-
-            nombre_en_sesion = f'{sesion_persona.nombre_completo_minus()}' if sesion_persona else f'{sesion_user.first_name} {sesion_user.last_name}'
-
             # Auditoría automática del cambio de estado
             log(
-                mensaje=f"{nombre_en_sesion} Cambió el estado a {'ACTIVO' if objeto.status else 'INACTIVO'} del registro: {str(objeto)}",
+                mensaje=f"{self.nombre_en_sesion} Cambió el estado a {'ACTIVO' if objeto.status else 'INACTIVO'} del registro: {str(objeto)}",
                 request=self.request,
                 accion="chg",
                 objeto=objeto

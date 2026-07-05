@@ -6,10 +6,12 @@ from django.views.generic import ListView
 from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
 from ...models import *
 from ...forms import *
+from Apps.Notificaciones.utils import generar_notificacion
 from core.models import EliminarBase
 from core.views import AjaxExceptionMixin
 from django.db import transaction
 from core.funciones import validar_cedula
+from core.models import CoreChoices
 
 class ListadoPersona(ListView):
     model = Persona
@@ -172,6 +174,11 @@ class CrearGrupoPersona(BaseCreateView):
 
     def form_valid(self, form):
         try:
+            generar_notificacion(
+                'Ha sido enrolado a un grupo de personas.',
+                'Ha sido registrado en el grupo de personas: ' + form.cleaned_data['grupo'].nombre.capitalize() + ' por: ' + self.nombre_en_sesion + '.',
+                self.get_persona(), CoreChoices.TipoNotificacion.BAJA
+            )
             return super().form_valid(form)
         except Exception as ex:
             form.add_error(None, str(ex))
