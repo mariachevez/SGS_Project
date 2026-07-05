@@ -91,6 +91,12 @@ class Area(ModeloBase):
         return self.nombre
         #return f'Director: {self.director.nombre_completo_minus()} - {self.nombre}'
 
+    def get_director(self):
+        if self.director:
+            return self.director
+        
+        raise ValueError('No se ha configurado un director')
+    
     class Meta:
         verbose_name = "Área"
         verbose_name_plural = "Áreas"
@@ -141,7 +147,7 @@ class ModuloCategorias(ModeloBase):
         return self.modulo_set.values('id', 'icono', 'nombre','descripcion', 'url').filter(status=True, id__in=mismodulos.values_list('id',flat=True))
 
     def __str__(self):
-        return '{} {}'.format(self.nombre, self.prioridad)
+        return self.nombre
 
     class Meta:
         verbose_name = 'Categorias de Módulos'

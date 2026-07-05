@@ -36,60 +36,38 @@
         </div>
 
         <nav id="sidebar-nav" class="d-flex flex-column gap-1 flex-grow-1 overflow-y-auto pt-3 no-scrollbar">
+            {% for seccion in secciones_sidebar %}
 
-            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'listado_persona listado_grupos_persona ruta_ejemplo2_admin' %}active{% endif %}"
-               data-bs-toggle="collapse"
-               href="#collapseAdministracion"
-               role="button"
-               aria-expanded="{% if request.resolver_match.url_name in 'listado_persona listado_grupos_persona ruta_ejemplo2_admin' %}true{% else %}false{% endif %}"
-               aria-controls="collapseAdministracion">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-gear fa-fw"></i> <span>Administración</span>
+                <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if not seccion.is_active %}collapsed{% endif %}"
+                   data-bs-toggle="collapse"
+                   href="#collapseModulo{{ seccion.categoria.id }}"
+                   role="button"
+                   aria-expanded="{% if seccion.is_active %}true{% else %}false{% endif %}"
+                   aria-controls="collapseModulo{{ seccion.categoria.id }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-folder fa-fw"></i>
+                        <span>{{ seccion.categoria.nombre }}</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down small opacity-50"></i>
+                </a>
+
+                <div class="collapse {% if seccion.is_active %}show{% endif %}"
+                     id="collapseModulo{{ seccion.categoria.id }}"
+                     data-bs-parent="#sidebar-nav">
+                    <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
+
+                        {% for mod_item in seccion.modulos %}
+                            <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-flex align-items-center gap-2 {% if mod_item.is_active %}active{% endif %}"
+                               href="/{{ mod_item.url|lower }}">
+                                <i class="{{ mod_item.icono|lower }} fa-fw"></i>
+                                <span>{{ mod_item.nombre }}</span>
+                            </a>
+                        {% endfor %}
+
+                    </div>
                 </div>
-                <i class="fa-solid fa-chevron-down small opacity-50"></i>
-            </a>
 
-            <div class="collapse {% if request.resolver_match.url_name in 'listado_persona listado_grupos listado_grupos_persona' %}show{% endif %}"
-                 id="collapseAdministracion"
-                 data-bs-parent="#sidebar-nav">
-                <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_persona' or request.resolver_match.url_name == 'listado_grupos_persona' %}active{% endif %}"
-                       href="{% url 'listado_persona' %}">Personas</a>
-{#                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'ruta_ejemplo1_admin' %}active{% endif %}"#}
-{#                       href="#">Configuración General</a>#}
-                </div>
-            </div>
-
-            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}active{% endif %}"
-               data-bs-toggle="collapse"
-               href="#collapseUbicaciones"
-               role="button"
-               aria-expanded="{% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}true{% else %}false{% endif %}"
-               aria-controls="collapseUbicaciones">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-earth-americas fa-fw"></i> <span>Ubicaciones</span>
-                </div>
-                <i class="fa-solid fa-chevron-down small opacity-50"></i>
-            </a>
-
-            <div class="collapse {% if request.resolver_match.url_name in 'listado_pais listado_provincia listado_canton' %}show{% endif %}"
-                 id="collapseUbicaciones"
-                 data-bs-parent="#sidebar-nav">
-                <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_pais' %}active{% endif %}"
-                       href="{% url 'listado_pais' %}">Países</a>
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_provincia' %}active{% endif %}"
-                       href="{% url 'listado_provincia' %}">Provincias</a>
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_canton' %}active{% endif %}"
-                       href="{% url 'listado_canton' %}">Cantones</a>
-                </div>
-            </div>
-
-            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex align-items-center gap-2 {% if request.resolver_match.url_name == 'listado_areas' %}active{% endif %}"
-               href="{% url 'listado_areas' %}">
-                <i class="fa-regular fa-building fa-fw"></i> <span>Áreas</span>
-            </a>
-
+            {% endfor %}
         </nav>
 
         <div class="mt-auto pt-3 border-top border-secondary">

@@ -14,7 +14,7 @@ class Solicitudes(ModeloBase):
     tipo_solicitud = models.CharField(verbose_name='Tipo de Solicitud', choices=CoreChoices.TipoSolicitud.choices, blank=True, null=True)
     
     def __str__(self):
-        return f'Solicitante: {self.persona.nombre_completo_minus()}, {self.descripcion}'
+        return f'Area: {self.area}, descripción: {self.descripcion}'
     
     class Meta:
         verbose_name = "Solicitud"

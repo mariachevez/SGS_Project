@@ -1,25 +1,41 @@
-{% extends 'base.html' %} {% block block_thead %}
-<tr>
-  <th>Área</th>
-  <th>Descripcion</th>
-  <th>Tipo de Solicitud</th>
-  <th>Estado Solicitud</th>
-  <th>Fecha Resolución</th>
-  <th>Acciones</th>
-</tr>
-{% endblock %} {% block block_tbody %} {% for solicitud in solicitudes %}
-<tr>
-  <td></td>
-  <td></td>
-  <td></td>
-  <td></td>
-  <td></td>
-  <td></td>
-</tr>
-{% empty %}
-<tr>
-  <td colspan="6" class="text-muted text-center">
-    Aún no se registran solicitudes
-  </td>
-</tr>
-{% endfor %} {% endblock %}
+{% extends 'nav.html' %}
+{% block block_thead %}
+    <tr>
+        <th>#</th>
+        <th>Área</th>
+        <th>Descripcion</th>
+        <th>Tipo de Solicitud</th>
+        <th>Estado Solicitud</th>
+        <th>Fecha Resolución</th>
+        <th>Acciones</th>
+    </tr>
+{% endblock %}
+{% block block_tbody %}
+    {% for solicitud in solicitudes %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ solicitud.area }}</td>
+            <td>{{ solicitud.descripcion }}</td>
+            <td>{{ solicitud.get_tipo_solicitud_display }}</td>
+            <td>{{ solicitud.get_estado_solicitud_display }}</td>
+            <td>{{ solicitud.fecha_resolucion|default:'Pendiente de Resolución' }}</td>
+            <td>
+                <div class="d-flex justify-content-center align-items-center">
+                    <a onclick='formModal("{% url "editar_solicitud" solicitud.pk %}", "Editar una solicitud", "modal-lg")' data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" href="javascript:void(0)">
+                        <i class="fa-solid fa-pen-to-square fa-fw fs-6 icon-color"></i>
+                    </a>
+                    <a onclick="eliminarAjax('Está por eliminar esta solicitud: {{ solicitud.descripcion }}', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_solicitud' solicitud.pk %}')"
+                       data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar" href="javascript:void(0)">
+                        <i class="fa-solid fa-trash fa-fw fs-6 icon-color"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="7" class="text-muted text-center">
+                Aún no se registran solicitudes
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}

@@ -6,7 +6,7 @@ from .views.Modulos.views import *
 urlpatterns = [
 
     # ==========================================
-    # MÓDULO: PERSONA (En BD registrarás: persona)
+    # MÓDULO: PERSONA (En BD registrarás: personal)
     # ==========================================
     path('personal', ListadoPersona.as_view(), name='listado_persona'),
     path('personal/crear/', CrearPersona.as_view(), name='crear_persona'),
@@ -32,7 +32,7 @@ urlpatterns = [
     path('pais', ListadoPaises.as_view(), name='listado_pais'),
     path('pais/crear/', CrearPais.as_view(), name='crear_pais'),
     path('pais/actualizar/<int:pk>/', EditarPais.as_view(), name='editar_pais'),
-    path('pais/eliminar/<int:pk>/', EliminarPais.as_view(), name='eliminar_pais'),
+    path('pais/eliminar/<int:pk>/', EliminarBase.as_view(model=Pais), name='eliminar_pais'),
 
     # ==========================================
     # MÓDULO: PROVINCIA (En BD registrarás: provincia)
