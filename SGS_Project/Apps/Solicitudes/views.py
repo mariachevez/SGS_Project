@@ -1,10 +1,8 @@
-from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
+from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView
 from django.views.generic import ListView
 
 from SGS_Project.middleware import obtener_entidades_sesion
-from .models import *
 from .forms import *
 from Apps.Notificaciones.models import *
 from Apps.Administracion.models import Area
@@ -17,12 +15,11 @@ class ListadoSolicitudes(ListView):
     context_object_name = 'solicitudes'
     
     def get_queryset(self):
+        queryset = super().get_queryset()
         entidades = obtener_entidades_sesion()
         persona = entidades['persona']
+        return queryset.filter(status=True, persona=persona)
 
-        return super().get_queryset().filter(status=True, persona=persona)
-        
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de Solicitudes'
@@ -45,7 +42,12 @@ class CrearSolicitud(BaseCreateView):
     def form_valid(self, form):
         descripcion = self.request.POST.get('descripcion')
         area = self.request.POST.get('area')
-
+        entidades = obtener_entidades_sesion()
+        persona = entidades['persona']
+        if not persona:
+            form.add_error(None, 'No existe una persona asociada a la sesión actual.')
+            return self.form_invalid(form)
+        form.instance.persona = persona
         area_inst = Area.objects.get(pk=area)
         try:
             director = area_inst.get_director()

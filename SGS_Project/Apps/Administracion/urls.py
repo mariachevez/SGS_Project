@@ -112,4 +112,5 @@ urlpatterns = [
     # ==========================================
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),
     path('buscar_cantones/', ObtenerCantones.as_view(), name='buscar_cantones'),
+    path('buscar_personas/', BuscarPersonasView.as_view(), name='buscar_personas'),
 ]

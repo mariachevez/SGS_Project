@@ -1,89 +1,80 @@
 <form method="post" id="formModal" action="{{ guardar }}" class="px-3 py-2">
-  {% csrf_token %} {% block block_form %}
-  <div class="row g-2">
-    {% for field in form %}
-    <div
-      class="fieldset_{{field.name}} col-md-{{ field.field.col|default:'12' }}"
-    >
-      <label
-        for="{{ field.id_for_label }}"
-        class="form-label small fw-semibold text-dark ls-tight mb-1.5"
-      >
-        {{ field.label }}
-      </label>
+    {% csrf_token %}
 
-      <div
-        class="modern-input-wrapper {% if field.errors %}is-invalid-field{% endif %}"
-      >
-        {{ field }}
-      </div>
+    {% block block_form %}
+    <div class="row g-2">
+        {% for field in form %}
+        <div class="fieldset_{{ field.name }} col-md-{{ field.field.col|default:'12' }}">
+            <label for="{{ field.id_for_label }}" class="form-label small fw-semibold text-dark ls-tight mb-1.5">
+                {{ field.label }}
+            </label>
 
-      {% if field.help_text %}
-      <div
-        class="form-text text-muted fs-7 mt-1.5 ps-1 d-flex align-items-center gap-1.5 opacity-75"
-      >
-        <i class="fa-solid fa-circle-info text-secondary opacity-50"></i>
-        <span>{{ field.help_text|safe }}</span>
-      </div>
-      {% endif %} {% if field.errors %}
-      <div
-        class="text-danger small mt-2 d-flex align-items-center gap-1.5 fw-medium opacity-90 ps-1 layout-error"
-      >
-        <i class="fa-solid fa-triangle-exclamation fs-7.5"></i>
-        <span>{{ field.errors|striptags }}</span>
-      </div>
-      {% endif %}
+            <div class="modern-input-wrapper {% if field.errors %}is-invalid-field{% endif %}">
+                {{ field }}
+            </div>
+            
+            {% if field.help_text %}
+                <div class="form-text text-muted fs-7 mt-1.5 ps-1 d-flex align-items-center gap-1.5 opacity-75">
+                    <i class="fa-solid fa-circle-info text-secondary opacity-50"></i>
+                    <span>{{ field.help_text|safe }}</span>
+                </div>
+            {% endif %}
+
+            {% if field.errors %}
+                <div class="text-danger small mt-2 d-flex align-items-center gap-1.5 fw-medium opacity-90 ps-1 layout-error">
+                    <i class="fa-solid fa-triangle-exclamation fs-7.5"></i>
+                    <span>{{ field.errors|striptags }}</span>
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-  {% endblock %} {% block buttons %}
-  <div class="d-flex justify-content-evenly my-2">
-    <button
-      type="submit"
-      form="formModal"
-      class="btn btn-success fw-medium px-4 py-2 rounded-2 fs-7 shadow-sm"
-    >
-      Guardar cambios
-    </button>
-    <button
-      type="button"
-      class="btn btn-danger border-0 fw-medium text-white px-4 py-2 rounded-2 fs-7"
-      data-bs-dismiss="modal"
-    >
-      Cancelar
-    </button>
-  </div>
-  {% endblock %}
+    {% endblock %}
+
+    {% block buttons %}
+    <div class="d-flex justify-content-evenly my-2">
+        <button type="submit"
+                form="formModal"
+                class="btn btn-success fw-medium px-4 py-2 rounded-2 fs-7 shadow-sm">
+            Guardar cambios
+        </button>
+
+        <button type="button"
+                class="btn btn-danger border-0 fw-medium text-white px-4 py-2 rounded-2 fs-7"
+                data-bs-dismiss="modal">
+            Cancelar
+        </button>
+    </div>
+    {% endblock %}
 </form>
+
 <script>
-  $(".select2").select2({
-    theme: "bootstrap-5",
-    dropdownParent: $("#modalBase"),
-    placeholder: "Seleccione una opción",
-    width: "100%",
-    allowClear: true,
-  });
-</script>
-<script>
-$(document).ready(function() {
-    // Inicialización del Select2 que ya tenías
-    $(".select2").select2({
-        theme: "bootstrap-5",
-        dropdownParent: $("#modalBase"),
-        placeholder: "Seleccione una opción",
-        width: "100%",
-        allowClear: true,
+$(function () {
+
+    $('select').each(function () {
+        const $select = $(this);
+
+        if ($select.data('api')) {
+            buscarPersona($select, $select.data('tipo') || '');
+        } else {
+            $select.select2({
+                theme: "bootstrap-5",
+                dropdownParent: $("#modalBase"),
+                placeholder: "Seleccione una opción",
+                width: "100%",
+                allowClear: true
+            });
+        }
     });
 
-    // CONTROL DE ENVÍO POR AJAX (Previene que la página se rompa)
-    $('#formModal').on('submit', function(e) {
-        e.preventDefault(); // Detiene el envío clásico del navegador
+    // Envío AJAX
+    $('#formModal').on('submit', function (e) {
+        e.preventDefault();
 
         const $form = $(this);
         const url = $form.attr('action');
-        const formData = new FormData(this); // Captura archivos y textos dinámicamente
+        const formData = new FormData(this);
 
-        // Limpiamos alertas y estilos de error previos antes de validar de nuevo
         $('.layout-error').remove();
         $('.modern-input-wrapper').removeClass('is-invalid-field');
 
@@ -93,12 +84,16 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
+
+            success: function (response) {
                 if (response.result) {
-                    // Cerramos el modal limpiamente
+
                     const modalEl = document.getElementById('modalBase');
                     const modal = bootstrap.Modal.getInstance(modalEl);
-                    if (modal) modal.hide();
+
+                    if (modal) {
+                        modal.hide();
+                    }
 
                     if (response.url) {
                         window.location.href = response.url;
@@ -107,27 +102,35 @@ $(document).ready(function() {
                     }
                 }
             },
-            error: function(xhr) {
+
+            error: function (xhr) {
                 const data = xhr.responseJSON;
 
-                // 1. Manejo de Errores Globales (Ej: Cédula incorrecta desde la vista)
-                if (data && data.message && (!data.errors || Object.keys(data.errors).length === 0 || data.errors.__all__)) {
-                    ToastDanger(data.message)
+                if (
+                    data &&
+                    data.message &&
+                    (
+                        !data.errors ||
+                        Object.keys(data.errors).length === 0 ||
+                        data.errors.__all__
+                    )
+                ) {
+                    ToastDanger(data.message);
                 }
 
-                // 2. Manejo de Errores Específicos por Campo (Ej: Longitud mayor a 20)
                 if (data && data.errors) {
-                    Object.keys(data.errors).forEach(function(fieldName) {
-                        const mensajeError = data.errors[fieldName];
 
-                        // Buscamos el contenedor específico del campo usando la clase dinámica que creaste
+                    Object.keys(data.errors).forEach(function (fieldName) {
+
+                        const mensajeError = data.errors[fieldName];
                         const $contenedorCampo = $(`.fieldset_${fieldName}`);
 
                         if ($contenedorCampo.length) {
-                            // Añadimos el borde rojo al input wrapper
-                            $contenedorCampo.find('.modern-input-wrapper').addClass('is-invalid-field');
 
-                            // Inyectamos el contenedor HTML idéntico al de tu backend para mostrar el error abajo
+                            $contenedorCampo
+                                .find('.modern-input-wrapper')
+                                .addClass('is-invalid-field');
+
                             $contenedorCampo.append(`
                                 <div class="text-danger small mt-2 d-flex align-items-center gap-1.5 fw-medium opacity-90 ps-1 layout-error">
                                     <i class="fa-solid fa-triangle-exclamation fs-7.5"></i>
@@ -140,6 +143,8 @@ $(document).ready(function() {
             }
         });
     });
+
 });
 </script>
-{% block extra_js %} {% endblock %}
+
+{% block extra_js %}{% endblock %}

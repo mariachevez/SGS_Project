@@ -1,14 +1,10 @@
 import json
 from django.shortcuts import render
-from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
-from django.contrib import messages
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView
+from django.views.generic import ListView, TemplateView
 
 from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
-from ...models import *
 from ...forms import *
-from core.models import EliminarBase
 from core.views import AjaxExceptionMixin
 
 class ListarArea(ListView):
@@ -66,6 +62,7 @@ class AsignarDirectorArea(BaseUpdateView):
 
 class AgregarResponsables(AjaxExceptionMixin, View):
     template_name = 'Area/personalformulario.html'
+
     def get(self, request, pk): 
         area = Area.objects.get(status=True, pk=pk)
         personas = Persona.objects.filter(status=True, areas_trabajo__isnull=True, areas_dirigidas__isnull=True)
@@ -73,12 +70,12 @@ class AgregarResponsables(AjaxExceptionMixin, View):
             return JsonResponse({'result': False, 'mensaje': 'Error al obtener el área'})
     
         return render(request, self.template_name, {'area': area, 'personas': personas})
-    
+
     def post(self, request, pk):
         area = Area.objects.filter(status=True, pk=pk)
         if not area:
             return JsonResponse({'result': False, 'mensaje': 'No es área válido'})
-        
+
         try:
             personas = json.loads(request.POST['personas_list'])
         except Exception as ex:
@@ -99,6 +96,7 @@ class BuscarPersona(View):
 
 class GuardarAsignacion(AjaxExceptionMixin, View):
     def post(self, request):
+
         try:
             ePersona = request.POST.get('persona_id')
             area = request.POST.get('area_id')

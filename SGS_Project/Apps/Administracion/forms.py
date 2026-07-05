@@ -1,5 +1,6 @@
 from django import forms
 from django.db import transaction
+from django.urls import reverse_lazy
 
 from core.forms import FormModeloBase
 from core.funciones import validar_cedula
@@ -9,35 +10,48 @@ from .models import Persona
 
 
 class PersonaForm(FormModeloBase):
-    nombres = forms.CharField(label='Nombres:', widget=forms.TextInput(attrs={'col': '5', 'placeholder': 'Ejm: Juan Carlos'}))
-    apellido1 = forms.CharField(label='Primer Apellido:', widget=forms.TextInput(attrs={'col': '4', 'placeholder': 'Ejm: Perez'}))
-    apellido2 = forms.CharField(label='Segundo apellido', required=False, widget=forms.TextInput(attrs={'col': '3', 'placeholder': 'Ejm: Armijos'}))
-    identificacion = forms.CharField(label='Cédula:', help_text='Máximo de 10 dígitos', min_length=10, max_length=10, widget=forms.TextInput(attrs={'col': '4', 'placeholder': 'Ejm: 010XXXXXXX'}))
-    telefono = forms.CharField(label='Teléfono celular:', help_text='Máximo de 10 dígitos', min_length=10, max_length=10, widget=forms.TextInput(attrs={'col': '5', 'placeholder': 'Ejm: 09XXXXXXXX'}))
-    email = forms.EmailField(label='Correo electrónico:', widget=forms.TextInput(attrs={'col': '7', 'placeholder': 'Ejm: correo@ejemplo.com'}))
-    nacimiento = forms.DateField(label='Fecha de Nacimiento:', widget=forms.DateInput(attrs={'col': '4', 'type': 'date'}))
-    sexo = forms.ChoiceField(label='Sexo:', choices=CoreChoices.Sexo.choices, widget=forms.Select(attrs={'class':'form-select','col':'4'}))
-    pais = forms.ModelChoiceField(label='País:', queryset=Pais.objects.filter(status=True), widget=forms.Select(attrs={'col': '4', 'class': 'select2'}))
-    provincia = forms.ModelChoiceField(label='Provincia:', queryset=Provincia.objects.none(), widget=forms.Select(attrs={'col': '4', 'class': 'select2'}))
-    canton = forms.ModelChoiceField(label='Cantón', queryset=Canton.objects.none(), widget=forms.Select(attrs={'col': '4', 'class': 'select2'}))
-    
+    nombres = forms.CharField(label='Nombres:',
+                              widget=forms.TextInput(attrs={'col': '5', 'placeholder': 'Ejm: Juan Carlos'}))
+    apellido1 = forms.CharField(label='Primer Apellido:',
+                                widget=forms.TextInput(attrs={'col': '4', 'placeholder': 'Ejm: Perez'}))
+    apellido2 = forms.CharField(label='Segundo apellido', required=False,
+                                widget=forms.TextInput(attrs={'col': '3', 'placeholder': 'Ejm: Armijos'}))
+    identificacion = forms.CharField(label='Cédula:', help_text='Máximo de 10 dígitos', min_length=10, max_length=10,
+                                     widget=forms.TextInput(attrs={'col': '4', 'placeholder': 'Ejm: 010XXXXXXX'}))
+    telefono = forms.CharField(label='Teléfono celular:', help_text='Máximo de 10 dígitos', min_length=10,
+                               max_length=10,
+                               widget=forms.TextInput(attrs={'col': '5', 'placeholder': 'Ejm: 09XXXXXXXX'}))
+    email = forms.EmailField(label='Correo electrónico:',
+                             widget=forms.TextInput(attrs={'col': '7', 'placeholder': 'Ejm: correo@ejemplo.com'}))
+    nacimiento = forms.DateField(label='Fecha de Nacimiento:',
+                                 widget=forms.DateInput(attrs={'col': '4', 'type': 'date'}))
+    sexo = forms.ChoiceField(label='Sexo:', choices=CoreChoices.Sexo.choices,
+                             widget=forms.Select(attrs={'class': 'form-select', 'col': '4'}))
+    pais = forms.ModelChoiceField(label='País:', queryset=Pais.objects.filter(status=True),
+                                  widget=forms.Select(attrs={'col': '4', 'class': 'select2'}))
+    provincia = forms.ModelChoiceField(label='Provincia:', queryset=Provincia.objects.none(),
+                                       widget=forms.Select(attrs={'col': '4', 'class': 'select2'}))
+    canton = forms.ModelChoiceField(label='Cantón', queryset=Canton.objects.none(),
+                                    widget=forms.Select(attrs={'col': '4', 'class': 'select2'}))
+
     class Meta:
         model = Persona
-        fields = ['nombres', 'apellido1', 'apellido2', 'identificacion', 'nacimiento', 'sexo', 'email', 'telefono', 'pais', 'provincia', 'canton']
-    
+        fields = ['nombres', 'apellido1', 'apellido2', 'identificacion', 'nacimiento', 'sexo', 'email', 'telefono',
+                  'pais', 'provincia', 'canton']
+
     def __init__(self, *args, **kwargs):
         super(PersonaForm, self).__init__(*args, **kwargs)
-        
+
         if self.instance and self.instance.pk:
             self.fields['identificacion'].disabled = True
-            self.fields['provincia'].queryset = Provincia.objects.filter(status=True, 
+            self.fields['provincia'].queryset = Provincia.objects.filter(status=True,
                                                                          pais=self.instance.pais)
-            self.fields['canton'].queryset = Canton.objects.filter(status=True, 
+            self.fields['canton'].queryset = Canton.objects.filter(status=True,
                                                                    provincia=self.instance.provincia)
-        
+
         for field in self.fields:
             self.fields[field].error_messages = {'required': 'Este campo es obligatorio'}
-        
+
         if 'pais' in self.data:
             try:
                 pais_id = int(self.data.get('pais'))
@@ -72,7 +86,7 @@ class PersonaForm(FormModeloBase):
                 existe_cedula = Persona.objects.filter(identificacion=cedula).exists()
                 if existe_cedula:
                     raise ValueError(f'La cedula ingresada ya se encuentra registrada.')
-                
+
                 password = f'{cedula}*{anio_nacimiento}'
                 user = User.objects.create_user(
                     username=cedula,
@@ -90,59 +104,73 @@ class PersonaForm(FormModeloBase):
                     raise ValueError("Error al guardar la persona")
 
         return persona
-            
+
+
 class PaisForm(FormModeloBase):
-    nombre = forms.CharField(label='Nombre del País:', widget=forms.TextInput(attrs={'col': '6', 'placeholder': 'Ejm: Ecuador'}))
-    prefijo = forms.CharField(label='Prefijo del país:', required=False, widget=forms.TextInput(attrs={'col': '6', 'placeholder': 'Ejm: 593'}))
-    
+    nombre = forms.CharField(label='Nombre del País:',
+                             widget=forms.TextInput(attrs={'col': '6', 'placeholder': 'Ejm: Ecuador'}))
+    prefijo = forms.CharField(label='Prefijo del país:', required=False,
+                              widget=forms.TextInput(attrs={'col': '6', 'placeholder': 'Ejm: 593'}))
+
     class Meta:
         model = Pais
         fields = ['nombre', 'prefijo']
-        
+
     def __init__(self, *args, **kwargs):
         super(PaisForm, self).__init__(*args, **kwargs)
 
+
 class ProvinciaForm(FormModeloBase):
-    pais = forms.ModelChoiceField(label='País:', queryset=Pais.objects.filter(status=True),  widget=forms.Select(attrs={'col':'12', 'class':'form-select'}))
-    nombre = forms.CharField(label='Nombre de la Provincia:', widget=forms.TextInput(attrs={'col': '12', 'placeholder': 'Ejm: Guayas'}))
-    
+    pais = forms.ModelChoiceField(label='País:', queryset=Pais.objects.filter(status=True),
+                                  widget=forms.Select(attrs={'col': '12', 'class': 'form-select'}))
+    nombre = forms.CharField(label='Nombre de la Provincia:',
+                             widget=forms.TextInput(attrs={'col': '12', 'placeholder': 'Ejm: Guayas'}))
+
     class Meta:
         model = Provincia
         fields = ['pais', 'nombre']
-    
+
     def __init__(self, *args, **kwargs):
         super(ProvinciaForm, self).__init__(*args, **kwargs)
 
+
 class CantonForm(FormModeloBase):
-    provincia = forms.ModelChoiceField(label='Provincia:', queryset=Provincia.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-select'}))
+    provincia = forms.ModelChoiceField(label='Provincia:', queryset=Provincia.objects.filter(status=True),
+                                       widget=forms.Select(attrs={'class': 'form-select'}))
     nombre = forms.CharField(label='Nombre del Cantón:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Milagro'}))
-    
+
     class Meta:
         model = Canton
         fields = ['provincia', 'nombre']
-        
+
     def __init__(self, *args, **kwargs):
         super(CantonForm, self).__init__(*args, **kwargs)
-    
+
 
 class AreaForm(FormModeloBase):
     nombre = forms.CharField(label='Nombre del área:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Producción'}))
-    descripcion = forms.CharField(label='Descripción del área:', widget=forms.Textarea(attrs={'placeholder': 'Ingrese una breve descripción del área', 'rows': '5'}))
+    director = forms.ModelChoiceField(label='Director departamental', queryset=Persona.objects.none(),
+                                      widget=forms.Select(attrs={'class': 'form-select', 'data-tipo': 'director', 'data-api': 'true',
+                                                                 'data-url': reverse_lazy('buscar_personas')}))
+    descripcion = forms.CharField(label='Descripción del área:', widget=forms.Textarea(
+        attrs={'placeholder': 'Ingrese una breve descripción del área', 'rows': '5'}))
 
     class Meta:
         model = Area
-        fields = ['nombre', 'descripcion']
-        
+        fields = ['nombre', 'director', 'descripcion']
+
     def __init__(self, *args, **kwargs):
         super(AreaForm, self).__init__(*args, **kwargs)
-        
+
+
 class AsignacionDirectorForm(FormModeloBase):
-    director = forms.ModelChoiceField(label='Responsable del Área:', queryset=Persona.objects.filter(status=True), widget=forms.Select(attrs={'class': 'form-select select2'}))
-    
+    director = forms.ModelChoiceField(label='Responsable del Área:', queryset=Persona.objects.filter(status=True),
+                                      widget=forms.Select(attrs={'class': 'form-select select2'}))
+
     class Meta:
         model = Area
         fields = ['director']
-    
+
     def __init__(self, *args, **kwargs):
         super(AsignacionDirectorForm, self).__init__(*args, **kwargs)
 
@@ -151,7 +179,8 @@ class GrupoForm(FormModeloBase):
     nombre = forms.CharField(label='Nombre del Grupo:',
                              widget=forms.TextInput(attrs={'col': '12', 'placeholder': 'Ejm: Administrador'}))
     descripcion = forms.CharField(label='Descripción del grupo:', required=False,
-                              widget=forms.Textarea(attrs={'rows': '3', 'placeholder': 'Ejm: Descripcion del grupo'}))
+                                  widget=forms.Textarea(
+                                      attrs={'rows': '3', 'placeholder': 'Ejm: Descripcion del grupo'}))
 
     class Meta:
         model = Grupo
@@ -159,17 +188,20 @@ class GrupoForm(FormModeloBase):
 
     def __init__(self, *args, **kwargs):
         super(GrupoForm, self).__init__(*args, **kwargs)
-        
+
+
 class CategoriaForm(FormModeloBase):
-    nombre = forms.CharField(label='Nombre de la Categoría:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Administrativo'}))        
+    nombre = forms.CharField(label='Nombre de la Categoría:',
+                             widget=forms.TextInput(attrs={'placeholder': 'Ejm: Administrativo'}))
     prioridad = forms.IntegerField(label='Prioridad', widget=forms.NumberInput())
-    
+
     class Meta:
         model = ModuloCategorias
         fields = ['nombre', 'prioridad']
-    
+
     def __init__(self, *args, **kwargs):
         super(CategoriaForm, self).__init__(*args, **kwargs)
+
 
 class PersonaGruposForm(FormModeloBase):
     class Meta:
@@ -189,7 +221,7 @@ class PersonaGruposForm(FormModeloBase):
         grupo = self.cleaned_data.get('grupo')
         if not grupo:
             raise forms.ValidationError('Seleccione un grupo')
-        
+
         if grupo and self.persona:
             existe = GrupoPersona.objects.filter(
                 persona=self.persona,
@@ -207,41 +239,58 @@ class PersonaGruposForm(FormModeloBase):
             grupopersona.save()
         return grupopersona
 
+
 class ModuloCategoriasForm(FormModeloBase):
-    nombre = forms.CharField(label='Nombre de la Categoría:', required=True, widget=forms.TextInput(attrs={'placeholder': 'Ejm: Administración'}))
-    prioridad = forms.IntegerField(label='Prioridad de la Categoría:', required=True, widget=forms.NumberInput(attrs={'placeholder': 'Ejm: 1'}))
+    nombre = forms.CharField(label='Nombre de la Categoría:', required=True,
+                             widget=forms.TextInput(attrs={'placeholder': 'Ejm: Administración'}))
+    prioridad = forms.IntegerField(label='Prioridad de la Categoría:', required=True,
+                                   widget=forms.NumberInput(attrs={'placeholder': 'Ejm: 1'}))
+
     class Meta:
         model = ModuloCategorias
         fields = ['nombre', 'prioridad']
-        
+
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'prioridad': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
+
 class GrupoModuloForm(FormModeloBase):
-    nombre = forms.CharField(label='Nombre del Grupo del módulo:', widget=forms.TextInput(attrs={'placeholder': 'Describa el nombre del grupo de módulo'}))
-    descripcion = forms.CharField(label='Descripción breve:', widget=forms.Textarea(attrs={'placeholder': 'Realice una descripción breve del grupo módulo', 'rows': 3}))
-    
+    nombre = forms.CharField(label='Nombre del Grupo del módulo:',
+                             widget=forms.TextInput(attrs={'placeholder': 'Describa el nombre del grupo de módulo'}))
+    descripcion = forms.CharField(label='Descripción breve:', widget=forms.Textarea(
+        attrs={'placeholder': 'Realice una descripción breve del grupo módulo', 'rows': 3}))
+
     class Meta:
         model = GrupoModulo
         fields = ['nombre', 'descripcion']
 
+
 class ModuloForm(FormModeloBase):
-    url = forms.CharField(label='URL del módulo:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: /administracion/listado'}))
+    url = forms.CharField(label='URL del módulo:',
+                          widget=forms.TextInput(attrs={'placeholder': 'Ejm: /administracion/listado'}))
     nombre = forms.CharField(label='Nombre del módulo:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Persona'}))
-    icono = forms.CharField(label='Icono del módulo:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: fa-solid fa-users'}))
-    descripcion = forms.CharField(label='Descripción del módulo:', widget=forms.Textarea(attrs={'placeholder': 'Ejm: Descripción breve del módulo', 'rows': 3}))
-    activo = forms.BooleanField(label='Activo:', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'col': 3}))
-    categorias = forms.ModelChoiceField(label='Categoría del Módulo', required=True, queryset=ModuloCategorias.objects.filter(status=True).order_by('prioridad', 'nombre') ,widget=forms.Select(attrs={'class': 'form-select'}))
-    submodulo = forms.BooleanField(label='¿Es submódulo?', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'col': 3}))
-    
+    icono = forms.CharField(label='Icono del módulo:',
+                            widget=forms.TextInput(attrs={'placeholder': 'Ejm: fa-solid fa-users'}))
+    descripcion = forms.CharField(label='Descripción del módulo:', widget=forms.Textarea(
+        attrs={'placeholder': 'Ejm: Descripción breve del módulo', 'rows': 3}))
+    activo = forms.BooleanField(label='Activo:', required=False,
+                                widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'col': 3}))
+    categorias = forms.ModelChoiceField(label='Categoría del Módulo', required=True,
+                                        queryset=ModuloCategorias.objects.filter(status=True).order_by('prioridad',
+                                                                                                       'nombre'),
+                                        widget=forms.Select(attrs={'class': 'form-select'}))
+    submodulo = forms.BooleanField(label='¿Es submódulo?', required=False,
+                                   widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'col': 3}))
+
     class Meta:
         model = Modulo
         fields = ['categorias', 'icono', 'url', 'nombre', 'descripcion', 'activo', 'submodulo']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
 
 class AgruparModuloForm(FormModeloBase):
     class Meta:
@@ -301,6 +350,7 @@ class AgruparModuloForm(FormModeloBase):
         if commit:
             agrupacion.save()
         return agrupacion
+
 
 class AgrupacionModulosPersonaForm(FormModeloBase):
     class Meta:

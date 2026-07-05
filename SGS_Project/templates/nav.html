@@ -6,13 +6,16 @@
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
+
         .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
     </style>
 
-    <aside id="sidebar-wrapper" class="bg-dark text-white d-flex flex-column p-3 shadow-sm border-end border-secondary border-opacity-20" style="z-index: 1020;">
+    <aside id="sidebar-wrapper"
+           class="bg-dark text-white d-flex flex-column p-3 shadow-sm border-end border-secondary border-opacity-20"
+           style="z-index: 1020;">
 
         <div class="d-flex flex-column align-items-center border-bottom border-secondary pb-4 mb-2 position-relative">
             <button type="button"
@@ -21,6 +24,11 @@
                     onclick="document.getElementById('sidebarToggle').click();"
                     aria-label="Cerrar menú">
             </button>
+
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-layer-group me-2"></i>
+                Sistema Administrativo
+            </a>
 
             <div class="position-relative bg-white bg-opacity-10 rounded-circle p-1 shadow-sm mb-3 mt-2">
                 <img class="rounded-circle bg-white p-1"
@@ -82,7 +90,8 @@
         <div class="mt-auto pt-3 border-top border-secondary">
             <form action="{% url 'logout' %}" method="post" class="w-100 m-0">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-light border-0 w-100 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-medium btn-logout-modern">
+                <button type="submit"
+                        class="btn btn-outline-light border-0 w-100 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-medium btn-logout-modern">
                     <span>Cerrar sesión</span>
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>

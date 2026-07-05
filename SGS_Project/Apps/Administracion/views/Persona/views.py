@@ -13,6 +13,7 @@ from django.db import transaction
 from core.funciones import validar_cedula
 from core.models import CoreChoices
 
+
 class ListadoPersona(ListView):
     model = Persona
     template_name = 'Persona/index.html'
@@ -48,6 +49,7 @@ class ListadoPersona(ListView):
         context['estado'] = self.request.GET.get('estado')
         return context
 
+
 class CrearPersona(BaseCreateView):
     model = Persona
     form_class = PersonaForm
@@ -68,6 +70,7 @@ class CrearPersona(BaseCreateView):
         except Exception as ex:
             form.add_error(None, str(ex))
             return self.form_invalid(form)
+
 
 class EditarPersona(BaseUpdateView):
     model = Persona
@@ -90,9 +93,11 @@ class EditarPersona(BaseUpdateView):
             form.add_error(None, str(ex))
             return self.form_invalid(form)
 
+
 class InactivarPersona(BaseDeleteView):
     model = Persona
     redirect_url = reverse_lazy('listado_persona')
+
 
 class ObtenerProvincias(View):
     def get(self, request):
@@ -110,6 +115,7 @@ class ObtenerProvincias(View):
         except Exception as ex:
             return JsonResponse({'result': False, 'mensaje': f'{ex}'})
 
+
 class ObtenerCantones(View):
     def get(self, request):
         try:
@@ -125,6 +131,7 @@ class ObtenerCantones(View):
                     return JsonResponse({'result': False, 'mensaje': 'No se encontraron cantones relacionados'})
         except Exception as ex:
             return JsonResponse({'result': False, 'mensaje': f'{ex}'})
+
 
 class ListadoGrupoPersona(ListView):
     model = GrupoPersona
@@ -149,6 +156,7 @@ class ListadoGrupoPersona(ListView):
         context['ret'] = reverse_lazy('listado_persona')
         context['s'] = self.request.GET.get('s')
         return context
+
 
 class CrearGrupoPersona(BaseCreateView):
     model = GrupoPersona
@@ -187,6 +195,7 @@ class CrearGrupoPersona(BaseCreateView):
 
 class InactivarGrupoPersona(BaseDeleteView):
     model = GrupoPersona
+
     def get_redirect_url(self):
         objeto = self.model.objects.filter(pk=self.kwargs.get('pk')).first()
 
@@ -194,4 +203,102 @@ class InactivarGrupoPersona(BaseDeleteView):
             'listado_grupos_persona',
             kwargs={'persona_id': objeto.persona_id}
         )
-        
+
+
+class BuscarPersonasView(View):
+
+    # Mapea el "tipo" que llega del JS al nombre real del Grupo en BD
+    TIPOS_GRUPO = {
+        'director': 'DIRECTOR',
+    }
+
+    def get(self, request, *args, **kwargs):
+        q = request.GET.get('q', '').strip()
+        idsagregados = request.GET.get('idsagregados', '')
+        tipo = request.GET.get('tipo', '').strip()
+
+        if not q:
+            return JsonResponse({
+                'results': [],
+                'more': False
+            })
+
+        try:
+            palabras = q.split()
+
+            querybase = Persona.objects.filter(status=True).order_by('apellido1')
+
+            if idsagregados:
+                ids = [int(x) for x in idsagregados.split(',') if x.isdigit()]
+                querybase = querybase.exclude(id__in=ids)
+
+            # Filtro por tipo de grupo
+            nombre_grupo = self.TIPOS_GRUPO.get(tipo)
+            if nombre_grupo:
+                querybase = querybase.filter(mis_grupos__grupo__nombre=nombre_grupo)
+
+                if tipo == 'director':
+                    # Excluir quienes ya dirigen un área
+                    querybase = querybase.filter(areas_dirigidas__isnull=True)
+
+            if len(palabras) == 1:
+                personas = querybase.filter(
+                    Q(nombres__icontains=q) |
+                    Q(apellido1__icontains=q) |
+                    Q(apellido2__icontains=q) |
+                    Q(identificacion__icontains=q)
+                )
+
+            elif len(palabras) == 2:
+                personas = querybase.filter(
+                    (
+                            Q(apellido1__icontains=palabras[0]) &
+                            Q(apellido2__icontains=palabras[1])
+                    ) |
+                    (
+                            Q(nombres__icontains=palabras[0]) &
+                            Q(apellido1__icontains=palabras[1])
+                    ) |
+                    (
+                            Q(nombres__icontains=palabras[0]) &
+                            Q(nombres__icontains=palabras[1])
+                    )
+                )
+
+            else:
+                personas = querybase.filter(
+                    (
+                            Q(nombres__icontains=palabras[0]) &
+                            Q(apellido1__icontains=palabras[1]) &
+                            Q(apellido2__icontains=palabras[2])
+                    ) |
+                    (
+                            Q(nombres__icontains=palabras[0]) &
+                            Q(nombres__icontains=palabras[1]) &
+                            Q(apellido1__icontains=palabras[2])
+                    )
+                )
+
+            personas = personas.distinct()[:15]
+
+            return JsonResponse({
+                'results': [
+                    {
+                        'id': persona.id,
+                        'text': persona.nombre_completo_minus(),
+                        'name': persona.nombre_completo_minus(),
+                        'documento': persona.identificacion,
+                        'identificacion': persona.identificacion,
+                        'foto': persona.get_foto() if hasattr(persona, 'get_foto') else '',
+                    }
+                    for persona in personas
+                ],
+                'more': False
+            })
+
+        except Exception as ex:
+            return JsonResponse({
+                'results': [],
+                'more': False,
+                'error': str(ex)
+            }, status=500)
