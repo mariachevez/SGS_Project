@@ -235,7 +235,7 @@ class BuscarPersonasView(View):
             # Filtro por tipo de grupo
             nombre_grupo = self.TIPOS_GRUPO.get(tipo)
             if nombre_grupo:
-                querybase = querybase.filter(mis_grupos__grupo__nombre=nombre_grupo)
+                querybase = querybase.filter(mis_grupos__grupo__nombre__icontains=nombre_grupo)
 
                 if tipo == 'director':
                     # Excluir quienes ya dirigen un área
