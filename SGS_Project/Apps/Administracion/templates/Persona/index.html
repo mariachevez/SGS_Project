@@ -1,15 +1,18 @@
 {% extends 'nav.html' %}
 
 {% block more_filters %}
-    <select id="id_estado"
-            name="estado"
-            class="form-select form-select-sm"
-            style="min-width: 140px;"
-            onchange="document.getElementById('form-filters').submit();">
-        <option value="">-- Todos los Estados --</option>
-        <option value="true" {% if estado == "true" %}selected{% endif %}>ACTIVO</option>
-        <option value="false" {% if estado == "false" %}selected{% endif %}>INACTIVO</option>
-    </select>
+    <div class="col">
+        <label for="id_estado" class="fw-semibold form-label fs-7">Estado:</label>
+        <select id="id_estado"
+                name="estado"
+                class="form-select form-select-sm"
+                style="min-width: 140px;"
+                onchange="document.getElementById('form-filters').submit();">
+            <option value="">-- Todos los Estados --</option>
+            <option value="true" {% if estado == "true" %}selected{% endif %}>ACTIVO</option>
+            <option value="false" {% if estado == "false" %}selected{% endif %}>INACTIVO</option>
+        </select>
+    </div>
 {% endblock %}
 
 {% block block_thead %}
@@ -27,15 +30,17 @@
     {% for persona in personas %}
         <tr>
             <td class="fs-7">{{ forloop.counter }}</td>
-            <td class="fs-7">{{persona.nombre_completo_minus}}</td>
-            <td class="fs-7">{{persona.identificacion}}</td>
-            <td class="fs-7">{{persona.email}}</td>
-            <td class="fs-7">{{persona.telefono}}</td>
+            <td class="fs-7">{{ persona.nombre_completo_minus }}</td>
+            <td class="fs-7">{{ persona.identificacion }}</td>
+            <td class="fs-7">{{ persona.email }}</td>
+            <td class="fs-7">{{ persona.telefono }}</td>
             <td class="fs-7">
                 {% if persona.status %}
-                    <i title="Activo" data-bs-toggle="tooltip" data-bs-placement="top" class="fa fa-check-circle fs-7 text-success"></i>
+                    <i title="Activo" data-bs-toggle="tooltip" data-bs-placement="top"
+                       class="fa fa-check-circle fs-7 text-success"></i>
                 {% else %}
-                    <i title="Inactivo" data-bs-toggle="tooltip" data-bs-placement="top" class="fa fa-times-circle fs-7 text-danger"></i>
+                    <i title="Inactivo" data-bs-toggle="tooltip" data-bs-placement="top"
+                       class="fa fa-times-circle fs-7 text-danger"></i>
                 {% endif %}
             </td>
             <td class="fs-7 align-middle text-center">

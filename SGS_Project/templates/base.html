@@ -27,7 +27,7 @@
             const wrapper = document.getElementById('wrapper-layout');
 
             if (toggleBtn && wrapper) {
-                toggleBtn.addEventListener('click', function() {
+                toggleBtn.addEventListener('click', function () {
                     wrapper.classList.toggle('sidebar-hidden');
                 });
             }
@@ -84,21 +84,25 @@
 
                             <div class="d-flex align-items-center">
                                 {% block list_filters %}
-                                    <form method="get" class="d-flex gap-2 m-0">
+                                    <form method="get" class="row gap-2 m-0">
                                         {% block more_filters %}
                                         {% endblock %}
-                                        <div class="input-group">
-                                            <input type="text"
-                                                   class="form-control form-control-sm"
-                                                   name="s"
-                                                   value="{{ request.GET.s|default:'' }}"
-                                                   placeholder="{{ placeholder|default:'Buscar...' }}">
-                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                <i class="fa-solid fa-search"></i>
-                                            </button>
+                                        <div class="col">
+                                            <label for="s" class="form-label fw-semibold fs-7">Buscador:</label>
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       class="form-control form-control-sm"
+                                                       name="s"
+                                                       value="{{ request.GET.s|default:'' }}"
+                                                       placeholder="{{ placeholder|default:'Buscar...' }}">
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    <i class="fa-solid fa-search"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                         {% if request.GET.s %}
-                                            <a href="{{ request.path }}" class="btn btn-sm btn-outline-secondary" title="Ver todo">
+                                            <a href="{{ request.path }}" class="btn btn-sm btn-outline-secondary"
+                                               title="Ver todo">
                                                 <i class="fa-solid fa-rotate-right"></i>
                                             </a>
                                         {% endif %}
@@ -129,12 +133,14 @@
         {% endblock %}
     </main>
 
-    <div class="modal fade" data-bs-backdrop="static" id="modalBase" tabindex="-1" aria-labelledby="modalBaseTitle" aria-hidden="true">
+    <div class="modal fade" data-bs-backdrop="static" id="modalBase" tabindex="-1" aria-labelledby="modalBaseTitle"
+         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-lg rounded-4">
                 <div class="modal-header border-bottom bg-cardheader py-3 px-4 align-items-center">
                     <h5 class="modal-title fw-bold text-opacity-80 fs-5" id="modalBaseTitle"></h5>
-                    <button type="button" class="btn-close shadow-none ms-auto" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close shadow-none ms-auto" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body p-4" id="modalBaseBody"></div>
                 <div class="modal-footer border-top-0 px-4 pb-4 pt-2 gap-2"></div>
@@ -150,8 +156,16 @@
 <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
 <script src="{% static 'js/modal.js' %}"></script>
 <script src="{% static 'js/buscarpersona.js' %}"></script>
+<link rel="stylesheet" href="{% static 'fancybox/fancybox.css' %}">
+<script src="{% static 'fancybox/fancybox.umd.js' %}"></script>
 <script>
+
     document.addEventListener('DOMContentLoaded', () => {
+        Fancybox.bind("[data-fancybox]", {
+            iframe: {
+                preload: false
+            }
+        });
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
             new bootstrap.Tooltip(el);
         });

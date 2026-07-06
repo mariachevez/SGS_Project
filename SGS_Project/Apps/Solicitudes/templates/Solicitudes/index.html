@@ -1,13 +1,40 @@
 {% extends 'nav.html' %}
+{% block more_filters %}
+    <div class="col">
+        <label for="area" class="form-label fw-semibold fs-7">Áreas:</label>
+        <select name="area" id="area" class="form-select form-select-sm">
+            <option value="" {% if not request.GET.area %}selected{% endif %}>Todas las áreas</option>
+            {% for area in areas %}
+                <option value="{{ area.0 }}"
+                        {% if request.GET.area|stringformat:"s" == area.0|stringformat:"s" %}selected{% endif %}>
+                    {{ area.1 }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col">
+        <label class="fw-semibold form-label fs-7" for="estado">Estado Solicitud:</label>
+        <select name="estado" id="estado" class="form-select form-select-sm">
+            <option value="">Todos los estados</option>
+            {% for estado in estados %}
+                <option value="{{ estado.0 }}"
+                        {% if request.GET.estado|stringformat:"s" == estado.0|stringformat:"s" %}selected{% endif %}>{{ estado.1 }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+{% endblock %}
+
 {% block block_thead %}
     <tr>
-        <th>#</th>
-        <th>Área</th>
-        <th>Descripcion</th>
-        <th>Tipo de Solicitud</th>
-        <th>Estado Solicitud</th>
-        <th>Fecha Resolución</th>
-        <th>Acciones</th>
+        <th class="w-5 text-center">#</th>
+        <th class="w-20 text-center">Área</th>
+        <th class="w-25 text-center">Descripcion</th>
+        <th class="w-10 text-center">Tipo de Solicitud</th>
+        <th class="w-10 text-center">Estado Solicitud</th>
+        <th class="w-15 text-center">Fecha Resolución</th>
+        <th class="w-10 text-center">Archivo</th>
+        <th class="w-10 text-center">Acciones</th>
     </tr>
 {% endblock %}
 {% block block_tbody %}
@@ -20,8 +47,25 @@
             <td>{{ solicitud.get_estado_solicitud_display }}</td>
             <td>{{ solicitud.fecha_resolucion|default:'Pendiente de Resolución' }}</td>
             <td>
+                {% if solicitud.archivo %}
+                    <a data-fancybox
+                            {% if solicitud.archivo.url|lower|slice:"-4:" == ".pdf" %}
+                       data-type="iframe"
+                            {% endif %}
+                       data-width="1639"
+                       data-height="800"
+                       href="{{ solicitud.archivo.url }}"
+                       class="btn btn-success btn-sm">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                {% else %}
+                    <small class="text-center text-muted">No se cargó un archivo</small>
+                {% endif %}
+            </td>
+            <td>
                 <div class="d-flex justify-content-center align-items-center">
-                    <a onclick='formModal("{% url "editar_solicitud" solicitud.pk %}", "Editar una solicitud", "modal-lg")' data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" href="javascript:void(0)">
+                    <a onclick='formModal("{% url "editar_solicitud" solicitud.pk %}", "Editar una solicitud", "modal-lg")'
+                       data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" href="javascript:void(0)">
                         <i class="fa-solid fa-pen-to-square fa-fw fs-6 icon-color"></i>
                     </a>
                     <a onclick="eliminarAjax('Está por eliminar esta solicitud: {{ solicitud.descripcion }}', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_solicitud' solicitud.pk %}')"
@@ -38,4 +82,11 @@
             </td>
         </tr>
     {% endfor %}
+    <script>
+        $(function () {
+            $('select').change(function () {
+                $(this).closest('form').submit()
+            })
+        })
+    </script>
 {% endblock %}

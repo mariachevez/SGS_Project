@@ -5,6 +5,7 @@ from Apps.Administracion.models import *
 
 class Solicitudes(ModeloBase):
     persona = models.ForeignKey(Persona, verbose_name='Solicitante', blank=True, null=True, related_name='solicitudes', on_delete=models.CASCADE)
+    archivo = models.FileField(upload_to='evidencias_solicitudes/', default='')
     area = models.ForeignKey(Area, verbose_name='Área', blank=True, null=True, related_name='solicitudes', on_delete=models.CASCADE)
     descripcion = models.TextField(verbose_name='Descripción', blank=True, null=True)
     estado_solicitud = models.CharField(verbose_name='Estado de la Solicitud', choices=CoreChoices.EstadoSolicitud.choices, 
