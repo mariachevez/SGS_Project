@@ -1,0 +1,36 @@
+{% extends 'nav.html' %}
+
+{% block block_thead %}
+    <tr>
+        <th class="fs-7">#</th>
+        <th class="fs-7">Trabajador</th>
+        <th class="fs-7">Acciones</th>
+    </tr>
+{% endblock %}
+{% block block_tbody %}
+    {% for persona in personal %}
+        <tr>
+            <td class="fs-7">{{ forloop.counter }}</td>
+            <td class="fs-7">
+                {% include 'base_persona_presentacion.html' with persona=persona.persona %}
+            </td>
+            <td class="fs-7 align-middle text-center">
+                <div class="d-flex align-items-center justify-content-center gap-1">
+                    <a onclick="eliminarAjax('Está por eliminar de la plantilla de esta area a: {{ persona.persona }}', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_personal_area' persona.pk %}')"
+                       href="javascript: void(0);"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="top"
+                       title="Eliminar de la plantilla">
+                        <i class="fa-solid fa-times-circle fa-fw fs-6 icon-color"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="7" class="text-muted bg-light text-center fs-7">
+                AÚN NO SE REGISTRA UN PERSONAL
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}

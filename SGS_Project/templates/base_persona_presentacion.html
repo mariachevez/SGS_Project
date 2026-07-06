@@ -1,0 +1,58 @@
+<div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-3 py-1">
+
+    <div class="flex-shrink-0">
+        <img src="{{ persona.get_foto }}"
+             alt="Foto de {{ persona.nombre_completo_minus }}"
+             class="rounded-circle object-fit-cover border border-secondary-subtle"
+             width="50"
+             height="50">
+    </div>
+
+    <div class="flex-grow-1">
+
+        <h6 class="mb-2 fw-bold text-dark text-capitalize fs-6 tracking-tight text-center text-sm-start">
+            {{ persona.nombre_completo_minus }}
+        </h6>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-sm-start gap-2 text-secondary small">
+
+            <div class="bg-light border rounded-2 px-2.5 py-1 d-inline-flex align-items-center gap-2"
+                 data-bs-toggle="tooltip"
+                 title="Número de Cédula / Identificación">
+                <i class="fa-solid fa-id-card text-muted fs-7"></i>
+                <span class="font-monospace text-dark-emphasis fw-medium">{{ persona.identificacion }}</span>
+            </div>
+
+            {% if persona.telefono %}
+                <div class="bg-light border rounded-2 px-2.5 py-1 d-inline-flex align-items-center gap-2">
+                    <i class="fa-solid fa-phone text-muted fs-7"></i>
+                    <span class="text-dark-emphasis fw-medium"
+                          data-bs-toggle="tooltip"
+                          title="Teléfono Celular: {{ persona.telefono }}">{{ persona.telefono }}</span>
+
+                    <span class="vr my-1 text-secondary opacity-25"></span>
+
+                    <a href="https://web.whatsapp.com/send?l=en&phone=+593{{ persona.telefono }}&text=Hola {{ persona.nombre_completo_minus }}"
+                       target="_blank"
+                       class="text-success text-decoration-none d-inline-flex align-items-center opacity-75 opacity-100-hover"
+                       data-bs-toggle="tooltip"
+                       title="Enviar un mensaje directo por WhatsApp">
+                        <i class="fa-brands fa-whatsapp fs-6 fw-bold"></i>
+                    </a>
+                </div>
+            {% endif %}
+
+            {% if persona.email %}
+                <div class="bg-light border rounded-2 px-2.5 py-1 d-inline-flex align-items-center gap-2"
+                     data-bs-toggle="tooltip"
+                     title="Correo Electrónico">
+                    <i class="fa-solid fa-envelope text-muted fs-7"></i>
+                    <span class="text-lowercase text-dark-emphasis text-truncate" style="max-width: 250px;">
+                        {{ persona.email }}
+                    </span>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>

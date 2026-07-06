@@ -19,9 +19,6 @@
     <tr>
         <th class="fs-7">#</th>
         <th class="fs-7">Trabajador</th>
-        <th class="fs-7">Cédula</th>
-        <th class="fs-7">Correo</th>
-        <th class="fs-7">Teléfono</th>
         <th class="fs-7">Estado</th>
         <th class="fs-7">Acciones</th>
     </tr>
@@ -30,10 +27,9 @@
     {% for persona in personas %}
         <tr>
             <td class="fs-7">{{ forloop.counter }}</td>
-            <td class="fs-7">{{ persona.nombre_completo_minus }}</td>
-            <td class="fs-7">{{ persona.identificacion }}</td>
-            <td class="fs-7">{{ persona.email }}</td>
-            <td class="fs-7">{{ persona.telefono }}</td>
+            <td class="fs-7">
+                {% include 'base_persona_presentacion.html' with persona=persona %}
+            </td>
             <td class="fs-7">
                 {% if persona.status %}
                     <i title="Activo" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -45,7 +41,6 @@
             </td>
             <td class="fs-7 align-middle text-center">
                 <div class="d-flex align-items-center justify-content-center gap-1">
-
                     <a href="{% url 'listado_grupos_persona' persona.pk %}"
                        data-bs-toggle="tooltip"
                        data-bs-placement="top"
@@ -79,7 +74,6 @@
                             <i class="fa-solid fa-check-circle fa-fw fs-6 icon-color"></i>
                         </a>
                     {% endif %}
-
                 </div>
             </td>
         </tr>

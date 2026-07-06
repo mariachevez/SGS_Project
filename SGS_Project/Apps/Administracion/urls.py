@@ -58,9 +58,11 @@ urlpatterns = [
     path('areas/editar/<int:pk>/', EditarArea.as_view(), name='editar_area'),
     path('areas/eliminar/<int:pk>/', EliminarArea.as_view(), name='eliminar_area'),
     path('areas/asignar_director/<int:pk>/', AsignarDirectorArea.as_view(), name='asignar_director'),
-    path('areas/adicionar_personal/<int:pk>/', AgregarResponsables.as_view(), name='adicionar_personal'),
-    path('areas/buscar_persona/', BuscarPersona.as_view(), name='buscar_persona'),
-    path('areas/guardar_asignacion/', GuardarAsignacion.as_view(), name='guardar_asignacion'),
+    path('areas/adicionar_personal/<int:area_id>/', AgregarResponsables.as_view(), name='adicionar_personal'),
+    path('areas/buscar_personal_area/', BuscarPersonalArea.as_view(), name='buscar_persona_area'),
+    path('areas/listado_plantilla_area/<int:area_id>', ListarPlantillaArea.as_view(), name='listado_plantilla_area'),
+    path('areas/eliminar_personal/<int:pk>/', EliminarPersonalArea.as_view(), name='eliminar_personal_area'),
+
 
     # ==========================================
     # MÓDULO: ADMINISTRACION (En BD registrarás: administracion)

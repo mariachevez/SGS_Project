@@ -108,7 +108,7 @@ class AreaPersona(ModeloBase):
     
     
     def __str__(self):
-        return self.area
+        return self.area.nombre
     
     class Meta:
         verbose_name = 'Área de persona'

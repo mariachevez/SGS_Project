@@ -225,12 +225,18 @@
                     >
                         <div class="me-2">
                             {% with persona=request.user.persona_set.first %}
-                                <img
-                                        src="{{ persona.get_foto }}"
-                                        class="rounded-circle"
-                                        width="40"
-                                        height="40"
-                                />
+                                {% if persona %}
+                                    <img src="{{ persona.get_foto }}" class="rounded-circle"
+                                         width="40"
+                                         height="40"
+                                    />
+                                {% else %}
+                                    <img class="rounded-circle bg-white p-1"
+                                         width="40"
+                                         height="40"
+                                         src="{% static 'img/user-icon.svg' %}"
+                                         alt="Avatar de usuario"/>
+                                {% endif %}
                             {% endwith %}
                         </div>
 
