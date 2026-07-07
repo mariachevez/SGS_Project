@@ -2,5 +2,8 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('', PruebaView.as_view(), name='index')
+    path('configuracion_ingreso/', ListarConfiguracionesBiometrico.as_view(), name='listar_configuraciones'),
+    path('configuracion_ingreso/crear/', CrearConfiguracionView.as_view(), name='crear_configuracion'),
+    path('configuracion_ingreso/editar/<int:pk>/', EditarConfiguracionView.as_view(), name='editar_configuracion'),
+    path('configuracion_ingreso/eliminar/<int:pk>/', EliminarConfiguracionView.as_view(), name='eliminar_configuracion'),
 ]

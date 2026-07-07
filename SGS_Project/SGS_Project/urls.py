@@ -30,6 +30,7 @@ urlpatterns = [
     path('', include('Apps.Administracion.urls')),
     path('', include('Apps.Solicitudes.urls')),
     path('', include('Apps.Notificaciones.urls')),
+    path('', include('Apps.Biometrico.urls')),
 
     path('password_reset/', 
      auth_views.PasswordResetView.as_view(

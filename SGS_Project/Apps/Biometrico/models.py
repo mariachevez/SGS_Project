@@ -5,7 +5,7 @@ from Apps.Administracion.models import *
 
 class Configuracion(ModeloBase):
     area = models.ForeignKey(Area, verbose_name='Configuración Marcaje para Área', related_name='configuracion', on_delete=models.CASCADE, blank=True, null=True)
-    descripcion = models.TextField(verbose_name='Link del marcaje', blank=True, null=True)
+    descripcion = models.TextField(verbose_name='Descripción', blank=True, null=True)
     activo = models.BooleanField(verbose_name='Activo para marcaje', default=True)
     
     def ___str___(self):

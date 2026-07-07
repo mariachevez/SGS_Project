@@ -1,0 +1,91 @@
+{% extends 'nav.html' %}
+
+{% block more_filters %}
+    <div class="col">
+        <label for="id_estado" class="fw-semibold form-label fs-7">Estado:</label>
+        <select id="id_estado"
+                name="estado"
+                class="form-select form-select-sm"
+                style="min-width: 140px;"
+                onchange="document.getElementById('form-filters').submit();">
+            <option value="">-- Todos los Estados --</option>
+            <option value="true" {% if estado == "true" %}selected{% endif %}>ACTIVO</option>
+            <option value="false" {% if estado == "false" %}selected{% endif %}>INACTIVO</option>
+        </select>
+    </div>
+{% endblock %}
+
+{% block block_thead %}
+    <tr>
+        <th class="fs-7" style="width: 50px;">#</th>
+        <th class="fs-7">Área</th>
+        <th class="fs-7">Link del Marcaje (Descripción)</th>
+        <th class="fs-7" style="width: 100px; text-center">Estado</th>
+        <th class="fs-7" style="width: 120px; text-center">Acciones</th>
+    </tr>
+{% endblock %}
+
+{% block block_tbody %}
+    {% for configuracion in configuraciones %}
+        <tr>
+            <td class="fs-7 align-middle">{{ forloop.counter }}</td>
+            <td class="fs-7 align-middle">
+                {% if configuracion.area %}
+                    <span class="fw-bold text-dark">{{ configuracion.area.nombre }}</span>
+                {% else %}
+                    <span class="text-muted">Sin Área Asignada</span>
+                {% endif %}
+            </td>
+            <td class="fs-7 align-middle text-break">
+                {{ configuracion.descripcion|default_if_none:"-" }}
+            </td>
+            <td class="fs-7 align-middle text-center">
+                {% if configuracion.activo %}
+                    <i title="Activo para marcaje" data-bs-toggle="tooltip" data-bs-placement="top"
+                       class="fa fa-check-circle fs-7 text-success"></i>
+                {% else %}
+                    <i title="Inactivo para marcaje" data-bs-toggle="tooltip" data-bs-placement="top"
+                       class="fa fa-times-circle fs-7 text-danger"></i>
+                {% endif %}
+            </td>
+            <td class="fs-7 align-middle text-center">
+                <div class="d-flex align-items-center justify-content-center gap-1">
+
+                    {# Botón Editar #}
+                    <a onclick='formModal("{% url "editar_configuracion" configuracion.pk %}", "Editar Configuración de Marcaje", "modal-lg")'
+                       href="javascript: void(0);"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="top"
+                       title="Editar">
+                        <i class="fa-solid fa-pen-to-square fa-fw fs-6 icon-color"></i>
+                    </a>
+
+                    {# Botón Activar / Inactivar (Utiliza la función eliminarAjax heredada) #}
+                    {% if configuracion.activo %}
+                        <a onclick="eliminarAjax('Está por inactivar la configuración de marcaje del área: {{ configuracion.area }}', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_configuracion' configuracion.pk %}')"
+                           href="javascript: void(0);"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top"
+                           title="Inactivar">
+                            <i class="fa-solid fa-times-circle fa-fw fs-6 icon-color"></i>
+                        </a>
+                    {% else %}
+                        <a onclick="eliminarAjax('Está por reactivar la configuración de marcaje del área: {{ configuracion.area }}', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_configuracion' configuracion.pk %}')"
+                           href="javascript: void(0);"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top"
+                           title="Activar">
+                            <i class="fa-solid fa-check-circle fa-fw fs-6 icon-color"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="5" class="text-muted bg-light text-center fs-7 py-3">
+                AÚN NO SE REGISTRA NINGUNA CONFIGURACIÓN DE MARCAJE
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
