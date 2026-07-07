@@ -250,7 +250,7 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
             return False
 
         try:
-            resultados = MODELO_YOLO(ruta_imagen, conf=0.5)
+            resultados = MODELO_YOLO(ruta_imagen, conf=0.8)
             nombres_clases = resultados[0].names
 
             id_helmet = None
