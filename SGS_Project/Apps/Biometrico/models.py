@@ -21,6 +21,7 @@ class CabRegistro(ModeloBase):
     area = models.ForeignKey(Area, verbose_name='Área', blank=True, null=True, related_name='registros_biometricos', on_delete=models.CASCADE)
     estado = models.CharField(max_length=1, verbose_name='Estado del registro',
                               choices=CoreChoices.EstadoBiometrico.choices, blank=True, null=True)
+    tipo = models.CharField(max_length=1, verbose_name='Tipo de registro', choices=CoreChoices.TipoRegistroBiometrico.choices, blank=True, null=True)
 
     def ___str___(self):
         return f'{self.persona.nombre_completo_minus()} - {self.area.nombre} - {self.estado}'
@@ -33,11 +34,12 @@ class CabRegistro(ModeloBase):
 class DetRegistro(ModeloBase):
     cabecera = models.ForeignKey(CabRegistro, verbose_name='Cabecera', blank=True, null=True, related_name='detalles', on_delete=models.CASCADE)
     casco = models.BooleanField(verbose_name='Tiene casco', blank=True, null=True, default=False)
-    gafas = models.BooleanField(verbose_name='Tiene gafas de seguridad', blank=True, null=True, default=False)
+    guantes = models.BooleanField(verbose_name='Tiene guantes de seguridad', blank=True, null=True, default=False)
+    mandil = models.BooleanField(verbose_name='Tiene mandil de seguridad', blank=True, null=True, default=False)
     foto = models.FileField(verbose_name='Foto del Biométrico', blank=True, null=True, upload_to='fotos_biometrico/')
 
     def ___str___(self):
-        return f'{self.cabecera.persona.nombre_completo_minus()} - Casco: {self.casco}, Gafas: {self.gafas}'
+        return f'{self.cabecera.persona.nombre_completo_minus()} - Casco: {self.casco}, Guantes: {self.guantes}, Mandil: {self.mandil}'
     
     class Meta:
         verbose_name = 'Detalle Registro'

@@ -29,6 +29,10 @@ class CoreChoices:
     class EstadoBiometrico(TextChoices):
         APROBADO = "A", "Aprobado"
         RECHAZADO = "R", "Rechazado"
+
+    class TipoRegistroBiometrico(TextChoices):
+        INGRESO = "I", "Ingreso"
+        SALIDA = "S", "Salida"
     
     class TipoSolicitud(TextChoices):
         EQUIPO_TRABAJO = "E", "Equipo de Trabajo"

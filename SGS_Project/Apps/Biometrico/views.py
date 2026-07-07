@@ -1,15 +1,33 @@
+import os
+from django.conf import settings
+from ultralytics import YOLO
+import base64
+from django.core.files.base import ContentFile
+from django.utils import timezone
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import ListView
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView, TemplateView
 
 from core.funciones import log
 from core.views import AjaxExceptionMixin
-from .models import Configuracion
+from .models import Configuracion, CabRegistro, DetRegistro
 from .forms import ConfiguracionForm
 from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView, EntidadesSesionMixin
+from ..Administracion.models import AreaPersona
+
+# --- CARGA GLOBAL DEL MODELO YOLO ---
+# Esto evita que tu servidor se caiga al cargar la IA con cada clic
+RUTA_MODELO = os.path.join(settings.BASE_DIR, 'Biometrico', 'ia_models', 'best.pt')
+try:
+    MODELO_YOLO = YOLO(RUTA_MODELO)
+except Exception as e:
+    print(f"Advertencia: No se pudo cargar el modelo YOLO inicial. Error: {e}")
+    MODELO_YOLO = None
 
 
 class ListarConfiguracionesBiometrico(ListView):
@@ -19,7 +37,6 @@ class ListarConfiguracionesBiometrico(ListView):
     context_object_name = 'configuraciones'
 
     def get_queryset(self):
-        # Mantenemos tu filtro por defecto
         queryset = super().get_queryset().filter(status=True)
         search = self.request.GET.get('s')
         estado = self.request.GET.get('estado')
@@ -36,10 +53,8 @@ class ListarConfiguracionesBiometrico(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de configuraciones de acceso a las áreas'
-
         context['url_formcrear'] = reverse_lazy('crear_configuracion')
         context['titulo'] = 'Registrar Configuración'
-
         context['estado'] = self.request.GET.get('estado', '')
         return context
 
@@ -47,7 +62,7 @@ class ListarConfiguracionesBiometrico(ListView):
 class CrearConfiguracionView(BaseCreateView):
     model = Configuracion
     form_class = ConfiguracionForm
-    template_name = 'formulario.html'  # O tu plantilla base para renderizar formularios modales
+    template_name = 'formulario.html'
     success_url = reverse_lazy('listar_configuraciones')
 
     def get_context_data(self, **kwargs):
@@ -69,10 +84,6 @@ class EditarConfiguracionView(BaseUpdateView):
 
 
 class EliminarConfiguracionView(AjaxExceptionMixin, EntidadesSesionMixin, View):
-    """
-    Alterna el campo 'activo' de la configuración mediante AJAX (POST).
-    Cumple el flujo de la función 'eliminarAjax' de la plantilla.
-    """
     model = Configuracion
     redirect_url = reverse_lazy('listar_configuraciones')
 
@@ -80,7 +91,6 @@ class EliminarConfiguracionView(AjaxExceptionMixin, EntidadesSesionMixin, View):
         objeto = get_object_or_404(self.model, pk=self.kwargs.get('pk'))
 
         try:
-            # Alternamos el campo 'activo' en lugar de 'status'
             estado_actual = objeto.activo
             objeto.activo = not estado_actual
             objeto.save()
@@ -89,7 +99,6 @@ class EliminarConfiguracionView(AjaxExceptionMixin, EntidadesSesionMixin, View):
             accion_str = "activado" if objeto.activo else "inactivado"
             mensaje = f"Registro de {nombre_objeto} {accion_str} exitosamente."
 
-            # Auditoría automática adaptada al cambio de estado de 'activo'
             log(
                 mensaje=f"{self.nombre_en_sesion} Cambió el estado de marcaje a {'ACTIVO' if objeto.activo else 'INACTIVO'} del registro: {str(objeto)}",
                 request=self.request,
@@ -98,7 +107,6 @@ class EliminarConfiguracionView(AjaxExceptionMixin, EntidadesSesionMixin, View):
             )
             messages.success(request, mensaje)
 
-            # Respuesta para peticiones AJAX (eliminarAjax)
             if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get(
                     'HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -120,3 +128,147 @@ class EliminarConfiguracionView(AjaxExceptionMixin, EntidadesSesionMixin, View):
         if not self.redirect_url:
             raise ValueError(f"{self.__class__.__name__} debe definir 'redirect_url'.")
         return str(self.redirect_url)
+
+
+class ModuloMarcajeView(EntidadesSesionMixin, TemplateView):
+    template_name = 'ingreso_area.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        persona = self.persona_sesion
+
+        tiene_acceso = False
+        mensaje_bloqueo = ""
+
+        if not persona:
+            mensaje_bloqueo = "No se ha detectado un perfil de trabajador asociado a su cuenta."
+        else:
+            areas_persona = AreaPersona.objects.filter(persona=persona, status=True)
+
+            if not areas_persona.exists():
+                mensaje_bloqueo = "No se encuentra configurado en ningún área de ingreso. Por favor, comuníquese con el director de su área."
+            else:
+                areas_ids = areas_persona.values_list('area_id', flat=True)
+                configuracion = Configuracion.objects.filter(area_id__in=areas_ids, activo=True, status=True).first()
+
+                if not configuracion:
+                    mensaje_bloqueo = "Su área asignada no tiene una configuración de marcaje activa en este momento. Por favor, comuníquese con el director de su área."
+                else:
+                    tiene_acceso = True
+                    context['configuracion'] = configuracion
+                    context['area'] = configuracion.area
+
+                    context['ultimos_movimientos'] = CabRegistro.objects.filter(
+                        persona=persona,
+                        area=configuracion.area
+                    ).order_by('-id')[:5]
+
+        context['tiene_acceso'] = tiene_acceso
+        context['mensaje_bloqueo'] = mensaje_bloqueo
+
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        context['ip_detectada'] = x_forwarded_for.split(',')[0] if x_forwarded_for else self.request.META.get(
+            'REMOTE_ADDR')
+        return context
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ProcesarMarcajeView(EntidadesSesionMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        persona = self.persona_sesion
+        if not persona:
+            return JsonResponse({'result': False, 'message': 'Sesión inválida.'}, status=403)
+
+        base64_data = request.POST.get('imagen')
+        tipo_registro = request.POST.get('tipo')
+        area_id = request.POST.get('area_id')
+
+        if not base64_data or not tipo_registro or not area_id:
+            return JsonResponse({'result': False, 'message': 'Faltan parámetros obligatorios.'}, status=400)
+
+        try:
+            format, imgstr = base64_data.split(';base64,')
+            ext = format.split('/')[-1]
+            nombre_archivo = f"biometrico_{persona.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}.{ext}"
+            archivo_foto = ContentFile(base64.b64decode(imgstr), name=nombre_archivo)
+
+            cabecera = CabRegistro.objects.create(
+                persona=persona,
+                area_id=area_id,
+                tipo=tipo_registro,
+                estado='R'
+            )
+
+            detalle = DetRegistro.objects.create(
+                cabecera=cabecera,
+                foto=archivo_foto,
+                casco=False
+            )
+
+            ruta_fisica_foto = detalle.foto.path
+            tiene_casco = self.evaluar_casco_ia(ruta_fisica_foto)
+
+            if tiene_casco:
+                cabecera.estado = 'A'
+                detalle.casco = True
+                mensaje = "Acceso Autorizado. Uso de casco verificado correctamente."
+            else:
+                cabecera.estado = 'R'
+                detalle.casco = False
+                mensaje = "Acceso Denegado. No se detectó el casco de seguridad obligatorio."
+
+            cabecera.save()
+            detalle.save()
+
+            # --- FIX DE FECHA NAIVE ---
+            # Si la fecha es naive, no usamos localtime
+            fecha_creacion = cabecera.fecha_creacion
+            if timezone.is_aware(fecha_creacion):
+                fecha_creacion = timezone.localtime(fecha_creacion)
+
+            fecha_str = fecha_creacion.strftime('%d/%m/%Y, %H:%M %p')
+
+            return JsonResponse({
+                'result': True,
+                'estado': cabecera.estado,
+                'mensaje': mensaje,
+                'movimiento': {
+                    'tipo': cabecera.get_tipo_display().upper(),
+                    'fecha': fecha_str,
+                }
+            })
+
+        except Exception as e:
+            return JsonResponse({'result': False, 'message': f'Error en el procesamiento: {str(e)}'}, status=500)
+
+    def evaluar_casco_ia(self, ruta_imagen):
+        if MODELO_YOLO is None:
+            print("Error: El modelo YOLO no está cargado en memoria.")
+            return False
+
+        try:
+            resultados = MODELO_YOLO(ruta_imagen, conf=0.5)
+            nombres_clases = resultados[0].names
+
+            id_helmet = None
+            for idx, nombre in nombres_clases.items():
+                if nombre.lower() == 'helmet':
+                    id_helmet = idx
+                    break
+
+            if id_helmet is None:
+                print("Error: No se encontró la clase 'helmet' en los pesos.")
+                return False
+
+            cajas = resultados[0].boxes
+            for caja in cajas:
+                clase_detectada = int(caja.cls[0].item())
+                if clase_detectada == id_helmet:
+                    return True
+
+            return False
+
+        except Exception as e:
+            print(f"Error crítico procesando la IA: {e}")
+            return False
