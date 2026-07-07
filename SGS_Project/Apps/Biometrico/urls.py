@@ -8,4 +8,5 @@ urlpatterns = [
     path('configuracion_ingreso/eliminar/<int:pk>/', EliminarConfiguracionView.as_view(), name='eliminar_configuracion'),
     path('ingreso_area/', ModuloMarcajeView.as_view(), name='ingreso_area'),
     path('ingreso_area/procesar/', ProcesarMarcajeView.as_view(), name='procesar_marcaje'),
+    path('ingreso_area/api/detectar_coordenadas/', DetectarCoordenadasView.as_view(), name='detectar_coordenadas'),
 ]

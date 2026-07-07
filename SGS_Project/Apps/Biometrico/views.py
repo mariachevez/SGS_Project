@@ -1,3 +1,5 @@
+import io
+from PIL import Image
 import os
 from django.conf import settings
 from ultralytics import YOLO
@@ -274,3 +276,54 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
         except Exception as e:
             print(f"Error crítico procesando la IA: {e}")
             return False
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DetectarCoordenadasView(View):
+    def post(self, request, *args, **kwargs):
+        # Verificamos si el modelo cargó correctamente
+        if MODELO_YOLO is None:
+            return JsonResponse({'result': False, 'message': 'Modelo IA no disponible.'}, status=500)
+
+        base64_data = request.POST.get('imagen')
+        if not base64_data:
+            return JsonResponse({'result': False, 'message': 'No se envió imagen.'}, status=400)
+
+        try:
+            # 1. Decodificar la imagen en memoria (Sin guardar en disco para máxima velocidad)
+            format, imgstr = base64_data.split(';base64,')
+            image_bytes = base64.b64decode(imgstr)
+            imagen = Image.open(io.BytesIO(image_bytes))
+
+            # 2. Pasar la imagen por YOLO (Usamos conf=0.5 para que la cajita sea más permisiva visualmente)
+            resultados = MODELO_YOLO(imagen, conf=0.75)
+
+            detecciones = []
+            cajas = resultados[0].boxes
+            nombres = resultados[0].names
+
+            # 3. Extraer las coordenadas y clases
+            for caja in cajas:
+                # YOLO devuelve las coordenadas en formato [x1, y1, x2, y2]
+                x1, y1, x2, y2 = caja.xyxy[0].tolist()
+                confianza = float(caja.conf[0].item())
+                clase_id = int(caja.cls[0].item())
+                nombre_clase = nombres[clase_id]
+
+                detecciones.append({
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': x2,
+                    'y2': y2,
+                    'clase': nombre_clase,
+                    'confianza': confianza
+                })
+
+            return JsonResponse({
+                'result': True,
+                'detecciones': detecciones
+            })
+
+        except Exception as e:
+            print(f"Error en detección en tiempo real: {e}")
+            return JsonResponse({'result': False, 'message': str(e)}, status=500)

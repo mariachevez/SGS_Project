@@ -122,9 +122,11 @@
             border-top: 5px solid #ef4444;
         }
 
-        #video-canvas-container { position: relative; background: #000; border-radius: 8px; overflow: hidden; width: 100%; max-width: 480px; margin: 0 auto; }
-        #camera-video { width: 100%; height: auto; transform: scaleX(-1); }
-        .scan-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 4px solid var(--safety-orange); animation: pulse 1.5s infinite; pointer-events: none; }
+        /* --- ACTUALIZACIÓN DEL CONTENEDOR DEL VIDEO --- */
+        #video-canvas-container { position: relative; background: #000; border-radius: 8px; overflow: hidden; width: 100%; max-width: 480px; margin: 0 auto; display: inline-block; }
+        #camera-video { width: 100%; height: auto; transform: scaleX(-1); display: block; }
+        #bounding-box-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; transform: scaleX(-1); }
+        .scan-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 4px solid var(--safety-orange); animation: pulse 1.5s infinite; pointer-events: none; z-index: 5; }
         @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 0.8; } 100% { opacity: 0.3; } }
     </style>
 </head>
@@ -262,6 +264,9 @@
                                     <button type="button" class="btn-action-main bg-secondary" onclick="abrirCamara()">
                                         <i class="fa-solid fa-camera me-2"></i> Escanear y Confirmar Salida
                                     </button>
+                                    <button type="button" class="btn btn-outline-secondary w-100 fw-bold mt-2" onclick="document.getElementById('input-foto-prueba').click()">
+                                        <i class="fa-solid fa-upload me-2"></i> Subir Foto de Prueba
+                                    </button>
                                 </div>
                             </div>
 
@@ -316,10 +321,13 @@
                 <button type="button" class="btn-close btn-close-white" onclick="cerrarCamara()"></button>
             </div>
             <div class="modal-body text-center bg-light">
+
                 <div id="video-canvas-container" class="mb-3">
                     <video id="camera-video" autoplay playsinline></video>
+                    <canvas id="bounding-box-canvas"></canvas>
                     <div class="scan-overlay" id="overlay-anim"></div>
                 </div>
+
                 <div id="scan-status" class="fw-bold text-navy mb-2">
                     <i class="fa-solid fa-spinner fa-spin me-2"></i> Analizando rostro y equipo...
                 </div>
@@ -361,6 +369,9 @@
         let cameraModal = null;
         let autoCaptureTimeout = null;
 
+        // Variable para controlar el bucle de detección en tiempo real
+        let detectionInterval = null;
+
         function setTipo(tipo) { tipoActual = tipo; }
 
         function abrirCamara() {
@@ -375,9 +386,19 @@
                     const video = document.getElementById('camera-video');
                     video.srcObject = stream;
 
+                    // Una vez que el video cargue, ajustamos dimensiones e iniciamos la detección
+                    video.onloadedmetadata = () => {
+                        const drawCanvas = document.getElementById('bounding-box-canvas');
+                        drawCanvas.width = video.videoWidth;
+                        drawCanvas.height = video.videoHeight;
+
+                        // Enviar fotograma al backend cada 400ms
+                        detectionInterval = setInterval(solicitarCoordenadas, 400);
+                    };
+
                     autoCaptureTimeout = setTimeout(() => {
                         capturarFoto(false);
-                    }, 3500);
+                    }, 4000); // Subí medio segundito para que el usuario alcance a ver las cajas
                 })
                 .catch(function(err) {
                     Swal.fire('Error', 'No se pudo acceder a la cámara: ' + err, 'error');
@@ -387,14 +408,111 @@
 
         function cerrarCamara() {
             if (autoCaptureTimeout) clearTimeout(autoCaptureTimeout);
+
+            // Detenemos el bucle de detección
+            if (detectionInterval) clearInterval(detectionInterval);
+
+            // Limpiamos el dibujo de las cajas
+            const drawCanvas = document.getElementById('bounding-box-canvas');
+            if(drawCanvas) {
+                const ctx = drawCanvas.getContext('2d');
+                ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            }
+
             if (streamVideo) {
                 streamVideo.getTracks().forEach(track => track.stop());
             }
             if (cameraModal) cameraModal.hide();
         }
 
+        // --- FUNCIÓN DE POLLING (SE EJECUTA VARIAS VECES POR SEGUNDO) ---
+        function solicitarCoordenadas() {
+            const video = document.getElementById('camera-video');
+            const hiddenCanvas = document.getElementById('hidden-canvas');
+
+            if (!video || video.videoWidth === 0) return;
+
+            const ctx = hiddenCanvas.getContext('2d');
+            hiddenCanvas.width = video.videoWidth;
+            hiddenCanvas.height = video.videoHeight;
+
+            // Dibujamos el fotograma tal cual (sin voltearlo)
+            ctx.drawImage(video, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+
+            // Comprimimos la imagen con calidad bajita (0.4) para que el servidor responda muy rápido
+            const frameBase64 = hiddenCanvas.toDataURL('image/jpeg', 0.4);
+
+            let formData = new FormData();
+            formData.append('imagen', frameBase64);
+
+            fetch("{% url 'detectar_coordenadas' %}", {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result) {
+                        dibujarCajas(data.detecciones);
+                    }
+                })
+                .catch(err => {
+                    // Silenciamos el error para no inundar la consola si una petición se corta
+                });
+        }
+
+        // --- FUNCIÓN PARA PINTAR LOS RECTÁNGULOS ---
+        function dibujarCajas(detecciones) {
+            const drawCanvas = document.getElementById('bounding-box-canvas');
+            const ctx = drawCanvas.getContext('2d');
+
+            // Limpiamos los rectángulos anteriores
+            ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+
+            if (!detecciones || detecciones.length === 0) {
+                document.getElementById('scan-status').innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> Analizando rostro y equipo...`;
+                return;
+            }
+
+            let cascoDetectado = false;
+
+            detecciones.forEach(det => {
+                const width = det.x2 - det.x1;
+                const height = det.y2 - det.y1;
+                const clase = det.clase.toLowerCase();
+
+                if (clase === 'helmet') cascoDetectado = true;
+
+                // Color verde para casco, naranja para el resto
+                const color = clase === 'helmet' ? '#10b981' : '#f97316';
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 4;
+                ctx.strokeRect(det.x1, det.y1, width, height);
+
+                // Fondo para el texto
+                ctx.fillStyle = color;
+                ctx.fillRect(det.x1, det.y1 - 25, width, 25);
+
+                // Texto con porcentaje
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText(`${det.clase} (${Math.round(det.confianza * 100)}%)`, det.x1 + 5, det.y1 - 7);
+            });
+
+            // Feedback visual al usuario
+            if (cascoDetectado) {
+                document.getElementById('scan-status').innerHTML = `<i class="fa-solid fa-check text-success me-2"></i> ¡Casco detectado! Preparando captura...`;
+                document.getElementById('overlay-anim').style.borderColor = 'var(--success-green)';
+            } else {
+                document.getElementById('scan-status').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> No se detecta el casco...`;
+                document.getElementById('overlay-anim').style.borderColor = 'var(--safety-orange)';
+            }
+        }
+
+        // --- TU FUNCIÓN ORIGINAL PARA LA VALIDACIÓN FINAL EN EL BACKEND ---
         function capturarFoto(isManual = false) {
             if (autoCaptureTimeout) clearTimeout(autoCaptureTimeout);
+            if (detectionInterval) clearInterval(detectionInterval);
 
             const video = document.getElementById('camera-video');
             const canvas = document.getElementById('hidden-canvas');
@@ -407,7 +525,7 @@
             context.scale(-1, 1);
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            const dataURL = canvas.toDataURL('image/jpeg');
+            const dataURL = canvas.toDataURL('image/jpeg', 0.9);
             cerrarCamara();
 
             enviarAlBackend(dataURL);
@@ -433,18 +551,13 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.result) {
-                        // --- FIX DE RECARGA ---
                         if (data.estado === 'A') {
                             Swal.fire('¡Aprobado!', data.mensaje, 'success').then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.reload();
-                                }
+                                if (result.isConfirmed) { window.location.reload(); }
                             });
                         } else {
                             Swal.fire('Acceso Rechazado', data.mensaje, 'error').then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.reload();
-                                }
+                                if (result.isConfirmed) { window.location.reload(); }
                             });
                         }
                     } else {
@@ -455,23 +568,16 @@
                     Swal.fire('Error', 'Ocurrió un error inesperado en el servidor.', 'error');
                 });
         }
-        // --- NUEVO: Función para procesar archivo subido manualmente ---
+
         function procesarArchivoSubido(input) {
             if (input.files && input.files[0]) {
                 const lector = new FileReader();
 
                 lector.onload = function(e) {
-                    // e.target.result contiene la imagen en Base64
                     const base64Image = e.target.result;
-
-                    // Reutilizamos tu función original que manda los datos a Django
                     enviarAlBackend(base64Image);
-
-                    // Limpiamos el input por si quieres subir la misma foto dos veces seguidas
                     input.value = "";
                 };
-
-                // Lee el archivo como una URL de datos (Base64)
                 lector.readAsDataURL(input.files[0]);
             }
         }
