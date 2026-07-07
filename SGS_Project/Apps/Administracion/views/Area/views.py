@@ -8,6 +8,7 @@ from SGS_Project.middleware import obtener_entidades_sesion
 from core.funciones import log
 from ...forms import *
 from core.views import AjaxExceptionMixin
+from Apps.Notificaciones.utils import generar_notificacion
 
 class ListarArea(ListView):
     model = Area
@@ -132,8 +133,14 @@ class AgregarResponsables(AjaxExceptionMixin, View):
             nueva_asignacion = AreaPersona(area_id=area.id, persona_id=persona_id, status=True)
             nueva_asignacion.save()
 
+            director = nueva_asignacion.area.get_director()
+
+            generar_notificacion('Se ha asignado una persona a su área',
+                                 f'La persona es: {nueva_asignacion.persona.nombre_completo_minus()}',
+                                 director, CoreChoices.TipoNotificacion.BAJA)
+
             # Devolver los que quedan disponibles
-            personas_restantes = Persona.objects.filter(status=True, areas_trabajo__isnull=True, areas_dirigidas__isnull=True)
+            personas_restantes = Persona.objects.filter(status=True)
             personas_list = [{'id': p.id, 'nombres': p.nombre_completo_minus()} for p in personas_restantes]
 
             log(
