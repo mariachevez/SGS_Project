@@ -22,7 +22,9 @@ from ..Administracion.models import AreaPersona
 
 # --- CARGA GLOBAL DEL MODELO YOLO ---
 # Esto evita que tu servidor se caiga al cargar la IA con cada clic
-RUTA_MODELO = os.path.join(settings.BASE_DIR, 'Biometrico', 'ia_models', 'best.pt')
+from pathlib import Path
+
+RUTA_MODELO = settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models" / "best.pt"
 try:
     MODELO_YOLO = YOLO(RUTA_MODELO)
 except Exception as e:

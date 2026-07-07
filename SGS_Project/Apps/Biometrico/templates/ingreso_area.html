@@ -242,8 +242,11 @@
                                 </div>
 
                                 <div class="mt-auto pt-2">
-                                    <button type="button" class="btn-action-main" onclick="abrirCamara()">
+                                    <button type="button" class="btn-action-main mb-2" onclick="abrirCamara()">
                                         <i class="fa-solid fa-expand me-2"></i> Abrir Cámara y Validar Ingreso
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary w-100 fw-bold" onclick="document.getElementById('input-foto-prueba').click()">
+                                        <i class="fa-solid fa-upload me-2"></i> Subir Foto de Prueba
                                     </button>
                                 </div>
                             </div>
@@ -452,7 +455,28 @@
                     Swal.fire('Error', 'Ocurrió un error inesperado en el servidor.', 'error');
                 });
         }
+        // --- NUEVO: Función para procesar archivo subido manualmente ---
+        function procesarArchivoSubido(input) {
+            if (input.files && input.files[0]) {
+                const lector = new FileReader();
+
+                lector.onload = function(e) {
+                    // e.target.result contiene la imagen en Base64
+                    const base64Image = e.target.result;
+
+                    // Reutilizamos tu función original que manda los datos a Django
+                    enviarAlBackend(base64Image);
+
+                    // Limpiamos el input por si quieres subir la misma foto dos veces seguidas
+                    input.value = "";
+                };
+
+                // Lee el archivo como una URL de datos (Base64)
+                lector.readAsDataURL(input.files[0]);
+            }
+        }
     </script>
 {% endif %}
+<input type="file" id="input-foto-prueba" accept="image/*" style="display: none;" onchange="procesarArchivoSubido(this)">
 </body>
 </html>
