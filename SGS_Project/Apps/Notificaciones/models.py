@@ -11,6 +11,7 @@ class Notificaciones(ModeloBase):
     tipo_notificacion = models.CharField(verbose_name='Prioridad de la Notificación', max_length=1, 
                                          choices=CoreChoices.TipoNotificacion.choices, 
                                          default=CoreChoices.TipoNotificacion.BAJA)
+    url = models.CharField(verbose_name='Url de la notificacion', blank=True, null=True, max_length=200)
     
     
     def _str_(self):
