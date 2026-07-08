@@ -47,3 +47,26 @@ class NuevaSolicitudForm(FormModeloBase):
             )
 
         return archivo
+
+
+class ResponderSolicitudForm(forms.ModelForm):
+    class Meta:
+        model = Solicitudes
+        fields = ['estado_solicitud', 'respuesta_solicitud']
+        widgets = {
+            'estado_solicitud': forms.Select(attrs={'class': 'form-select form-select-sm'}),
+            'respuesta_solicitud': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Escriba aquí los fundamentos de la aprobación o rechazo...'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def clean_estado_solicitud(self):
+        estado = self.cleaned_data.get('estado_solicitud')
+        if estado == 'P':
+            raise forms.ValidationError('Debe aprobar o rechazar la solicitud, no puede dejarla en pendiente.')
+        return estado

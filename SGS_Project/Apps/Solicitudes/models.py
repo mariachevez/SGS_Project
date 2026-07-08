@@ -12,7 +12,7 @@ class Solicitudes(ModeloBase):
                                         default=CoreChoices.EstadoSolicitud.PENDIENTE)
     fecha_resolucion = models.DateTimeField(verbose_name='Fecha de Resolución', blank=True, null=True)
     tipo_solicitud = models.CharField(verbose_name='Tipo de Solicitud', choices=CoreChoices.TipoSolicitud.choices, blank=True, null=True)
-    
+    respuesta_solicitud = models.TextField(verbose_name='Resolución de la solicitud', blank=True, null=True)
     def __str__(self):
         return f'Area: {self.area}, descripción: {self.descripcion}'
     
@@ -20,3 +20,11 @@ class Solicitudes(ModeloBase):
         verbose_name = "Solicitud"
         verbose_name_plural = "Solicitudes"
         ordering = ['-id']
+
+    def get_estado_color(self):
+        color = 'secondary'
+        if self.estado_solicitud == 'R':
+            color = 'danger'
+        if self.estado_solicitud == 'A':
+            color = 'success'
+        return color

@@ -1,11 +1,14 @@
 from django.urls import reverse, reverse_lazy
 from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, EntidadesSesionMixin
-from django.views.generic import ListView
+from django.views.generic import ListView, UpdateView, DetailView
 from django.db.models import Q
 from SGS_Project.middleware import obtener_entidades_sesion
+from core.funciones import log
+from core.views import AjaxExceptionMixin
 from .forms import *
 from Apps.Notificaciones.models import *
 from Apps.Administracion.models import Area
+from ..Notificaciones.utils import generar_notificacion
 
 
 # Create your views here.
@@ -164,3 +167,52 @@ class ListarSolicitudesRecibidas(EntidadesSesionMixin, ListView):
         context['solicitante_id'] = int(solicitante_id) if solicitante_id and solicitante_id.isdigit() else ''
 
         return context
+
+
+class ResponderSolicitudView(BaseUpdateView):
+    model = Solicitudes
+    form_class = ResponderSolicitudForm
+    template_name = 'formulario.html'
+    success_url = reverse_lazy('solicitudes_director')
+
+    def dispatch(self, request, *args, **kwargs):
+        # Ejecuta el dispatch base para inyectar self.persona_sesion
+        response = super().dispatch(request, *args, **kwargs)
+        solicitud = self.get_object()
+        # Control de seguridad explícito para el Director
+        # if not self.persona_sesion or solicitud.area.director != self.persona_sesion:
+        #     raise PermissionDenied("No tienes permisos para responder solicitudes de esta área.")
+
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['guardar'] = reverse('responder_solicitud', kwargs={'pk': self.object.pk})
+        return context
+
+    def form_valid(self, form):
+        form.instance.fecha_resolucion = timezone.now()
+
+        solicitud = self.get_object()
+        estado_nuevo = form.cleaned_data.get('estado_solicitud')
+
+        if solicitud.persona:
+            generar_notificacion('Su solicitud ha sido atendida',
+                                 f'El Director del área ha cambiado el estado de su solicitud a: {estado_nuevo}.',
+                                 destinatario=solicitud.persona,
+                                 tipo_notificacion='M')
+        return super().form_valid(form)
+
+class ViewRespuestaSolicitud(EntidadesSesionMixin, AjaxExceptionMixin, DetailView):
+    model = Solicitudes
+    template_name = 'Director/ver_respuesta.html'
+    context_object_name = 'solicitud'
+
+class ViewRespuestaSolicitante(EntidadesSesionMixin, AjaxExceptionMixin, DetailView):
+    model = Solicitudes
+    template_name = 'Solicitudes/ver_respuesta.html'
+    context_object_name = 'solicitud'
+
+    def get_queryset(self):
+        # El solicitante solo puede ver el detalle de sus propias solicitudes
+        return Solicitudes.objects.filter(persona=self.persona_sesion)
