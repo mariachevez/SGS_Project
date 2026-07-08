@@ -202,7 +202,8 @@
                             <label class="form-label filter-label">
                                 <i class="fa-solid fa-city me-1"></i>Cantón
                             </label>
-                            <select name="canton_per" id="cantonPerSelect" class="form-select filter-select">
+                            <select name="canton_per" id="cantonPerSelect" class="form-select filter-select"
+                                    {% if not provincia_per_id %}disabled{% endif %}>
                                 <option value="">Todos los cantones</option>
                                 {% for canton in cantones %}
                                     <option value="{{ canton.id }}"
@@ -474,6 +475,36 @@
             if (trigger && typeof bootstrap !== 'undefined') {
                 new bootstrap.Tab(trigger).show();
             }
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const provinciaSelect = document.getElementById('provinciaPerSelect');
+            const cantonSelect = document.getElementById('cantonPerSelect');
+
+            if (!provinciaSelect || !cantonSelect) return;
+
+            provinciaSelect.addEventListener('change', function () {
+                const provinciaId = this.value;
+
+                cantonSelect.innerHTML = '<option value="">Todos los cantones</option>';
+                cantonSelect.disabled = true;
+
+                if (!provinciaId) return;
+
+                fetch(`?action=buscar_cantones&provincia_id=${provinciaId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.result) return;
+
+                        data.cantones.forEach(canton => {
+                            const option = document.createElement('option');
+                            option.value = canton.id;
+                            option.textContent = canton.nombre;
+                            cantonSelect.appendChild(option);
+                        });
+
+                        cantonSelect.disabled = false;
+                    });
+            });
         });
     </script>
 

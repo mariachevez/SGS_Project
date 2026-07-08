@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
 from django.db.models import Count, Q
+from django.http import JsonResponse
 import json
 
 from Apps.Solicitudes.models import Solicitudes
@@ -8,6 +9,22 @@ from Apps.Administracion.models import Persona, Area, Provincia, Canton
 
 class DashboardView(TemplateView):
     template_name = 'Dashboards/index.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get('action') == 'buscar_cantones':
+            provincia_id = request.GET.get('provincia_id')
+
+            cantones = Canton.objects.filter(
+                status=True,
+                provincia_id=provincia_id
+            ).order_by('nombre').values('id', 'nombre')
+
+            return JsonResponse({
+                'result': True,
+                'cantones': list(cantones)
+            })
+
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -38,7 +55,6 @@ class DashboardView(TemplateView):
         if sexo_per:
             qs_personas = qs_personas.filter(sexo=sexo_per)
 
-        # ---- Solicitudes por área, desglosadas por estado ----
         solicitudes_area = qs_solicitudes.filter(
             area__isnull=False
         ).values(
@@ -55,7 +71,6 @@ class DashboardView(TemplateView):
         context['aprobados_data'] = json.dumps([x['aprobados'] for x in solicitudes_area])
         context['rechazados_data'] = json.dumps([x['rechazados'] for x in solicitudes_area])
 
-        # ---- Personal por provincia (sin cambios) ----
         personal_provincia = qs_personas.filter(
             provincia__isnull=False
         ).values(
@@ -71,41 +86,38 @@ class DashboardView(TemplateView):
         context['femenino_data'] = json.dumps([x['femenino'] for x in personal_provincia])
 
         context['areas'] = Area.objects.filter(status=True).order_by('nombre')
-        context['provincias'] = Provincia.objects.filter(status=True).order_by('nombre')
-        context['cantones'] = Canton.objects.filter(status=True).order_by('nombre')
+
+        # Solo provincias de Ecuador
+        context['provincias'] = Provincia.objects.filter(
+            status=True,
+            pais__nombre__icontains='ECUADOR'
+        ).order_by('nombre')
+
+        # Solo cargar cantones si ya hay provincia seleccionada
+        context['cantones'] = Canton.objects.none()
+        if provincia_per_id:
+            context['cantones'] = Canton.objects.filter(
+                status=True,
+                provincia_id=provincia_per_id
+            ).order_by('nombre')
+
         context['kpi_total_solicitudes'] = qs_solicitudes.count()
+        context['kpi_pendientes'] = qs_solicitudes.filter(estado_solicitud='P').count()
+        context['kpi_aprobadas'] = qs_solicitudes.filter(estado_solicitud='A').count()
+        context['kpi_rechazadas'] = qs_solicitudes.filter(estado_solicitud='R').count()
 
-        context['kpi_pendientes'] = qs_solicitudes.filter(
-            estado_solicitud='P'
-        ).count()
+        context['kpi_total_personal'] = qs_personas.count()
+        context['kpi_masculino'] = qs_personas.filter(sexo='M').count()
+        context['kpi_femenino'] = qs_personas.filter(sexo='F').count()
+        context['kpi_provincias'] = qs_personas.exclude(
+            provincia__isnull=True
+        ).values('provincia').distinct().count()
 
-        context['kpi_aprobadas'] = qs_solicitudes.filter(
-            estado_solicitud='A'
-        ).count()
-
-        context['kpi_rechazadas'] = qs_solicitudes.filter(
-            estado_solicitud='R'
-        ).count()
         context['area_sol_id'] = area_sol_id
         context['estado_sol'] = estado_sol
         context['tipo_sol'] = tipo_sol
         context['provincia_per_id'] = provincia_per_id
         context['canton_per_id'] = canton_per_id
         context['sexo_per'] = sexo_per
-        context['kpi_total_personal'] = qs_personas.count()
-
-        context['kpi_masculino'] = qs_personas.filter(
-            sexo='M'
-        ).count()
-
-        context['kpi_femenino'] = qs_personas.filter(
-            sexo='F'
-        ).count()
-
-        context['kpi_provincias'] = qs_personas.exclude(
-            provincia__isnull=True
-        ).values(
-            'provincia'
-        ).distinct().count()
 
         return context
