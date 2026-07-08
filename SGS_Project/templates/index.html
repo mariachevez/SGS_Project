@@ -8,10 +8,10 @@
     <link rel="stylesheet" href="{% static 'css/all.min.css' %}"/>
     <title>Panel Principal</title>
     <style>
+        /* CSS mínimo para variables de marca y ajustes de comportamiento global */
         :root {
             --primary-color: #1c3247;
-            --primary-hover: #294967;
-            --background-color: #f4f6f9;
+            --background-color: #f8f9fa;
         }
 
         body {
@@ -23,151 +23,39 @@
             background-color: var(--primary-color);
         }
 
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.15rem;
+        /* Efecto sutil al pasar el cursor sobre los módulos */
+        .module-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .module-link:hover {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
         }
 
-        /* AJUSTE CLAVE: Contenedor relativo estricto e inline para mantener el badge unido */
-        .notification-icon {
-            position: relative;
-            display: inline-block;
-            color: white;
-            font-size: 1.2rem;
-            padding: 0.5rem;
-        }
-
-        /* UBICACIÓN RIGUROSA DEL BADGE DELANTE DEL ICONO */
-        .notification-badge {
-            position: absolute;
-            top: 2px;
-            right: -2px;
-            font-size: 0.65rem;
-            padding: 0.25em 0.4em;
-        }
-
-        /* AJUSTES RESPONSIVE Y CONTROL DEL DROPDOWN DE NOTIFICACIONES */
+        /* Dimensiones controladas para el dropdown de notificaciones */
         .dropdown-notifications {
             width: 340px;
-            max-width: calc(100vw - 32px); /* Evita que desborde el ancho de la pantalla móvil */
+            max-width: calc(100vw - 32px);
             max-height: 400px;
             overflow-y: auto;
         }
 
+        /* Forzar saltos de línea correctos en textos de alertas */
         .notification-item-text {
-            white-space: normal !important; /* Permite saltos de línea automáticos */
-            word-break: break-word;        /* Rompe palabras excesivamente largas si es necesario */
-            font-size: 0.85rem;            /* Un toque más pequeño y compacto */
-            line-height: 1.3;
-        }
-
-        /* Permite alineación fluida del menú en móviles */
-        @media (max-width: 991.98px) {
-            .navbar-nav {
-                padding-top: 10px;
-                padding-bottom: 10px;
-            }
-            .nav-item.dropdown {
-                width: 100%;
-                text-align: center;
-                margin-right: 0 !important;
-                margin-bottom: 15px;
-            }
-            /* Mantiene el contenedor centrado en móviles sin estirar el enlace horizontalmente */
-            .nav-item.dropdown .notification-icon {
-                margin: 0 auto;
-            }
-            .dropdown-menu-end {
-                right: 0 !important;
-                left: 0 !important;
-                margin-left: auto;
-                margin-right: auto;
-            }
-        }
-
-        .user-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: white;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .page-title {
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-
-        .module-card {
-            display: block;
-            text-decoration: none;
-            color: #212529;
-            background: white;
-            border-radius: 18px;
-            padding: 24px 18px;
-            height: 100%;
-            transition: all 0.25s ease;
-            border: 1px solid #e9ecef;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .module-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary-color);
-            color: inherit;
-        }
-
-        .module-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 16px;
-            background: rgba(28, 50, 71, 0.08);
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: auto auto 15px auto;
-            font-size: 1.8rem;
-        }
-
-        .module-title {
-            font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .module-description {
-            text-align: center;
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin: 0;
-        }
-
-        .dropdown-item:active {
-            background-color: var(--primary-color);
+            white-space: normal !important;
+            word-break: break-word;
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm">
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm mb-4">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-            <i class="fas fa-layer-group me-2"></i>
-            Sistema Administrativo
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fas fa-layer-group me-2 text-white-50"></i>Sistema Administrativo
         </a>
 
-        <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarMain"
-        >
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -175,25 +63,23 @@
             <ul class="navbar-nav ms-auto align-items-center">
 
                 {% if tiene_notificaciones %}
-                    <li class="nav-item dropdown me-3">
-                        <a class="nav-link notification-icon" href="#" data-bs-toggle="dropdown">
-                            <i class="fas fa-bell"></i>
+                    <li class="nav-item dropdown me-lg-3 my-2 my-lg-0">
+                        <a class="nav-link position-relative p-2 text-white" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell fs-5"></i>
                             {% if total_notificaciones %}
-                                <span class="badge rounded-pill bg-danger notification-badge">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
                                     {{ total_notificaciones }}
                                 </span>
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0 dropdown-notifications">
-                            <li>
-                                <h6 class="dropdown-header">Notificaciones</h6>
-                            </li>
+                            <li><h6 class="dropdown-header">Notificaciones</h6></li>
 
                             {% for notificacion in mis_notificaciones %}
                                 <li>
-                                    <a class="dropdown-item py-2 notification-item-text" href="/notificaciones/leer/{{ notificacion.id }}/">
-                                        {{ notificacion.descripcion }}
-                                        <small class="d-block text-muted mt-1">
+                                    <a class="dropdown-item py-2 notification-item-text text-wrap" href="/notificaciones/leer/{{ notificacion.id }}/">
+                                        <span class="d-block small text-dark">{{ notificacion.descripcion }}</span>
+                                        <small class="d-block text-muted mt-1" style="font-size: 0.75rem;">
                                             Hace {{ notificacion.fecha_creacion|timesince }}
                                         </small>
                                     </a>
@@ -206,78 +92,39 @@
                                 </li>
                             {% endfor %}
 
+                            <li><hr class="dropdown-divider"/></li>
                             <li>
-                                <hr class="dropdown-divider"/>
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item text-center py-2 small fw-semibold" href="{% url 'listado_notificaciones' %}"> Ver todas </a>
+                                <a class="dropdown-item text-center py-2 small fw-semibold" href="{% url 'listado_notificaciones' %}">Ver todas</a>
                             </li>
                         </ul>
                     </li>
                 {% endif %}
 
                 <li class="nav-item dropdown">
-                    <a
-                            class="nav-link dropdown-toggle d-flex align-items-center"
-                            href="#"
-                            data-bs-toggle="dropdown"
-                    >
+                    <a class="nav-link dropdown-toggle d-flex align-items-center text-white" href="#" data-bs-toggle="dropdown">
                         <div class="me-2">
                             {% with persona=request.user.persona_set.first %}
                                 {% if persona %}
-                                    <img src="{{ persona.get_foto }}" class="rounded-circle"
-                                         width="40"
-                                         height="40"
-                                    />
+                                    <img src="{{ persona.get_foto }}" class="rounded-circle border border-2 border-white" width="35" height="35" />
                                 {% else %}
-                                    <img class="rounded-circle bg-white p-1"
-                                         width="40"
-                                         height="40"
-                                         src="{% static 'img/user-icon.svg' %}"
-                                         alt="Avatar de usuario"/>
+                                    <img class="rounded-circle bg-white p-1" width="35" height="35" src="{% static 'img/user-icon.svg' %}" alt="Avatar"/>
                                 {% endif %}
                             {% endwith %}
                         </div>
-
-                        <span>
-                  {{ request.user.get_full_name|default:request.user.username }}
-                </span>
+                        <span>{{ request.user.get_full_name|default:request.user.username }}</span>
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                        <li>
-                            <h6 class="dropdown-header">Mi cuenta</h6>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-user-circle me-2"></i>
-                                Perfil
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item" href="{% url 'modulos_administracion' %}">
-                                <i class="fas fa-cog me-2"></i>
-                                Configuración
-                            </a>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider"/>
-                        </li>
-
-                        <li>
-                            <form
-                                    action="{% url 'logout' %}"
-                                    method="post"
-                                    class="w-100 m-0 dropdown-item"
-                            >
+                        <li><h6 class="dropdown-header">Mi cuenta</h6></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2 text-muted"></i>Perfil</a></li>
+                        <li><a class="dropdown-item" href="{% url 'modulos_administracion' %}"><i class="fas fa-cog me-2 text-muted"></i>Configuración</a></li>
+                        <li><hr class="dropdown-divider"/></li>
+                        <li class="px-3 py-1">
+                            <form action="{% url 'logout' %}" method="post" class="m-0">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-dark w-100 btn-sm">
+                                <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
                                     <span>Cerrar sesión</span>
-                                    <i class="fa-solid fa-arrow-right-from-bracket fs-7 ms-1"></i>
+                                    <i class="fa-solid fa-arrow-right-from-bracket ms-1"></i>
                                 </button>
                             </form>
                         </li>
@@ -287,61 +134,55 @@
         </div>
     </div>
 </nav>
+
 {% block content %}
-    <div class="container py-4">
-        <div class="mb-4">
-            <h2 class="page-title">Panel Principal</h2>
-            <p class="text-muted mb-0">
-                Seleccione el módulo que deseas acceder.
-            </p>
+    <div class="container py-2">
+        <!-- Encabezado Principal -->
+        <div class="mb-5">
+            <h1 class="fw-bold h3 mb-1 text-dark">Panel Principal</h1>
+            <p class="text-secondary mb-0">Selecciona el módulo al que deseas acceder.</p>
         </div>
 
-        <div class="accordion border-0" id="accordionCategorias">
-            {% for seccion in secciones %}
-                <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-                    <h2 class="accordion-header" id="heading-{{ seccion.categoria.id }}">
-                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} fw-bold"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapse-{{ seccion.categoria.id }}"
-                                aria-expanded="{% if forloop.first %}true{% endif %}"
-                                aria-controls="collapse-{{ seccion.categoria.id }}"
-                                style="background-color: white; color: var(--primary-color); box-shadow: none;">
-                            <i class="fas fa-folder me-2 text-warning"></i> {{ seccion.categoria.nombre }}
-                        </button>
-                    </h2>
-                    <div id="collapse-{{ seccion.categoria.id }}"
-                         class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
-                         aria-labelledby="heading-{{ seccion.categoria.id }}"
-                         data-bs-parent="#accordionCategorias">
-                        <div class="accordion-body bg-light">
-
-                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                                {% for modulo in seccion.modulos %}
-                                    <div class="col">
-                                        <a href="/{{ modulo.url|lower }}" class="module-card">
-                                            <div class="module-icon">
-                                                <i class="{{ modulo.icono|lower|default:'fa-solid fa-gears' }}"></i>
-                                            </div>
-                                            <div class="module-title">{{ modulo.nombre }}</div>
-                                            <p class="module-description">{{ modulo.descripcion|default:'' }}</p>
-                                        </a>
-                                    </div>
-                                {% endfor %}
-                            </div>
-
-                        </div>
+        <!-- Secciones de Categorías -->
+        {% for seccion in secciones %}
+            <div class="mb-5">
+                <!-- Cabecera de Categoría Limpia y Moderna -->
+                <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+                    <div class="p-2 bg-dark-subtle rounded-3 text-dark me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <i class="fas fa-folder fs-6"></i>
                     </div>
+                    <h2 class="h5 fw-bold text-dark m-0 tracking-wide">{{ seccion.categoria.nombre }}</h2>
+                    <span class="badge bg-light text-secondary border ms-2 rounded-pill small fw-normal">{{ seccion.modulos|length }} módulos</span>
                 </div>
-            {% empty %}
-                <div class="alert alert-info border-0 shadow-sm rounded-3">
-                    <i class="fas fa-info-circle me-2"></i> No tienes módulos asignados o configurados para tus grupos
-                    actuales.
+
+                <!-- Grilla Adaptativa de Módulos (Hasta 4 por fila) -->
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                    {% for modulo in seccion.modulos %}
+                        <div class="col">
+                            <a href="/{{ modulo.url|lower }}" class="card h-100 text-decoration-none text-dark border-light shadow-sm rounded-3 module-link">
+                                <div class="card-body p-4 d-flex flex-column align-items-center text-center">
+                                    <!-- Contenedor de Icono Minimalista Oscuro -->
+                                    <div class="p-3 bg-light rounded-circle text-dark mb-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+                                        <i class="{{ modulo.icono|lower|default:'fa-solid fa-gears' }} fs-4"></i>
+                                    </div>
+                                    <!-- Textos -->
+                                    <h3 class="card-title h6 fw-bold mb-1 text-dark">{{ modulo.nombre }}</h3>
+                                    <p class="card-text small text-secondary mb-0">{{ modulo.descripcion|default:'' }}</p>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% empty %}
+            <div class="alert alert-info border-0 shadow-sm rounded-3 p-4 text-center">
+                <i class="fas fa-info-circle fs-4 mb-2 d-block text-info"></i>
+                <span>No tienes módulos asignados o configurados para tus grupos actuales.</span>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}
+
 <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 <link rel="stylesheet" href="{% static 'select2/css/select2.min.css' %}"/>
 <link rel="stylesheet" href="{% static 'select2/css/select2-bootstrap-5-theme.min.css' %}"/>

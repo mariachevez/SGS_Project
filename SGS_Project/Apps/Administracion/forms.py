@@ -149,7 +149,7 @@ class CantonForm(FormModeloBase):
 
 class AreaForm(FormModeloBase):
     nombre = forms.CharField(label='Nombre del área:', widget=forms.TextInput(attrs={'placeholder': 'Ejm: Producción'}))
-    director = forms.ModelChoiceField(label='Director departamental', queryset=Persona.objects.none(),
+    director = forms.ModelChoiceField(label='Director departamental', queryset=Persona.objects.filter(status=True),
                                       widget=forms.Select(attrs={'class': 'form-select', 'data-tipo': 'director', 'data-api': 'true',
                                                                  'data-url': reverse_lazy('buscar_personas')}))
     descripcion = forms.CharField(label='Descripción del área:', widget=forms.Textarea(

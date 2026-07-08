@@ -1,69 +1,83 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    <div class="container py-4">
-        <div class="d-flex justify-content-end my-2">
-            <a href="{% if ret %}{{ ret }}{% else %}{% block atras %}/{% endblock %}{% endif %}"
-               class="btn btn-outline-secondary btn-sm urlatrasbutton"
-               id="urlatrasbutton">
-                <i class="fa-solid fa-arrow-left me-1"></i>Atrás
-            </a>
+    <div class="container py-2">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4 pb-2 border-bottom">
+            <div>
+                <h1 class="fw-bold h4 mb-1 text-dark">Configuración del Sistema</h1>
+                <p class="text-secondary small mb-0">Gestión de accesos, módulos, auditorías y usuarios.</p>
+            </div>
+            <div>
+                <a href="{% if ret %}{{ ret }}{% else %}{% block atras %}/{% endblock %}{% endif %}"
+                   class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                   id="urlatrasbutton">
+                    <i class="fa-solid fa-arrow-left me-1"></i>Atrás
+                </a>
+            </div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+
             <div class="col">
-                <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="module-card">
-                    <div class="module-icon">
-                        <i class="fa-solid fa-key"></i>
+                <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="card h-100 text-decoration-none text-dark border-light shadow-sm rounded-3 module-link">
+                    <div class="card-body p-4 d-flex flex-column align-items-center text-center">
+                        <div class="p-3 bg-light rounded-circle text-dark mb-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+                            <i class="fa-solid fa-key fs-4"></i>
+                        </div>
+                        <h3 class="card-title h6 fw-bold mb-1 text-dark">Accesos</h3>
+                        <p class="card-text small text-secondary mb-0">Gestiona los grupos que tienen acceso a los módulos del sistema.</p>
                     </div>
-                    <div class="module-title">Accesos</div>
-                    <p class="module-description">Gestiona los grupos que tienen acceso a los módulos del sistema</p>
                 </a>
             </div>
+
             <div class="col">
-                <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="module-card">
-                    <div class="module-icon">
-                        <i class="fa-solid fa-clipboard-check"></i>
+                <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="card h-100 text-decoration-none text-dark border-light shadow-sm rounded-3 module-link">
+                    <div class="card-body p-4 d-flex flex-column align-items-center text-center">
+                        <div class="p-3 bg-light rounded-circle text-dark mb-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+                            <i class="fa-solid fa-clipboard-check fs-4"></i>
+                        </div>
+                        <h3 class="card-title h6 fw-bold mb-1 text-dark">Auditoría</h3>
+                        <p class="card-text small text-secondary mb-0">Revisar las acciones realizadas por los usuarios dentro del sistema.</p>
                     </div>
-                    <div class="module-title">Auditoría</div>
-                    <p class="module-description">Revisar las acciones realizadas por los usuarios dentro del sistema.</p>
                 </a>
             </div>
+
             <div class="col">
-                <a href="{% url 'listado_modulo_categorias' %}" class="module-card">
-                    <div class="module-icon">
-                        <i class="fa-solid fa-layer-group"></i>
+                <a href="{% url 'listado_modulo_categorias' %}" class="card h-100 text-decoration-none text-dark border-light shadow-sm rounded-3 module-link">
+                    <div class="card-body p-4 d-flex flex-column align-items-center text-center">
+                        <div class="p-3 bg-light rounded-circle text-dark mb-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+                            <i class="fa-solid fa-layer-group fs-4"></i>
+                        </div>
+                        <h3 class="card-title h6 fw-bold mb-1 text-dark">Categoría</h3>
+                        <p class="card-text small text-secondary mb-0">Gestión de las categorías de módulos.</p>
                     </div>
-                    <div class="module-title">Categoría</div>
-                    <p class="module-description">Gestión de las categorías de módulos</p>
                 </a>
             </div>
+
             <div class="col">
-                <a href="{% url 'listado_grupos_modulos' %}" class="module-card">
-                    <div class="module-icon">
-                        <i class="fa-solid fa-boxes-stacked"></i>
+                <a href="{% url 'listado_grupos_modulos' %}" class="card h-100 text-decoration-none text-dark border-light shadow-sm rounded-3 module-link">
+                    <div class="card-body p-4 d-flex flex-column align-items-center text-center">
+                        <div class="p-3 bg-light rounded-circle text-dark mb-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+                            <i class="fa-solid fa-boxes-stacked fs-4"></i>
+                        </div>
+                        <h3 class="card-title h6 fw-bold mb-1 text-dark">Grupos de módulos</h3>
+                        <p class="card-text small text-secondary mb-0">Gestión de los grupos de módulos del sistema.</p>
                     </div>
-                    <div class="module-title">Grupos de módulos</div>
-                    <p class="module-description">Gestión de los grupos de módulos del sistema</p>
                 </a>
             </div>
+
             <div class="col">
-                <a href="{% url 'listado_modulos' %}" class="module-card">
-                    <div class="module-icon">
-                        <i class="fa-solid fa-cubes"></i>
+                <a href="{% url 'listado_modulos' %}" class="card h-100 text-decoration-none text-dark border-light shadow-sm rounded-3 module-link">
+                    <div class="card-body p-4 d-flex flex-column align-items-center text-center">
+                        <div class="p-3 bg-light rounded-circle text-dark mb-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+                            <i class="fa-solid fa-cubes fs-4"></i>
+                        </div>
+                        <h3 class="card-title h6 fw-bold mb-1 text-dark">Módulos</h3>
+                        <p class="card-text small text-secondary mb-0">Gestión de los módulos del sistema.</p>
                     </div>
-                    <div class="module-title">Módulos</div>
-                    <p class="module-description">Gestión de los módulos del sistema</p>
                 </a>
             </div>
-            <div class="col">
-                <a href="{% url 'listado_agrupacion_modulos_persona' %}" class="module-card">
-                    <div class="module-icon">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="module-title">Usuarios</div>
-                    <p class="module-description">Gestiona los datos de los usuarios dentro del sistema.</p>
-                </a>
-            </div>
+
         </div>
     </div>
 {% endblock %}

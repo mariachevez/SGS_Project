@@ -62,7 +62,7 @@ urlpatterns = [
     path('areas/buscar_personal_area/', BuscarPersonalArea.as_view(), name='buscar_persona_area'),
     path('areas/listado_plantilla_area/<int:area_id>', ListarPlantillaArea.as_view(), name='listado_plantilla_area'),
     path('areas/eliminar_personal/<int:pk>/', EliminarPersonalArea.as_view(), name='eliminar_personal_area'),
-
+    path('mi_area', PlantillaPersonalDirectorListView.as_view(), name='mi_area'),
 
     # ==========================================
     # MÓDULO: ADMINISTRACION (En BD registrarás: administracion)

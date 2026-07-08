@@ -1,0 +1,94 @@
+{% extends 'nav.html' %}
+
+{% block more_filters %}
+    {% if mi_area %}
+        <div class="col-12 mb-2">
+            <div class="p-2 rounded bg-light border-start border-3 border-dark">
+                <span class="fs-7 text-muted text-uppercase d-block fw-bold" style="font-size: 0.65rem;">Área bajo tu Dirección:</span>
+                <span class="fs-6 fw-bold text-dark">{{ mi_area.nombre }}</span>
+                {% if mi_area.descripcion %}
+                    <small class="text-muted d-block" style="font-size: 0.75rem;">{{ mi_area.descripcion }}</small>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    <div class="col">
+        <label for="id_estado" class="fw-semibold form-label fs-7">Estado:</label>
+        <select id="id_estado"
+                name="estado"
+                class="form-select form-select-sm"
+                style="min-width: 140px;"
+                onchange="document.getElementById('form-filters').submit();">
+            <option value="">-- Todos los Estados --</option>
+            <option value="true" {% if estado == "true" %}selected{% endif %}>ACTIVO</option>
+            <option value="false" {% if estado == "false" %}selected{% endif %}>INACTIVO</option>
+        </select>
+    </div>
+{% endblock %}
+
+{% block block_thead %}
+    <tr>
+        <th class="fs-7" style="width: 50px;">#</th>
+        <th class="fs-7">Trabajador</th>
+        <th class="fs-7">Identificación</th>
+        <th class="fs-7">Área Asignada</th>
+        <th class="fs-7">Contacto / Datos</th>
+        <th class="fs-7 text-center">Estado</th>
+    </tr>
+{% endblock %}
+
+{% block block_tbody %}
+    {% for trabajador in trabajadores_area %}
+        <tr>
+            <td class="fs-7 align-middle">{{ forloop.counter }}</td>
+            <td class="fs-7 align-middle">
+                <!-- Tarjeta/Presentación de la persona -->
+                {% include 'base_persona_presentacion.html' with persona=trabajador.persona %}
+            </td>
+            <td class="fs-7 align-middle">
+                <!-- Traemos la identificación (Cédula/DNI) si existe -->
+                {% if trabajador.persona.cedula %}
+                    <span class="badge bg-light text-dark border"><i class="fa fa-id-card text-muted me-1"></i>{{ trabajador.persona.cedula }}</span>
+                {% else %}
+                    <span class="text-muted italic small">No registrada</span>
+                {% endif %}
+            </td>
+            <td class="fs-7 align-middle">
+                <!-- Toda la data posible del área -->
+                <div class="fw-bold text-dark">{{ trabajador.area.nombre }}</div>
+                {% if trabajador.area.descripcion %}
+                    <div class="text-muted small lh-sm" style="font-size: 0.75rem;">{{ trabajador.area.descripcion|truncatechars:60 }}</div>
+                {% endif %}
+            </td>
+            <td class="fs-7 align-middle">
+                <!-- Desglose completo de vías de contacto disponibles en el modelo -->
+                <div class="d-flex flex-column gap-1" style="font-size: 0.825rem;">
+                    {% if trabajador.persona.email %}
+                        <span><i class="fa fa-envelope text-muted fa-fw me-1"></i>{{ trabajador.persona.email }}</span>
+                    {% endif %}
+                    {% if trabajador.persona.telefono %}
+                        <span><i class="fa fa-phone text-muted fa-fw me-1"></i>{{ trabajador.persona.telefono }}</span>
+                    {% elif trabajador.persona.celular %}
+                        <span><i class="fa fa-mobile-alt text-muted fa-fw me-1"></i>{{ trabajador.persona.celular }}</span>
+                    {% endif %}
+                </div>
+            </td>
+            <td class="fs-7 align-middle text-center">
+                <!-- Mantenemos intacto tu estilo visual para los estados -->
+                {% if trabajador.status %}
+                    <i title="Activo" data-bs-toggle="tooltip" data-bs-placement="top"
+                       class="fa fa-check-circle fs-7 text-success"></i>
+                {% else %}
+                    <i title="Inactivo" data-bs-toggle="tooltip" data-bs-placement="top"
+                       class="fa fa-times-circle fs-7 text-danger"></i>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="6" class="text-muted bg-light text-center fs-7 py-3">
+                AÚN NO SE REGISTRA UN PERSONAL EN SU ÁREA
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}

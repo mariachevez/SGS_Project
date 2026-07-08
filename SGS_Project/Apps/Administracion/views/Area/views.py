@@ -1,9 +1,11 @@
 import json
+
+from django.db.models import Q
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, TemplateView
 
-from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
+from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView, EntidadesSesionMixin
 from SGS_Project.middleware import obtener_entidades_sesion
 from core.funciones import log
 from ...forms import *
@@ -193,6 +195,57 @@ class EliminarPersonalArea(BaseDeleteView):
         objeto = get_object_or_404(self.model, pk=pk)
         area_id = objeto.area_id
         return reverse('listado_plantilla_area', args=[area_id])
-        
+
+
+class PlantillaPersonalDirectorListView(EntidadesSesionMixin, ListView):
+    """
+    Vista para que los directores consulten los trabajadores de las áreas que tienen a su cargo.
+    Hereda de EntidadesSesionMixin para obtener automáticamente `self.persona_sesion`.
+    """
+    model = AreaPersona
+    template_name = "Area/mi_area_index.html"  # Ajusta tu ruta de template
+    context_object_name = "trabajadores_area"
+    paginate_by = 15  # Opcional: para integrarse con tu paginador_base.html
+
+    def get_queryset(self):
+        # 1. Obtener las áreas donde la persona en sesión es el Director
+        if not self.persona_sesion:
+            return AreaPersona.objects.none()
+
+        areas_dirigidas = Area.objects.filter(director=self.persona_sesion)
+
+        # 2. Traer todos los AreaPersona asociados a esas áreas con select_related para optimizar queries (SQL Join)
+        queryset = AreaPersona.objects.filter(area__in=areas_dirigidas).select_related('persona', 'area')
+
+        # 3. Aplicar Filtro por Buscador (Nombre, apellido, identificación o email de la persona)
+        search_query = self.request.GET.get('s', '').strip()
+        if search_query:
+            queryset = queryset.filter(
+                Q(persona__first_name__icontains=search_query) |
+                Q(persona__last_name__icontains=search_query) |
+                Q(persona__cedula__icontains=search_query) |  # Ajusta según el campo único que uses
+                Q(persona__email__icontains=search_query)
+            )
+
+        # 4. Aplicar Filtro por Estado (Asumiendo que AreaPersona o Persona tienen el atributo 'status')
+        status_query = self.request.GET.get('estado', '').strip()
+        if status_query:
+            # Ejemplo filtrando por el estado de la relación. Si deseas filtrar por el de la Persona: persona__status
+            is_active = status_query.lower() in ['true', '1', 'activo']
+            queryset = queryset.filter(status=is_active)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['nombre_tabla'] = "Listado del Personal"
+        context['placeholder'] = "Buscar por nombre, cédula o correo..."
+
+        # Obtenemos el área que diriges (o la primera si tienes varias)
+        if self.persona_sesion:
+            context['mi_area'] = Area.objects.filter(director=self.persona_sesion).first()
+
+        return context
+
 class ViewModulosAdministracion(TemplateView):
     pass
