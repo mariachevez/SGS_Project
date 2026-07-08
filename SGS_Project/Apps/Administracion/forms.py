@@ -406,3 +406,52 @@ class AgrupacionModulosPersonaForm(FormModeloBase):
                 raise forms.ValidationError('Esta combinación de grupo de módulos y grupo de personas ya existe.')
 
         return cleaned_data
+
+
+class EditarPerfilForm(FormModeloBase):
+    nombres = forms.CharField(label='Nombres:', widget=forms.TextInput(attrs={'col': '6'}))
+    apellido1 = forms.CharField(label='Primer Apellido:', widget=forms.TextInput(attrs={'col': '6'}))
+    apellido2 = forms.CharField(label='Segundo Apellido:', required=False, widget=forms.TextInput(attrs={'col': '6'}))
+    telefono = forms.CharField(label='Teléfono celular:', min_length=10, max_length=10,
+                               widget=forms.TextInput(attrs={'col': '6'}))
+    email = forms.EmailField(label='Correo electrónico personal:', widget=forms.EmailInput(attrs={'col': '6'}))
+    nacimiento = forms.DateField(label='Fecha de Nacimiento:',
+                                 widget=forms.DateInput(attrs={'col': '6', 'type': 'date'}))
+    sexo = forms.ChoiceField(label='Sexo:', choices=[('M', 'Masculino'), ('F', 'Femenino')],
+                             widget=forms.Select(attrs={'class': 'form-select', 'col': '6'}))
+
+    pais = forms.ModelChoiceField(label='País:', queryset=Pais.objects.filter(status=True),
+                                  widget=forms.Select(attrs={'col': '6', 'class': 'select2'}))
+    provincia = forms.ModelChoiceField(label='Provincia:', queryset=Provincia.objects.filter(status=True),
+                                       widget=forms.Select(attrs={'col': '6', 'class': 'select2'}))
+    canton = forms.ModelChoiceField(label='Cantón:', queryset=Canton.objects.filter(status=True),
+                                    widget=forms.Select(attrs={'col': '6', 'class': 'select2'}))
+
+    class Meta:
+        model = Persona
+        fields = ['nombres', 'apellido1', 'apellido2', 'telefono', 'email', 'nacimiento', 'sexo', 'pais', 'provincia',
+                  'canton']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ajustamos los querysets dinámicos según la instancia actual para los select encadenados
+        if self.instance and self.instance.pk:
+            if self.instance.pais:
+                self.fields['provincia'].queryset = Provincia.objects.filter(status=True, pais=self.instance.pais)
+            if self.instance.provincia:
+                self.fields['canton'].queryset = Canton.objects.filter(status=True, provincia=self.instance.provincia)
+
+        for field in self.fields:
+            if 'required' in self.fields[field].error_messages:
+                self.fields[field].error_messages['required'] = 'Este campo es obligatorio'
+
+
+class CambiarFotoForm(forms.ModelForm):
+    foto = forms.FileField(
+        label='Selecciona tu nueva foto de perfil:',
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'})
+    )
+
+    class Meta:
+        model = Persona
+        fields = ['foto']
