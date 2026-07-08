@@ -2,7 +2,7 @@ from django.urls import path
 from .views import *
 from .views.Grupo.views import ListadoGrupos, CrearGrupo, EditarGrupo, EliminarGrupo
 from .views.Modulos.views import *
-
+from .dashboards import *
 urlpatterns = [
 
     # ==========================================
@@ -113,6 +113,8 @@ urlpatterns = [
          name='editar_agrupacion_modulos_persona'),
     path('administracion/inactivar_agrupacion_modulos_persona/<int:pk>/', InactivarAgrupacionModulosPersona.as_view(),
          name='inactivar_agrupacion_modulos_persona'),
+
+    path('dashboards/', DashboardView.as_view(), name='dashboards'),
 
     # ==========================================
     # BÚSQUEDAS AJAX (Públicas o globales)
