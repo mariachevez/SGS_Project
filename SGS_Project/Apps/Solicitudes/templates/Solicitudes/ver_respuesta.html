@@ -1,0 +1,62 @@
+<div class="row g-3">
+    <div class="col-lg-6 col-12">
+        <label class="fw-semibold form-label fs-7">Tipo de Solicitud:</label>
+        <p class="mb-0">{{ solicitud.get_tipo_solicitud_display|default:"No definido" }}</p>
+    </div>
+
+    <div class="col-lg-6 col-12">
+        <label class="fw-semibold form-label fs-7">Área:</label>
+        <p class="mb-0">{{ solicitud.area.nombre|default:"Sin área" }}</p>
+    </div>
+
+    <div class="col-12">
+        <label class="fw-semibold form-label fs-7">Su descripción:</label>
+        <p class="mb-0">{{ solicitud.descripcion|default:"Sin descripción" }}</p>
+    </div>
+
+    <div class="col-lg-6 col-12">
+        <label class="fw-semibold form-label fs-7">Estado:</label>
+        <p class="mb-0">
+            <span class="rounded-3 px-2 py-1 text-white bg-{{ solicitud.get_estado_color }}">{{ solicitud.get_estado_solicitud_display }}</span>
+        </p>
+    </div>
+
+    <div class="col-lg-6 col-12">
+        <label class="fw-semibold form-label fs-7">Fecha de Resolución:</label>
+        <p class="mb-0">{{ solicitud.fecha_resolucion|default:"Aún no ha sido resuelta" }}</p>
+    </div>
+
+    {% if solicitud.area.director %}
+        <div class="col-12">
+            <label class="fw-semibold form-label fs-7">Atendido por:</label>
+            <p class="mb-0">{{ solicitud.area.director }}</p>
+        </div>
+    {% endif %}
+
+    <div class="col-12">
+        <label class="fw-semibold form-label fs-7">Respuesta del Director:</label>
+        {% if solicitud.estado_solicitud == 'P' %}
+            <p class="mb-0 text-muted">Su solicitud aún está pendiente de revisión.</p>
+        {% else %}
+            <p class="mb-0">{{ solicitud.respuesta_solicitud|default:"Sin observaciones adicionales"|linebreaksbr }}</p>
+        {% endif %}
+    </div>
+
+    {% if solicitud.archivo %}
+        <div class="col-12">
+            <label class="fw-semibold form-label fs-7">Su archivo adjunto:</label>
+            <div>
+                <a data-fancybox
+                        {% if solicitud.archivo.url|lower|slice:"-4:" == ".pdf" %}
+                   data-type="iframe"
+                        {% endif %}
+                   data-width="1639"
+                   data-height="800"
+                   href="{{ solicitud.archivo.url }}"
+                   class="btn btn-success btn-sm">
+                    <i class="fa-solid fa-eye"></i> Ver archivo
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>

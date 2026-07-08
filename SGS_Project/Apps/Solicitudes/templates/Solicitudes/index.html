@@ -32,6 +32,7 @@
         <th class="w-25 text-center">Descripcion</th>
         <th class="w-10 text-center">Tipo de Solicitud</th>
         <th class="w-10 text-center">Estado Solicitud</th>
+        <th class="w-10 text-center">Respuesta</th>
         <th class="w-15 text-center">Fecha Resolución</th>
         <th class="w-10 text-center">Archivo</th>
         <th class="w-10 text-center">Acciones</th>
@@ -44,7 +45,12 @@
             <td>{{ solicitud.area }}</td>
             <td>{{ solicitud.descripcion }}</td>
             <td>{{ solicitud.get_tipo_solicitud_display }}</td>
-            <td>{{ solicitud.get_estado_solicitud_display }}</td>
+            <td>
+                <span class="rounded-3 px-2 py-1 text-white bg-{{ solicitud.get_estado_color }}">{{ solicitud.get_estado_solicitud_display }}</span>
+            </td>
+            <td>
+                <a onclick='formModal("{% url "ver_mi_respuesta" solicitud.pk %}", "Respuesta del director")' href="javascript: void(0);"><i class="fa-solid fa-message text-primary"></i></a>
+            </td>
             <td>{{ solicitud.fecha_resolucion|default:'Pendiente de Resolución' }}</td>
             <td>
                 {% if solicitud.archivo %}
@@ -77,7 +83,7 @@
         </tr>
     {% empty %}
         <tr>
-            <td colspan="7" class="text-muted text-center">
+            <td colspan="8" class="text-muted text-center">
                 Aún no se registran solicitudes
             </td>
         </tr>
