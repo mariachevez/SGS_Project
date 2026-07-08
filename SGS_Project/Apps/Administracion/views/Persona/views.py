@@ -4,6 +4,7 @@ from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView
 from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView
+from core.reports.reportes_excel import DjangoReportThreadPool
 from ...models import *
 from ...forms import *
 from Apps.Notificaciones.utils import generar_notificacion
@@ -302,3 +303,21 @@ class BuscarPersonasView(View):
                 'more': False,
                 'error': str(ex)
             }, status=500)
+
+
+class ReportePersonasView(View):
+    """
+    Vista Basada en Clases (VBC) para lanzar el reporte de personas.
+    Redirige a la URL actual y muestra un mensaje flash de Django.
+    """
+
+    def get(self, request, *args, **kwargs):
+        filtros = request.GET.dict()
+        reportador = DjangoReportThreadPool(usuario_solicitante=request.user)
+        reportador.reporte_personas_thread(**filtros)
+        messages.success(request, 'Tu reporte se está procesando. Te llegará una notificación cuando esté listo para descargar.')
+        url_actual = request.META.get('HTTP_REFERER')
+        if url_actual:
+            return redirect(url_actual)
+        else:
+            return redirect('panel_principal')

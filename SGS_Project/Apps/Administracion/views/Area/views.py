@@ -8,6 +8,7 @@ from django.views.generic import ListView, TemplateView
 from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView, EntidadesSesionMixin
 from SGS_Project.middleware import obtener_entidades_sesion
 from core.funciones import log
+from core.reports.reportes_excel import DjangoReportThreadPool
 from ...forms import *
 from core.views import AjaxExceptionMixin
 from Apps.Notificaciones.utils import generar_notificacion
@@ -83,7 +84,7 @@ class ListarPlantillaArea(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        area = Area.objects.get(pk=self.kwargs['area_id'])
+        context['area'] = area = Area.objects.get(pk=self.kwargs['area_id'])
         context['nombre_tabla'] = f'Listado de personas que pertenecen al area de "{area.nombre.capitalize()}".'
         context['ret'] = reverse('listado_areas')
         context['url_formcrear'] = reverse('adicionar_personal', kwargs={'area_id': self.kwargs['area_id']})
@@ -247,5 +248,45 @@ class PlantillaPersonalDirectorListView(EntidadesSesionMixin, ListView):
 
         return context
 
-class ViewModulosAdministracion(TemplateView):
-    pass
+class ReporteAreasView(View):
+    """
+    Vista Basada en Clases (VBC) para lanzar el reporte de personas.
+    Redirige a la URL actual y muestra un mensaje flash de Django.
+    """
+
+    def get(self, request, *args, **kwargs):
+        filtros = request.GET.dict()
+        filtros['status'] = True
+        reportador = DjangoReportThreadPool(usuario_solicitante=request.user)
+        reportador.reporte_areas_thread(**filtros)
+        messages.success(request, 'Tu reporte se está procesando. Te llegará una notificación cuando esté listo para descargar.')
+        url_actual = request.META.get('HTTP_REFERER')
+        if url_actual:
+            return redirect(url_actual)
+        else:
+            return redirect('panel_principal')
+
+class ReportePlantillaAreasView(View):
+    """
+    Vista Basada en Clases (VBC) para lanzar el reporte de personas.
+    Redirige a la URL actual y muestra un mensaje flash de Django.
+    """
+
+    def get(self, request, *args, **kwargs):
+        filtros = request.GET.dict()
+
+        # .pop() saca el 'area_id' del diccionario y te lo da. Así ya no se duplica en **filtros
+        area_id = filtros.pop('area_id', None)
+
+        filtros['status'] = True
+
+        reportador = DjangoReportThreadPool(usuario_solicitante=request.user)
+        reportador.reporte_plantilla_area_thread(area_id, **filtros)
+
+        messages.success(request,
+                         'Tu reporte se está procesando. Te llegará una notificación cuando esté listo para descargar.')
+
+        url_actual = request.META.get('HTTP_REFERER')
+        if url_actual:
+            return redirect(url_actual)
+        return redirect('panel_principal')

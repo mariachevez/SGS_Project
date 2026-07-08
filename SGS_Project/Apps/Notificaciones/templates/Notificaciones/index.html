@@ -10,6 +10,7 @@
         <th class="fs-7">Descripción</th>
         <th class="fs-7 text-center">Estado</th>
         <th class="fs-7 text-center">Prioridad</th>
+        <th class="fs-7 text-center">URL</th>
     </tr>
 {% endblock %}
 
@@ -30,6 +31,14 @@
                 {% endif %}
             </td>
             <td class="fs-7">{{ notificacion.get_tipo_notificacion_display }}</td>
+            <td class="fs-7">
+                <a href="{% if notificacion.url %}{{ notificacion.url }}{% else %}{{ request.path }}{% endif %}"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   data-bs-title="Ir al enlacer">
+                    <i class="fa-solid fa-pen-to-square fs-6 icon-color"></i>
+                </a>
+            </td>
             {#            <td class="text-center position-relative fs-7">#}
             {#                <div class="d-flex align-items-center justify-content-center gap-2">#}
             {##}

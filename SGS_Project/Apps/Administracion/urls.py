@@ -13,6 +13,8 @@ urlpatterns = [
     path('personal/editar/<int:pk>/', EditarPersona.as_view(), name='editar_persona'),
     path('personal/inactivar/<int:pk>/', InactivarPersona.as_view(), name='inactivar_persona'),
 
+    path('personal/generar-reporte-personas/', ReportePersonasView.as_view(), name='generar_reporte_personas'),
+
     # ==========================================
     # MÓDULO: GRUPOS (En BD registrarás: grupo)
     # ==========================================
@@ -62,6 +64,9 @@ urlpatterns = [
     path('areas/buscar_personal_area/', BuscarPersonalArea.as_view(), name='buscar_persona_area'),
     path('areas/listado_plantilla_area/<int:area_id>', ListarPlantillaArea.as_view(), name='listado_plantilla_area'),
     path('areas/eliminar_personal/<int:pk>/', EliminarPersonalArea.as_view(), name='eliminar_personal_area'),
+
+    path('areas/generar-reporte-areas/', ReporteAreasView.as_view(), name='generar_reporte_areas'),
+    path('areas/generar-reporte-plantilla-areas/', ReportePlantillaAreasView.as_view(), name='generar_reporte_plantilla_areas'),
     path('mi_area', PlantillaPersonalDirectorListView.as_view(), name='mi_area'),
 
     # ==========================================

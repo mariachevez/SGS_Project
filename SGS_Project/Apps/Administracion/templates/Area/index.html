@@ -9,6 +9,12 @@
         <th class="fs-7">Acciones</th>
     </tr>
 {% endblock %}
+{% block botones_accion %}
+    <a href="{% url 'generar_reporte_areas' %}" class="btn btn-sm btn-outline-primary shadow-sm rounded-3 d-inline-flex align-items-center gap-2 px-3 py-2">
+        <i class="fa-solid fa-file-excel"></i>
+        <span>Reporte Excel</span>
+    </a>
+{% endblock %}
 {% block block_tbody %}
     {% for area in areas %}
         <tr>
