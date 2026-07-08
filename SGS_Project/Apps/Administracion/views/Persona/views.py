@@ -99,6 +99,17 @@ class InactivarPersona(BaseDeleteView):
     model = Persona
     redirect_url = reverse_lazy('listado_persona')
 
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        persona = get_object_or_404(self.model, pk=self.kwargs.get('pk'))
+
+        if persona.usuario:
+            persona.usuario.is_active = persona.status
+            persona.usuario.save(update_fields=['is_active'])
+
+        return response
+
 
 class ObtenerProvincias(View):
     def get(self, request):

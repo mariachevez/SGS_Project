@@ -19,21 +19,42 @@ class ListadoNotificaciones(ListView):
     def get_queryset(self):
         entidades = obtener_entidades_sesion()
         persona = entidades['persona']
-        if persona:
-            queryset = super().get_queryset().filter(status=True, destinatario=persona).order_by('-estado_notificacion', '-id')
-        else:
-            queryset = super().get_queryset().filter(status=True).order_by('-estado_notificacion', '-id')
 
-        search = self.request.GET.get('s')
+        if persona:
+            queryset = super().get_queryset().filter(
+                status=True,
+                destinatario=persona
+            )
+        else:
+            queryset = super().get_queryset().filter(status=True)
+
+        search = self.request.GET.get('s', '').strip()
+        estado = self.request.GET.get('estado', '').strip()
+        tipo = self.request.GET.get('tipo', '').strip()
 
         if search:
             queryset = queryset.filter(titulo__icontains=search)
 
-        return queryset
+        if estado != '':
+            queryset = queryset.filter(estado_notificacion=estado == '1')
+
+        if tipo:
+            queryset = queryset.filter(tipo_notificacion=tipo)
+
+        return queryset.order_by('-estado_notificacion', '-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de Notificaciones'
+
+        context['s'] = self.request.GET.get('s', '')
+        context['estado'] = self.request.GET.get('estado', '')
+        context['tipo'] = self.request.GET.get('tipo', '')
+
+        context['tipos_notificacion'] = Notificaciones._meta.get_field(
+            'tipo_notificacion'
+        ).choices
+
         return context
 
 

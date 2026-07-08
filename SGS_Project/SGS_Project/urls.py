@@ -22,9 +22,12 @@ from django.conf.urls.static import static
 from django.conf import settings
 from SGS_Project.views import PanelPrincipal, MiPerfilView, EditarPerfilView, CambiarFotoView
 
+from Apps.Administracion.forms import CustomAuthenticationForm
+from SGS_Project.views import PanelPrincipal
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', login_not_required(auth_views.LoginView.as_view()), name='login'),
+    path('login/', login_not_required(auth_views.LoginView.as_view(authentication_form = CustomAuthenticationForm)), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', PanelPrincipal.as_view(), name='panel_principal'),
     path('mi_perfil/', MiPerfilView.as_view(), name='mi_perfil'),

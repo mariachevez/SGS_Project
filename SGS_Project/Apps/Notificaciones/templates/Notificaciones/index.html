@@ -1,5 +1,28 @@
 {% extends 'nav.html' %}
+{% block more_filters %}
 
+    <div class="col-12 col-md-auto">
+        <label class="form-label fw-semibold small text-secondary mb-1">Estado:</label>
+        <select name="estado" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            <option value="0" {% if estado == "0" %}selected{% endif %}>Sin leer</option>
+            <option value="1" {% if estado == "1" %}selected{% endif %}>Leídas</option>
+        </select>
+    </div>
+
+    <div class="col-12 col-md-auto">
+        <label class="form-label fw-semibold small text-secondary mb-1">Prioridad:</label>
+        <select name="tipo" class="form-select form-select-sm">
+            <option value="">Todas</option>
+            {% for value, label in tipos_notificacion %}
+                <option value="{{ value }}" {% if tipo == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+{% endblock %}
 {% block block_thead %}
     <tr>
         <th class="fs-7">#</th>
@@ -25,9 +48,11 @@
             <td class="fs-7 text-muted">{{ notificacion.descripcion|default:"Sin descripción" }}</td>
             <td class="fs-7">
                 {% if notificacion.estado_notificacion %}
-                    <i title="Leido" data-bs-toggle="tooltip" data-bs-placement="top" class="fa fa-check-double fs-7 text-success"></i>
+                    <i title="Leido" data-bs-toggle="tooltip" data-bs-placement="top"
+                       class="fa fa-check-double fs-7 text-success"></i>
                 {% else %}
-                    <i title="Sin Leer" data-bs-toggle="tooltip" data-bs-placement="top" class="fa fa-hourglass-half fs-7 text-danger"></i>
+                    <i title="Sin Leer" data-bs-toggle="tooltip" data-bs-placement="top"
+                       class="fa fa-hourglass-half fs-7 text-danger"></i>
                 {% endif %}
             </td>
             <td class="fs-7">{{ notificacion.get_tipo_notificacion_display }}</td>
@@ -62,9 +87,17 @@
         </tr>
     {% empty %}
         <tr>
-            <td colspan="6" class="text-muted fs-7 text-center py-3">
+            <td colspan="{% if persona_sesion.usuario.is_superuser or usuario_sesion.is_superuser %}7{% else %}6{% endif %}"
+                class="text-muted fs-7 text-center py-3">
                 Aún no ha recibido notificaciones
             </td>
         </tr>
     {% endfor %}
+    <script>
+        $(function () {
+            $('select').change(function(){
+                $(this).closest('form').submit()
+            })
+        })
+    </script>
 {% endblock %}

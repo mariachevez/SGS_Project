@@ -408,6 +408,39 @@ class AgrupacionModulosPersonaForm(FormModeloBase):
         return cleaned_data
 
 
+from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+
+    error_messages = {
+        **AuthenticationForm.error_messages,
+        "inactive": "Su cuenta se encuentra inactiva. Comuníquese con el administrador del sistema.",
+    }
+
+    def clean(self):
+        username = self.cleaned_data.get("username")
+        password = self.cleaned_data.get("password")
+
+        UserModel = get_user_model()
+
+        if username and password:
+            try:
+                user = UserModel.objects.get(username=username)
+            except UserModel.DoesNotExist:
+                user = None
+
+            if user and not user.is_active:
+                raise ValidationError(
+                    self.error_messages["inactive"],
+                    code="inactive",
+                )
+
+        return super().clean()
+
+
 class EditarPerfilForm(FormModeloBase):
     nombres = forms.CharField(label='Nombres:', widget=forms.TextInput(attrs={'col': '6'}))
     apellido1 = forms.CharField(label='Primer Apellido:', widget=forms.TextInput(attrs={'col': '6'}))
