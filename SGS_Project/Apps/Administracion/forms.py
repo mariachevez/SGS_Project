@@ -82,7 +82,7 @@ class PersonaForm(FormModeloBase):
 
             # Ejecutamos todo seguro en una transacción
             with transaction.atomic():
-                validar_cedula(cedula)  # Tu validador
+                # validar_cedula(cedula)  # Tu validador
                 existe_cedula = Persona.objects.filter(identificacion=cedula).exists()
                 if existe_cedula:
                     raise ValueError(f'La cedula ingresada ya se encuentra registrada.')
@@ -102,6 +102,20 @@ class PersonaForm(FormModeloBase):
                 except Exception as ex:
                     print(f"Error al guardar la persona: {ex}")
                     raise ValueError("Error al guardar la persona")
+                    # CASO 2: Es una EDICIÓN (ya tiene ID)
+        else:
+            if persona.usuario:
+                user = persona.usuario
+                apellido1 = self.cleaned_data.get('apellido1') or ''
+                apellido2 = self.cleaned_data.get('apellido2') or ''
+
+                user.first_name = self.cleaned_data.get('nombres')
+                user.last_name = f'{apellido1} {apellido2}'.strip()
+                user.email = self.cleaned_data.get('email')
+                user.save()
+
+                if commit:
+                    persona.save()
 
         return persona
 
