@@ -37,11 +37,11 @@
 
         <nav id="sidebar-nav" class="d-flex flex-column gap-1 flex-grow-1 overflow-y-auto pt-3 no-scrollbar">
 
-            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}active{% endif %}"
+            <a class="text-decoration-none btn-nav p-2 rounded-3 d-flex justify-content-between align-items-center {% if request.resolver_match.url_name in 'listado_agrupacion_modulos_persona auditoria_personas listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}active{% endif %}"
                data-bs-toggle="collapse"
                href="#collapseModulos"
                role="button"
-               aria-expanded="{% if request.resolver_match.url_name in 'listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}true{% else %}false{% endif %}"
+               aria-expanded="{% if request.resolver_match.url_name in 'listado_agrupacion_modulos_persona auditoria_personas listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}true{% else %}false{% endif %}"
                aria-controls="collapseModulos">
                 <div class="d-flex align-items-center gap-2">
                     <i class="fa-solid fa-cubes fa-fw"></i> <span>Configuración</span>
@@ -49,18 +49,26 @@
                 <i class="fa-solid fa-chevron-down small opacity-50"></i>
             </a>
 
-            <div class="collapse {% if request.resolver_match.url_name in 'listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}show{% endif %}"
+            <div class="collapse {% if request.resolver_match.url_name in 'listado_agrupacion_modulos_persona auditoria_personas listado_modulo_categorias listado_grupos_modulos listado_modulos listado_agrupacionmodulosporgrupo listado_agrupacionmodulosgrupos' %}show{% endif %}"
                  id="collapseModulos"
                  data-bs-parent="#sidebar-nav">
                 <div class="d-flex flex-column gap-1 ps-4 ms-2 mt-1 border-start border-secondary">
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_modulo_categorias' %}active{% endif %}"
+
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_agrupacion_modulos_persona' %}active{% endif %}"
+                       href="{% url 'listado_agrupacion_modulos_persona' %}">Accesos</a>
+
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'auditoria_personas' %}active{% endif %}"
+                       href="{% url 'auditoria_personas' %}">Auditoría</a>
+
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_modulo_categorias' %}active{% endif %}"
                        href="{% url 'listado_modulo_categorias' %}">Categorías</a>
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name == 'listado_grupos_modulos' or request.resolver_match.url_name == 'listado_agrupacionmodulosporgrupo' %}active{% endif %}"
+
+                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_grupos_modulos listado_agrupacionmodulosporgrupo' %}active{% endif %}"
                        href="{% url 'listado_grupos_modulos' %}">Grupos de Módulos</a>
+
                     <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_modulos listado_agrupacionmodulosgrupos' %}active{% endif %}"
                        href="{% url 'listado_modulos' %}">Módulos</a>
-                    <a class="text-decoration-none btn-nav-child py-1.5 px-2 rounded-2 d-block {% if request.resolver_match.url_name in 'listado_grupos' %}active{% endif %}"
-                       href="{% url 'listado_grupos' %}">Gestión de Grupos</a>
+
                 </div>
             </div>
 

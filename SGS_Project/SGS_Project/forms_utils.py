@@ -10,7 +10,7 @@ from django import forms
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import CreateView, DeleteView, TemplateView, UpdateView, View
+from django.views.generic import CreateView, DeleteView, TemplateView, UpdateView, View, ListView
 
 # ==========================================
 # 3. Aplicaciones/Módulos locales del proyecto
@@ -39,6 +39,32 @@ class EntidadesSesionMixin(object):
             self.nombre_en_sesion = "Sistema"
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class BasePaginadaListView(AjaxExceptionMixin, EntidadesSesionMixin, ListView):
+    """
+    Vista base para listar registros.
+    Maneja automáticamente la inyección de parámetros GET en el contexto
+    para no perder los filtros durante la paginación.
+    """
+    paginate_by = 20  # Valor por defecto, puedes sobrescribirlo en las hijas
+
+    def get_context_data(self, **kwargs):
+        # 1. Obtener el contexto estándar de ListView
+        context = super().get_context_data(**kwargs)
+
+        # 2. Capturar los parámetros GET actuales
+        parametros = self.request.GET.copy()
+
+        # 3. Eliminar la página actual para no anidarla (ej: ?page=2&page=3)
+        if 'page' in parametros:
+            del parametros['page']
+
+        # 4. Convertir a string y enviar al contexto
+        url_vars = parametros.urlencode()
+        context['url_vars'] = f"&{url_vars}" if url_vars else ""
+
+        return context
 
 class BaseCreateView(AjaxExceptionMixin, EntidadesSesionMixin, CreateView):
     """Vista base de creación compatible con Modales/AJAX y tradicional."""

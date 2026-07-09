@@ -18,7 +18,7 @@ from core.models import CoreChoices
 class ListadoPersona(ListView):
     model = Persona
     template_name = 'Persona/index.html'
-    paginate_by = 25
+    paginate_by = 10
     context_object_name = 'personas'
 
     def get_queryset(self):

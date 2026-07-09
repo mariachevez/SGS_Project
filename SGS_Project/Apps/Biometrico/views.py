@@ -23,7 +23,6 @@ from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteVi
 from ..Administracion.models import AreaPersona
 
 # --- CARGA GLOBAL DEL MODELO YOLO ---
-# Esto evita que tu servidor se caiga al cargar la IA con cada clic
 from pathlib import Path
 
 RUTA_MODELO = settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models" / "best.pt"
@@ -204,29 +203,44 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
                 estado='R'
             )
 
+            # Inicializamos todos los campos requeridos del detalle en False
             detalle = DetRegistro.objects.create(
                 cabecera=cabecera,
                 foto=archivo_foto,
-                casco=False
+                casco=False,
+                guantes=False,
+                mandil=False
             )
 
+            # Evaluamos todos los EPP con la IA
             ruta_fisica_foto = detalle.foto.path
-            tiene_casco = self.evaluar_casco_ia(ruta_fisica_foto)
+            resultados_ia = self.evaluar_epp_ia(ruta_fisica_foto)
 
-            if tiene_casco:
+            # Asignamos los valores devueltos por el modelo de detección
+            detalle.casco = resultados_ia['casco']
+            detalle.guantes = resultados_ia['guantes']
+            detalle.mandil = resultados_ia['mandil']
+
+            # Lógica de aprobación basada en el casco obligatorio
+            if detalle.casco:
                 cabecera.estado = 'A'
-                detalle.casco = True
                 mensaje = "Acceso Autorizado. Uso de casco verificado correctamente."
             else:
                 cabecera.estado = 'R'
-                detalle.casco = False
                 mensaje = "Acceso Denegado. No se detectó el casco de seguridad obligatorio."
 
             cabecera.save()
             detalle.save()
 
+            # --- SÓLO AQUÍ SE AGREGA EL LOG DE AUDITORÍA TRANSACCIONAL ---
+            log(
+                mensaje=f"Marcaje registrado por {self.nombre_en_sesion}. Área: {cabecera.area.nombre}. EPP detectados -> Casco: {detalle.casco}, Guantes: {detalle.guantes}, Mandil: {detalle.mandil}. Resultado: {cabecera.get_estado_display()}",
+                request=self.request,
+                accion="add",
+                objeto=cabecera
+            )
+
             # --- FIX DE FECHA NAIVE ---
-            # Si la fecha es naive, no usamos localtime
             fecha_creacion = cabecera.fecha_creacion
             if timezone.is_aware(fecha_creacion):
                 fecha_creacion = timezone.localtime(fecha_creacion)
@@ -246,42 +260,44 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
         except Exception as e:
             return JsonResponse({'result': False, 'message': f'Error en el procesamiento: {str(e)}'}, status=500)
 
-    def evaluar_casco_ia(self, ruta_imagen):
+    def evaluar_epp_ia(self, ruta_imagen):
+        """
+        Escanea la imagen buscando múltiples implementos (casco, guantes, mandil)
+        y retorna un diccionario con los estados encontrados.
+        """
+        epp = {'casco': False, 'guantes': False, 'mandil': False}
+
         if MODELO_YOLO is None:
             print("Error: El modelo YOLO no está cargado en memoria.")
-            return False
+            return epp
 
         try:
             resultados = MODELO_YOLO(ruta_imagen, conf=0.85)
             nombres_clases = resultados[0].names
 
-            id_helmet = None
-            for idx, nombre in nombres_clases.items():
-                if nombre.lower() == 'helmet':
-                    id_helmet = idx
-                    break
-
-            if id_helmet is None:
-                print("Error: No se encontró la clase 'helmet' en los pesos.")
-                return False
-
             cajas = resultados[0].boxes
             for caja in cajas:
                 clase_detectada = int(caja.cls[0].item())
-                if clase_detectada == id_helmet:
-                    return True
+                nombre_clase = nombres_clases[clase_detectada].lower()
 
-            return False
+                # Mapeo según los nombres de etiquetas comunes en modelos de EPP
+                if nombre_clase in ['helmet', 'hard-hat', 'casco']:
+                    epp['casco'] = True
+                elif nombre_clase in ['gloves', 'glove', 'guantes']:
+                    epp['guantes'] = True
+                elif nombre_clase in ['vest', 'apron', 'mandil', 'protective-clothing']:
+                    epp['mandil'] = True
+
+            return epp
 
         except Exception as e:
             print(f"Error crítico procesando la IA: {e}")
-            return False
+            return epp
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DetectarCoordenadasView(View):
     def post(self, request, *args, **kwargs):
-        # Verificamos si el modelo cargó correctamente
         if MODELO_YOLO is None:
             return JsonResponse({'result': False, 'message': 'Modelo IA no disponible.'}, status=500)
 
@@ -290,21 +306,17 @@ class DetectarCoordenadasView(View):
             return JsonResponse({'result': False, 'message': 'No se envió imagen.'}, status=400)
 
         try:
-            # 1. Decodificar la imagen en memoria (Sin guardar en disco para máxima velocidad)
             format, imgstr = base64_data.split(';base64,')
             image_bytes = base64.b64decode(imgstr)
             imagen = Image.open(io.BytesIO(image_bytes))
 
-            # 2. Pasar la imagen por YOLO (Usamos conf=0.5 para que la cajita sea más permisiva visualmente)
-            resultados = MODELO_YOLO(imagen, conf=0.75)
+            resultados = MODELO_YOLO(imagen, conf=0.85)
 
             detecciones = []
-            cajas = resultados[0].boxes
+            cajas = whitespaces = resultados[0].boxes
             nombres = resultados[0].names
 
-            # 3. Extraer las coordenadas y clases
             for caja in cajas:
-                # YOLO devuelve las coordenadas en formato [x1, y1, x2, y2]
                 x1, y1, x2, y2 = caja.xyxy[0].tolist()
                 confianza = float(caja.conf[0].item())
                 clase_id = int(caja.cls[0].item())

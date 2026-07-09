@@ -1,0 +1,161 @@
+{% extends 'nav_configuracion.html' %}
+
+{% block more_filters %}
+    <div class="col-12 col-md-auto">
+        <label for="persona_id" class="form-label fw-semibold small text-secondary mb-1">Filtrar por Persona:</label>
+        <select name="persona_id" id="persona_id" class="form-select form-select-sm select2" style="min-width: 260px;" onchange="this.form.submit()">
+            <option value="">Todas las personas</option>
+            {% for p in personas %}
+                <option value="{{ p.id }}" {% if p.id|stringformat:"s" == persona_id %}selected{% endif %}>
+                    {{ p.identificacion }} - {{ p }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-12 col-md-auto">
+        <label for="estado" class="form-label fw-semibold small text-secondary mb-1">Filtrar por Estado:</label>
+        <select name="estado" id="estado" class="form-select form-select-sm select2" style="min-width: 200px;" onchange="this.form.submit()">
+            <option value="">Todos los estados</option>
+            <option value="add" {% if estado == "add" %}selected{% endif %}>Adicionar (ADD)</option>
+            <option value="edit" {% if estado == "edit" %}selected{% endif %}>Editar (EDIT)</option>
+            <option value="del" {% if estado == "del" %}selected{% endif %}>Eliminar / Inactivar (DEL)</option>
+        </select>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('#persona_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Seleccione una persona',
+                allowClear: true
+            });
+            $('#estado').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Seleccione un estado',
+                allowClear: true
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block block_thead %}
+    <tr>
+        <th class="fs-7 text-center">#</th>
+        <th class="fs-7 text-start">Fecha y Hora</th>
+        <th class="fs-7 text-start">Usuario (Autor)</th>
+        <th class="fs-7 text-center">Acción</th>
+        <th class="fs-7 text-start">Registro Afectado</th>
+        <th class="fs-7 text-start">Detalle / Metadata</th>
+    </tr>
+{% endblock %}
+
+{% block block_tbody %}
+    {% for log in logs %}
+        <tr>
+            <td class="fs-7 fw-bold">{{ forloop.counter0|add:page_obj.start_index|default:forloop.counter }}</td>
+
+            <td class="fs-7 text-start fw-semibold">
+                {{ log.action_time|date:"d/m/Y H:i:s" }}
+            </td>
+
+            <td class="fs-7 text-start text-muted">
+                <i class="fa fa-user fs-7 me-1 text-secondary"></i>
+                {{ log.user.username|default:"Sistema" }}
+            </td>
+
+            <td class="fs-7 text-center">
+                {% if log.is_addition %}
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill" data-bs-toggle="tooltip" title="Registro Creado">
+                        <i class="fa fa-plus-circle me-1"></i> ADD
+                    </span>
+                {% elif log.is_change %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-50 px-2 py-1 rounded-pill" data-bs-toggle="tooltip" title="Registro Editado">
+                        <i class="fa fa-pen me-1"></i> EDIT
+                    </span>
+                {% elif log.is_deletion %}
+                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1 rounded-pill" data-bs-toggle="tooltip" title="Registro Eliminado">
+                        <i class="fa fa-trash me-1"></i> DEL
+                    </span>
+                {% else %}
+                    <span class="badge bg-secondary text-white">OTRO</span>
+                {% endif %}
+            </td>
+
+            <td class="fs-7 text-start fw-semibold text-primary">
+                {{ log.object_repr|truncatechars:45 }}
+            </td>
+
+            <td class="fs-7 text-start text-muted" style="max-width: 300px;">
+                <small>{{ log.get_change_message|default:"Sin descripción" }}</small>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="6" class="text-muted fs-7 text-center py-5">
+                <i class="fa-regular fa-folder-open fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+                No se encontraron registros de auditoría
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
+{# Paginación integrada con soporte para múltiples variables de filtrado (url_vars) #}
+{% if is_paginated %}
+    <nav aria-label="Navegación de páginas" class="mt-4">
+        <ul class="pagination pagination-sm justify-content-center align-items-center mb-0 gap-1">
+
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link border-0 rounded-2 text-secondary bg-transparent shadow-none"
+                       href="?page={{ page_obj.previous_page_number }}{{ url_vars }}"
+                       aria-label="Anterior">
+                        <i class="fa-solid fa-chevron-left small"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled opacity-50">
+                <span class="page-link border-0 bg-transparent text-muted">
+                    <i class="fa-solid fa-chevron-left small"></i>
+                </span>
+                </li>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+                {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active" aria-current="page">
+                        <span class="page-link border-0 rounded-2 fw-bold bg-dark text-white shadow-sm px-3">
+                            {{ num }}
+                        </span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link border-0 rounded-2 text-secondary bg-transparent hover-light px-3"
+                               href="?page={{ num }}{{ url_vars }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link border-0 rounded-2 text-secondary bg-transparent shadow-none"
+                       href="?page={{ page_obj.next_page_number }}{{ url_vars }}"
+                       aria-label="Siguiente">
+                        <i class="fa-solid fa-chevron-right small"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled opacity-50">
+                <span class="page-link border-0 bg-transparent text-muted">
+                    <i class="fa-solid fa-chevron-right small"></i>
+                </span>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+{% endif %}

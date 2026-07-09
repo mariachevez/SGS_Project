@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from .views.Auditoria.views import AuditoriaPersonaListView
 from .views.Grupo.views import ListadoGrupos, CrearGrupo, EditarGrupo, EliminarGrupo
 from .views.Modulos.views import *
 from .dashboards import *
@@ -122,4 +123,5 @@ urlpatterns = [
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),
     path('buscar_cantones/', ObtenerCantones.as_view(), name='buscar_cantones'),
     path('buscar_personas/', BuscarPersonasView.as_view(), name='buscar_personas'),
+    path('auditoria/personas/', AuditoriaPersonaListView.as_view(), name='auditoria_personas'),
 ]
