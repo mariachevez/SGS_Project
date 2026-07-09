@@ -1,0 +1,78 @@
+{% extends 'nav.html' %}
+
+{% block botones_accion %}
+    <a href="{% url 'mi_area' %}" class="btn btn-sm btn-outline-secondary shadow-sm rounded-3 d-inline-flex align-items-center gap-2 px-3 py-2">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Volver a la Plantilla</span>
+    </a>
+{% endblock %}
+
+{% block more_filters %}
+    <div class="col-12 mb-2">
+        <div class="p-2 rounded bg-light border-start border-3 border-primary">
+            <span class="fs-7 text-muted text-uppercase d-block fw-bold" style="font-size: 0.65rem;">Historial de Accesos para:</span>
+            <span class="fs-6 fw-bold text-dark">{{ persona.nombre_completo_minus }}</span>
+            <small class="text-muted d-block" style="font-size: 0.75rem;">Área de Control: <strong>{{ area.nombre }}</strong></small>
+        </div>
+    </div>
+{% endblock %}
+
+{% block block_thead %}
+    <tr>
+        <th class="fs-7" style="width: 50px;">#</th>
+        <th class="fs-7">Fecha y Hora</th>
+        <th class="fs-7">Tipo de Registro</th>
+        <th class="fs-7 text-center">Estado Acceso</th>
+        <th class="fs-7 text-center" style="width: 100px;">Detalle IA</th>
+    </tr>
+{% endblock %}
+
+{% block block_tbody %}
+    {% for reg in registros %}
+        <tr>
+            <td class="fs-7 align-middle">{{ forloop.counter }}</td>
+            <td class="fs-7 align-middle fw-semibold text-dark">
+                <i class="fa-regular fa-calendar-days text-muted me-2"></i>{{ reg.fecha_creacion|date:"d/m/Y, h:i A" }}
+            </td>
+            <td class="fs-7 align-middle">
+                {% if reg.tipo == 'I' %}
+                    <span class="badge bg-info-subtle text-info border border-info-subtle text-uppercase px-2">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i>{{ reg.get_tipo_display }}
+                    </span>
+                {% else %}
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle text-uppercase px-2">
+                        <i class="fa-solid fa-right-from-bracket me-1"></i>{{ reg.get_tipo_display }}
+                    </span>
+                {% endif %}
+            </td>
+            <td class="fs-7 align-middle text-center">
+                {% if reg.estado == 'A' %}
+                    <span class="badge bg-success rounded-pill px-3 py-1 fs-7">
+                        <i class="fa-solid fa-circle-check me-1"></i>Autorizado
+                    </span>
+                {% else %}
+                    <span class="badge bg-danger rounded-pill px-3 py-1 fs-7">
+                        <i class="fa-solid fa-circle-xmark me-1"></i>Denegado
+                    </span>
+                {% endif %}
+            </td>
+            <td class="fs-7 align-middle text-center">
+                <a href="javascript:void(0);"
+                   onclick="formModal('{% url 'detalle_ingresos_salidas' reg.pk %}', 'Ver Detección de EPI')"
+                   class="btn btn-sm btn-light border"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   title="Ver captura y EPI">
+                    <i class="fa-solid fa-eye text-primary"></i>
+                </a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="5" class="text-muted bg-light text-center fs-7 py-4">
+                <i class="fa-solid fa-fingerprint fa-2x d-block mb-2 text-muted"></i>
+                ESTE TRABAJADOR NO REGISTRA INGRESOS O SALIDAS EN ESTA ÁREA TODAVÍA.
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}

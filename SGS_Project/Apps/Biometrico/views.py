@@ -212,11 +212,9 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
                 mandil=False
             )
 
-            # Evaluamos todos los EPP con la IA
             ruta_fisica_foto = detalle.foto.path
             resultados_ia = self.evaluar_epp_ia(ruta_fisica_foto)
 
-            # Asignamos los valores devueltos por el modelo de detección
             detalle.casco = resultados_ia['casco']
             detalle.guantes = resultados_ia['guantes']
             detalle.mandil = resultados_ia['mandil']
@@ -234,7 +232,7 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
 
             # --- SÓLO AQUÍ SE AGREGA EL LOG DE AUDITORÍA TRANSACCIONAL ---
             log(
-                mensaje=f"Marcaje registrado por {self.nombre_en_sesion}. Área: {cabecera.area.nombre}. EPP detectados -> Casco: {detalle.casco}, Guantes: {detalle.guantes}, Mandil: {detalle.mandil}. Resultado: {cabecera.get_estado_display()}",
+                mensaje=f"Marcaje registrado por {self.nombre_en_sesion}. Área: {cabecera.area.nombre}. EPI detectados -> Casco: {detalle.casco}, Guantes: {detalle.guantes}, Mandil: {detalle.mandil}. Resultado: {cabecera.get_estado_display()}",
                 request=self.request,
                 accion="add",
                 objeto=cabecera

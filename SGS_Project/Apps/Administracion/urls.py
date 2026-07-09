@@ -70,6 +70,9 @@ urlpatterns = [
     path('areas/generar-reporte-plantilla-areas/', ReportePlantillaAreasView.as_view(), name='generar_reporte_plantilla_areas'),
     path('mi_area', PlantillaPersonalDirectorListView.as_view(), name='mi_area'),
 
+    path('mi_area/ingresos_salidas/<int:pk>', ListadoMarcajesPersonalView.as_view(), name='ingresos_salidas_personal'),
+    path('mi_area/detalle_ingresos_salidas/<int:pk>', VerDetalleMarcajeModalView.as_view(), name='detalle_ingresos_salidas'),
+
     # ==========================================
     # MÓDULO: ADMINISTRACION (En BD registrarás: administracion)
     # ==========================================

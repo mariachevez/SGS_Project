@@ -1,0 +1,59 @@
+<div class="modal-header">
+    <h5 class="modal-title fw-bold text-dark"><i class="fa fa-fingerprint me-2 text-primary"></i>Detalle de Detección</h5>
+</div>
+<div class="modal-body">
+    <div class="row g-3">
+        <div class="col-md-6 text-center">
+            <span class="fs-7 text-muted fw-bold d-block mb-1 text-uppercase">Captura de Cámara:</span>
+            {% if detalle.foto %}
+                <img src="{{ detalle.foto.url }}" class="img-fluid rounded border shadow-sm img-thumbnail" style="max-height: 280px; object-fit: cover;" alt="Detección de EPI">
+            {% else %}
+                <div class="bg-light rounded border border-secondary border-dashed p-5 text-muted small">
+                    <i class="fa fa-image fa-3x d-block mb-2 text-muted"></i> No se dispone de archivo de imágen.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <span class="fs-7 text-muted fw-bold d-block mb-2 text-uppercase">Resultados del Análisis IA:</span>
+
+            <ul class="list-group list-group-flush border rounded p-1 bg-white mb-3 shadow-sm">
+                <li class="list-group-item d-flex justify-content-between align-items-center fs-7 py-2">
+                    <span><i class="fa-solid fa-hard-hat me-2 text-muted"></i>Casco de Seguridad:</span>
+                    {% if detalle.casco %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2">DETECTADO</span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">FALTANTE</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center fs-7 py-2">
+                    <span><i class="fa-solid fa-hand-holding-safety me-2 text-muted"></i>Guantes de Protección:</span>
+                    {% if detalle.guantes %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2">DETECTADO</span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">FALTANTE</span>
+                    {% endif %}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center fs-7 py-2">
+                    <span><i class="fa-solid fa-shirt me-2 text-muted"></i>Mandil de Seguridad:</span>
+                    {% if detalle.mandil %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2">DETECTADO</span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2">FALTANTE</span>
+                    {% endif %}
+                </li>
+            </ul>
+
+            <span class="fs-7 text-muted fw-bold d-block mb-1 text-uppercase">Información del Evento:</span>
+            <div class="p-2 bg-light rounded border border-start border-3 {% if cabecera.estado == 'A' %}border-success{% else %}border-danger{% endif %} fs-7">
+                <div class="mb-1"><strong>Tipo:</strong> {{ cabecera.get_tipo_display }}</div>
+                <div class="mb-1"><strong>Resolución:</strong>
+                    <span class="fw-bold {% if cabecera.estado == 'A' %}text-success{% else %}text-danger{% endif %}">
+                        {{ cabecera.get_estado_display }}
+                    </span>
+                </div>
+                <div><strong>Fecha/Hora:</strong> {{ cabecera.fecha_creacion|date:"d/m/Y, h:i A" }}</div>
+            </div>
+        </div>
+    </div>
+</div>

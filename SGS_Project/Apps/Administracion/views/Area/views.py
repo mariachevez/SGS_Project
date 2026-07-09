@@ -3,8 +3,9 @@ import json
 from django.db.models import Q
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView, TemplateView, DetailView
 
+from Apps.Biometrico.models import CabRegistro
 from SGS_Project.forms_utils import BaseCreateView, BaseUpdateView, BaseDeleteView, EntidadesSesionMixin
 from SGS_Project.middleware import obtener_entidades_sesion
 from core.funciones import log
@@ -216,7 +217,7 @@ class PlantillaPersonalDirectorListView(EntidadesSesionMixin, ListView):
         areas_dirigidas = Area.objects.filter(director=self.persona_sesion)
 
         # 2. Traer todos los AreaPersona asociados a esas áreas con select_related para optimizar queries (SQL Join)
-        queryset = AreaPersona.objects.filter(area__in=areas_dirigidas).select_related('persona', 'area')
+        queryset = AreaPersona.objects.filter(area__in=areas_dirigidas, status=True).select_related('persona', 'area')
 
         # 3. Aplicar Filtro por Buscador (Nombre, apellido, identificación o email de la persona)
         search_query = self.request.GET.get('s', '').strip()
@@ -290,3 +291,42 @@ class ReportePlantillaAreasView(View):
         if url_actual:
             return redirect(url_actual)
         return redirect('panel_principal')
+
+class ListadoMarcajesPersonalView(EntidadesSesionMixin, ListView):
+    model = CabRegistro
+    template_name = 'Area/ver_registros_ingresos_salidas.html'  # Define tu ruta de template
+    paginate_by = 25
+    context_object_name = 'registros'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Obtenemos el registro de la plantilla de área usando la PK enviada por el botón
+        self.area_persona = get_object_or_404(AreaPersona, pk=self.kwargs.get('pk'), status=True)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Filtramos estrictamente las transacciones que correspondan a esa persona y en esa área específica
+        return CabRegistro.objects.filter(
+            status=True,
+            persona=self.area_persona.persona,
+            area=self.area_persona.area
+        ).order_by('-id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Devolvemos el área y la persona al contexto tal como lo solicitaste
+        context['area'] = self.area_persona.area
+        context['persona'] = self.area_persona.persona
+        context['nombre_tabla'] = f"Historial de Accesos - {self.area_persona.persona.nombre_completo_minus()}"
+        return context
+
+
+class VerDetalleMarcajeModalView(EntidadesSesionMixin, AjaxExceptionMixin, DetailView):
+    model = CabRegistro
+    template_name = 'Area/detalle_ingreso_salida.html'  # El fragmento HTML que cargará en el modal
+    context_object_name = 'cabecera'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Obtenemos el primer detalle vinculado al registro biométrico (donde se aloja la foto y los booleanos de EPP)
+        context['detalle'] = self.object.detalles.filter(status=True).first()
+        return context
