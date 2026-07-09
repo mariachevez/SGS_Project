@@ -86,7 +86,6 @@ class MiPerfilView(TemplateView):
 
         context['persona'] = persona
         context['titulo'] = 'Mi Perfil'
-        # Puedes pasar variables para tu base.html si las necesitas
         context['nombre_tabla'] = 'Perfil de Usuario'
         return context
 

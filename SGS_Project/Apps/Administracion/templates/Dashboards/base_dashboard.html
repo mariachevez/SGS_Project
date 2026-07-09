@@ -1,0 +1,307 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <div class="container-fluid dashboard-wrapper">
+
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="mb-1 dashboard-title">{% block dashboard_title %}Dashboard{% endblock %}</h3>
+                <p class="text-muted mb-0 dashboard-subtitle">
+                    {% block dashboard_subtitle %}Resumen general{% endblock %}
+                </p>
+            </div>
+
+            <a href="{% if ret %}{{ ret }}{% else %}{% block atras %}/{% endblock %}{% endif %}"
+               class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-secondary-subtle"
+               id="urlatrasbutton">
+                <i class="fa-solid fa-arrow-left me-1"></i>Atrás
+            </a>
+        </div>
+
+        <ul class="nav nav-pills dashboard-tabs mb-4" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% block tab_solicitudes_active %}{% endblock %}"
+                   href="{% url 'dashboard_solicitud' %}">
+                    <i class="fa-solid fa-file-lines me-2"></i>Solicitudes
+                </a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% block tab_personal_active %}{% endblock %}"
+                   href="{% url 'dashboard_personal' %}">
+                    <i class="fa-solid fa-users me-2"></i>Personal
+                </a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% block tab_acceso_area_active %}{% endblock %}"
+                   href="{% url 'dashboard_acceso' %}">
+                    <i class="fa-solid fa-door-open me-2"></i>Acceso Área
+                </a>
+            </li>
+        </ul>
+
+        {% block block_dashboard %}{% endblock %}
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        function toggleEmptyState(canvasId, emptyStateId, hasData) {
+            const canvas = document.getElementById(canvasId);
+            const emptyState = document.getElementById(emptyStateId);
+
+            if (!canvas || !emptyState) return;
+
+            canvas.classList.toggle('d-none', !hasData);
+            emptyState.classList.toggle('d-none', hasData);
+        }
+    </script>
+    {% block dashboard_js %}{% endblock %}
+    <style>
+        .dashboard-title {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #1e2130;
+            font-size: 1.35rem;
+        }
+
+        .dashboard-subtitle {
+            font-size: 0.82rem;
+        }
+
+        .dashboard-tabs {
+            background: #fff;
+            padding: 5px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(20, 20, 43, 0.05);
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .dashboard-tabs .nav-link {
+            border: none;
+            border-radius: 9px;
+            color: #6b7280;
+            font-weight: 600;
+            font-size: 0.84rem;
+            padding: 0.42rem 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .dashboard-tabs .nav-link:hover {
+            color: #4f46e5;
+            background: #f3f4ff;
+        }
+
+        .dashboard-tabs .nav-link.active {
+            color: #fff;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .dashboard-filter-card {
+            background: #fff;
+            border: 1px solid #eef0f5;
+            border-radius: 12px;
+            padding: 1rem 1.15rem;
+            box-shadow: 0 2px 8px rgba(20, 20, 43, 0.04);
+        }
+
+        .filter-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.25rem;
+        }
+
+        .filter-select {
+            border-radius: 8px;
+            border: 1px solid #e2e4ec;
+            padding: 0.42rem 0.7rem;
+            font-size: 0.85rem;
+            background-color: #fafbfd;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .filter-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.16rem rgba(99, 102, 241, 0.15);
+            background-color: #fff;
+        }
+
+        .btn-filter-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.42rem 0.8rem;
+            font-weight: 600;
+            font-size: 0.82rem;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-filter-primary:hover {
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-filter-clear {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: none;
+            border-radius: 8px;
+            padding: 0.42rem 0.8rem;
+            font-size: 0.82rem;
+            transition: background 0.15s ease;
+        }
+
+        .btn-filter-clear:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .dashboard-kpi-card {
+            background: #fff;
+            border: 1px solid #eef0f5;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            box-shadow: 0 2px 8px rgba(20, 20, 43, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 88px;
+        }
+
+        .dashboard-kpi-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.2rem;
+        }
+
+        .dashboard-kpi-value {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #1e2130;
+            margin-bottom: 0;
+        }
+
+        .dashboard-kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        .dashboard-chart-card {
+            background: #fff;
+            border: 1px solid #eef0f5;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(20, 20, 43, 0.04);
+            overflow: hidden;
+        }
+
+        .dashboard-chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid #f1f2f6;
+        }
+
+        .dashboard-chart-header h5 {
+            font-weight: 700;
+            color: #1e2130;
+            font-size: 1rem;
+        }
+
+        .dashboard-chart-header small {
+            font-size: 0.78rem;
+        }
+
+        .dashboard-icon-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-chart-body {
+            padding: 1rem;
+        }
+
+        .dashboard-chart-body canvas {
+            min-height: 280px;
+        }
+
+        .dashboard-empty-state {
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #9ca3af;
+            gap: 0.6rem;
+        }
+
+        .dashboard-empty-state i {
+            font-size: 2rem;
+            color: #d1d5db;
+        }
+
+        .dashboard-empty-state p {
+            font-size: 0.85rem;
+            max-width: 300px;
+        }
+
+        .bg-primary-soft {
+            background-color: rgba(99, 102, 241, 0.12);
+        }
+
+        .bg-success-soft {
+            background-color: rgba(34, 197, 94, 0.12);
+        }
+
+        .bg-warning-soft {
+            background-color: rgba(245, 158, 11, 0.14);
+        }
+
+        .bg-danger-soft {
+            background-color: rgba(239, 68, 68, 0.14);
+        }
+
+        .bg-info-soft {
+            background-color: rgba(59, 130, 246, 0.14);
+        }
+
+        .bg-pink-soft {
+            background-color: rgba(236, 72, 153, 0.14);
+        }
+
+        .bg-purple-soft {
+            background-color: rgba(168, 85, 247, 0.14);
+        }
+
+        .text-pink {
+            color: #ec4899;
+        }
+
+        .text-purple {
+            color: #a855f7;
+        }
+    </style>
+{% endblock %}

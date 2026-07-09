@@ -1,0 +1,252 @@
+{% extends 'Dashboards/base_dashboard.html' %}
+
+{% block dashboard_subtitle %}Resumen de concurrencia e ingresos por área{% endblock %}
+{% block tab_acceso_area_active %}active{% endblock %}
+
+{% block block_dashboard %}
+    <div>
+        <form method="get" class="dashboard-filter-card mb-4">
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-sitemap me-1"></i>Área
+                    </label>
+                    <select name="area" class="form-select filter-select">
+                        <option value="">Todas las áreas</option>
+                        {% for area in areas %}
+                            <option value="{{ area.id }}"
+                                    {% if area_id == area.id|stringformat:"s" %}selected{% endif %}>
+                                {{ area.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-calendar-day me-1"></i>Desde
+                    </label>
+                    <input type="date"
+                           name="fecha_desde"
+                           value="{{ fecha_desde }}"
+                           class="form-control filter-select">
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-calendar-check me-1"></i>Hasta
+                    </label>
+                    <input type="date"
+                           name="fecha_hasta"
+                           value="{{ fecha_hasta }}"
+                           class="form-control filter-select">
+                </div>
+
+                <div class="col-lg-2 col-md-6 d-flex gap-2">
+                    <a href="{% url 'dashboard_acceso' %}" class="btn btn-filter-clear w-100">
+                        <i class="fa-solid fa-arrow-rotate-left me-1"></i>Limpiar
+                    </a>
+                    <button type="submit" class="btn btn-filter-primary w-100">
+                        <i class="fa-solid fa-filter me-1"></i>Filtrar
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <div class="row g-3 mb-4">
+            <div class="col-xl-4 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Total ingresos</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_total_ingresos }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-primary-soft text-primary">
+                        <i class="fa-solid fa-door-open"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Personas únicas</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_total_personas }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-success-soft text-success">
+                        <i class="fa-solid fa-users"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Áreas visitadas</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_total_areas }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-purple-soft text-purple">
+                        <i class="fa-solid fa-building"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-xl-6">
+                <div class="dashboard-chart-card">
+                    <div class="dashboard-chart-header">
+                        <div>
+                            <h5 class="mb-0">Ingresos por área</h5>
+                            <small class="text-muted">Concurrencia agrupada por área</small>
+                        </div>
+                        <span class="dashboard-icon-badge bg-primary-soft text-primary">
+                            <i class="fa-solid fa-chart-column"></i>
+                        </span>
+                    </div>
+
+                    <div class="dashboard-chart-body">
+                        <canvas id="chartIngresosArea"></canvas>
+
+                        <div id="emptyIngresosArea" class="dashboard-empty-state d-none">
+                            <i class="fa-solid fa-inbox"></i>
+                            <p class="mb-0">No hay ingresos que coincidan con los filtros seleccionados.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="dashboard-chart-card">
+                    <div class="dashboard-chart-header">
+                        <div>
+                            <h5 class="mb-0">Ingresos por hora</h5>
+                            <small class="text-muted">Distribución de concurrencia según la hora del día</small>
+                        </div>
+                        <span class="dashboard-icon-badge bg-success-soft text-success">
+                            <i class="fa-solid fa-clock"></i>
+                        </span>
+                    </div>
+
+                    <div class="dashboard-chart-body">
+                        <canvas id="chartIngresosHora"></canvas>
+
+                        <div id="emptyIngresosHora" class="dashboard-empty-state d-none">
+                            <i class="fa-solid fa-clock"></i>
+                            <p class="mb-0">No hay ingresos registrados por hora en el rango seleccionado.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block dashboard_js %}
+    <script>
+        const areasLabels = {{ areas_labels|safe }};
+        const areasData = {{ areas_data|safe }};
+
+        const horasLabels = {{ horas_labels|safe }};
+        const horasData = {{ horas_data|safe }};
+
+        const hasAreasData = areasLabels.length > 0;
+        const hasHorasData = horasLabels.length > 0;
+
+        toggleEmptyState('chartIngresosArea', 'emptyIngresosArea', hasAreasData);
+        toggleEmptyState('chartIngresosHora', 'emptyIngresosHora', hasHorasData);
+
+        const chartIngresosArea = hasAreasData ? new Chart(
+            document.getElementById('chartIngresosArea'),
+            {
+                type: 'bar',
+                data: {
+                    labels: areasLabels,
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: areasData,
+                        backgroundColor: '#6366f1',
+                        hoverBackgroundColor: '#4f46e5',
+                        borderRadius: 6,
+                        maxBarThickness: 46
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            grid: {
+                                color: '#eef0f5'
+                            }
+                        }
+                    }
+                }
+            }
+        ) : null;
+
+        const chartIngresosHora = hasHorasData ? new Chart(
+            document.getElementById('chartIngresosHora'),
+            {
+                type: 'bar',
+                data: {
+                    labels: horasLabels,
+                    datasets: [{
+                        label: 'Ingresos',
+                        data: horasData,
+                        backgroundColor: '#22c55e',
+                        hoverBackgroundColor: '#16a34a',
+                        borderRadius: 6,
+                        maxBarThickness: 38
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            grid: {
+                                color: '#eef0f5'
+                            }
+                        }
+                    }
+                }
+            }
+        ) : null;
+
+        window.addEventListener('resize', function () {
+            if (chartIngresosArea) chartIngresosArea.resize();
+            if (chartIngresosHora) chartIngresosHora.resize();
+        });
+    </script>
+{% endblock %}

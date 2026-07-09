@@ -1,0 +1,219 @@
+{% extends 'Dashboards/base_dashboard.html' %}
+{% block dashboard_subtitle %}Resumen general de solicitudes{% endblock %}
+{% block tab_solicitudes_active %}active{% endblock %}
+{% block block_dashboard %}
+    <div>
+
+        <form method="get" class="dashboard-filter-card mb-4">
+            <input type="hidden" name="tab" value="solicitudes">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-sitemap me-1"></i>Área
+                    </label>
+                    <select name="area_sol" class="form-select filter-select">
+                        <option value="">Todas las áreas</option>
+                        {% for area in areas %}
+                            <option value="{{ area.id }}"
+                                    {% if area_sol_id == area.id|stringformat:"s" %}selected{% endif %}>
+                                {{ area.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-circle-check me-1"></i>Estado
+                    </label>
+                    <select name="estado_sol" class="form-select filter-select">
+                        <option value="">Todos los estados</option>
+                        <option value="P" {% if estado_sol == "P" %}selected{% endif %}>Pendiente</option>
+                        <option value="R" {% if estado_sol == "R" %}selected{% endif %}>Rechazado</option>
+                        <option value="A" {% if estado_sol == "A" %}selected{% endif %}>Aprobado</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-layer-group me-1"></i>Tipo
+                    </label>
+                    <select name="tipo_sol" class="form-select filter-select">
+                        <option value="">Todos los tipos</option>
+                        <option value="E" {% if tipo_sol == "E" %}selected{% endif %}>Equipo de Trabajo
+                        </option>
+                        <option value="S" {% if tipo_sol == "S" %}selected{% endif %}>Soporte Técnico
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                    <a href="{% url 'dashboard_solicitud' %}" class="btn btn-filter-clear">
+                        <i class="fa-solid fa-arrow-rotate-left me-1"></i>Limpiar
+                    </a>
+                    <button type="submit" class="btn btn-filter-primary">
+                        <i class="fa-solid fa-filter me-1"></i>Filtrar
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- KPIs SOLICITUDES -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Total solicitudes</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_total_solicitudes }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-primary-soft text-primary">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Pendientes</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_pendientes }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-warning-soft text-warning">
+                            <i class="fa-solid fa-clock"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Aprobadas</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_aprobadas }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-success-soft text-success">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Rechazadas</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_rechazadas }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-danger-soft text-danger">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dashboard-chart-card">
+            <div class="dashboard-chart-header">
+                <div>
+                    <h5 class="mb-0">Solicitudes por área</h5>
+                    <small class="text-muted">Distribución por estado según el filtro aplicado</small>
+                </div>
+                <span class="dashboard-icon-badge bg-primary-soft text-primary">
+                        <i class="fa-solid fa-chart-column"></i>
+                    </span>
+            </div>
+
+            <div class="dashboard-chart-body">
+                <canvas id="chartSolicitudesArea"></canvas>
+
+                <div id="emptySolicitudesArea" class="dashboard-empty-state d-none">
+                    <i class="fa-solid fa-inbox"></i>
+                    <p class="mb-0">No hay solicitudes que coincidan con los filtros seleccionados.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block dashboard_js %}
+    <script>
+        const areasLabels = {{ areas_labels|safe }};
+        const pendientesData = {{ pendientes_data|safe }};
+        const aprobadosData = {{ aprobados_data|safe }};
+        const rechazadosData = {{ rechazados_data|safe }};
+
+        const hasSolicitudesData = areasLabels.length > 0;
+
+        toggleEmptyState(
+            'chartSolicitudesArea',
+            'emptySolicitudesArea',
+            hasSolicitudesData
+        );
+
+        const chartSolicitudesArea = hasSolicitudesData ? new Chart(
+            document.getElementById('chartSolicitudesArea'),
+            {
+                type: 'bar',
+                data: {
+                    labels: areasLabels,
+                    datasets: [
+                        {
+                            label: 'Pendiente',
+                            data: pendientesData,
+                            backgroundColor: '#f59e0b',
+                            hoverBackgroundColor: '#d97706',
+                            borderRadius: 6,
+                            maxBarThickness: 46
+                        },
+                        {
+                            label: 'Aprobado',
+                            data: aprobadosData,
+                            backgroundColor: '#22c55e',
+                            hoverBackgroundColor: '#16a34a',
+                            borderRadius: 6,
+                            maxBarThickness: 46
+                        },
+                        {
+                            label: 'Rechazado',
+                            data: rechazadosData,
+                            backgroundColor: '#ef4444',
+                            hoverBackgroundColor: '#dc2626',
+                            borderRadius: 6,
+                            maxBarThickness: 46
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            grid: {
+                                color: '#eef0f5'
+                            }
+                        }
+                    }
+                }
+            }
+        ) : null;
+    </script>
+{% endblock %}

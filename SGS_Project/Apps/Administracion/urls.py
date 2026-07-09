@@ -114,8 +114,9 @@ urlpatterns = [
          name='editar_agrupacion_modulos_persona'),
     path('administracion/inactivar_agrupacion_modulos_persona/<int:pk>/', InactivarAgrupacionModulosPersona.as_view(),
          name='inactivar_agrupacion_modulos_persona'),
-
-    path('dashboards/', DashboardView.as_view(), name='dashboards'),
+    path('dashboards/', DashboardSolicitudesView.as_view(), name='dashboard_solicitud'),
+    path('dashboards/personal/', DashboardPersonalView.as_view(), name='dashboard_personal'),
+    path('dashboards/accesos_areas/', DashboardConcurrenciaView.as_view(), name='dashboard_acceso'),
 
     # ==========================================
     # BÚSQUEDAS AJAX (Públicas o globales)

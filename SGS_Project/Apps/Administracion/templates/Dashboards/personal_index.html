@@ -1,0 +1,244 @@
+{% extends 'Dashboards/base_dashboard.html' %}
+{% block dashboard_subtitle %}Resumen general del personal{% endblock %}
+{% block tab_personal_active %}active{% endblock %}
+{% block block_dashboard %}
+    <div>
+
+        <form method="get" class="dashboard-filter-card mb-4">
+            <input type="hidden" name="tab" value="personal">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-map-location-dot me-1"></i>Provincia
+                    </label>
+                    <select name="provincia_per" id="provinciaPerSelect" class="form-select filter-select">
+                        <option value="">Todas las provincias</option>
+                        {% for provincia in provincias %}
+                            <option value="{{ provincia.id }}"
+                                    {% if provincia_per_id == provincia.id|stringformat:"s" %}selected{% endif %}>
+                                {{ provincia.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-city me-1"></i>Cantón
+                    </label>
+                    <select name="canton_per" id="cantonPerSelect" class="form-select filter-select"
+                            {% if not provincia_per_id %}disabled{% endif %}>
+                        <option value="">Todos los cantones</option>
+                        {% for canton in cantones %}
+                            <option value="{{ canton.id }}"
+                                    {% if canton_per_id == canton.id|stringformat:"s" %}selected{% endif %}>
+                                {{ canton.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-venus-mars me-1"></i>Género
+                    </label>
+                    <select name="sexo_per" class="form-select filter-select">
+                        <option value="">Todos</option>
+                        <option value="M" {% if sexo_per == "M" %}selected{% endif %}>Masculino</option>
+                        <option value="F" {% if sexo_per == "F" %}selected{% endif %}>Femenino</option>
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                    <a href="{% url 'dashboard_personal' %}" class="btn btn-filter-clear">
+                        <i class="fa-solid fa-arrow-rotate-left me-1"></i>Limpiar
+                    </a>
+                    <button type="submit" class="btn btn-filter-primary">
+                        <i class="fa-solid fa-filter me-1"></i>Filtrar
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- KPIs PERSONAL -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Total personal</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_total_personal }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-primary-soft text-primary">
+                            <i class="fa-solid fa-users"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Masculino</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_masculino }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-info-soft text-info">
+                            <i class="fa-solid fa-mars"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Femenino</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_femenino }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-pink-soft text-pink">
+                            <i class="fa-solid fa-venus"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Provincias</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_provincias }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-purple-soft text-purple">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dashboard-chart-card">
+            <div class="dashboard-chart-header">
+                <div>
+                    <h5 class="mb-0">Personal por provincia y género</h5>
+                    <small class="text-muted">Distribución por género según el filtro aplicado</small>
+                </div>
+                <span class="dashboard-icon-badge bg-success-soft text-success">
+                        <i class="fa-solid fa-chart-column"></i>
+                    </span>
+            </div>
+
+            <div class="dashboard-chart-body">
+                <canvas id="chartPersonalProvincia"></canvas>
+
+                <div id="emptyPersonalProvincia" class="dashboard-empty-state d-none">
+                    <i class="fa-solid fa-inbox"></i>
+                    <p class="mb-0">No hay personal que coincida con los filtros seleccionados.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block dashboard_js %}
+    <script>
+        const provinciasLabels = {{ provincias_labels|safe }};
+        const masculinoData = {{ masculino_data|safe }};
+        const femeninoData = {{ femenino_data|safe }};
+
+        const hasPersonalData = provinciasLabels.length > 0;
+
+        toggleEmptyState('chartPersonalProvincia', 'emptyPersonalProvincia', hasPersonalData);
+
+        const chartPersonalProvincia = hasPersonalData ? new Chart(
+            document.getElementById('chartPersonalProvincia'),
+            {
+                type: 'bar',
+                data: {
+                    labels: provinciasLabels,
+                    datasets: [
+                        {
+                            label: 'Masculino',
+                            data: masculinoData,
+                            backgroundColor: '#3b82f6',
+                            hoverBackgroundColor: '#2563eb',
+                            borderRadius: 6,
+                            maxBarThickness: 46
+                        },
+                        {
+                            label: 'Femenino',
+                            data: femeninoData,
+                            backgroundColor: '#ec4899',
+                            hoverBackgroundColor: '#db2777',
+                            borderRadius: 6,
+                            maxBarThickness: 46
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            grid: {
+                                color: '#eef0f5'
+                            }
+                        }
+                    }
+                }
+            }
+        ) : null;
+
+        window.addEventListener('resize', function () {
+            if (chartPersonalProvincia) {
+                chartPersonalProvincia.resize();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const provinciaSelect = document.getElementById('provinciaPerSelect');
+            const cantonSelect = document.getElementById('cantonPerSelect');
+
+            if (!provinciaSelect || !cantonSelect) return;
+
+            provinciaSelect.addEventListener('change', function () {
+                const provinciaId = this.value;
+
+                cantonSelect.innerHTML = '<option value="">Todos los cantones</option>';
+                cantonSelect.disabled = true;
+
+                if (!provinciaId) return;
+
+                fetch(`?action=buscar_cantones&provincia_id=${provinciaId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.result) return;
+
+                        data.cantones.forEach(canton => {
+                            const option = document.createElement('option');
+                            option.value = canton.id;
+                            option.textContent = canton.nombre;
+                            cantonSelect.appendChild(option);
+                        });
+
+                        cantonSelect.disabled = false;
+                    });
+            });
+        });
+    </script>
+{% endblock %}
