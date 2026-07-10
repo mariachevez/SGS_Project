@@ -25,12 +25,26 @@ from ..Administracion.models import AreaPersona
 # --- CARGA GLOBAL DEL MODELO YOLO ---
 from pathlib import Path
 
-RUTA_MODELO = settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models" / "best.pt"
-try:
-    MODELO_YOLO = YOLO(RUTA_MODELO)
-except Exception as e:
-    print(f"Advertencia: No se pudo cargar el modelo YOLO inicial. Error: {e}")
-    MODELO_YOLO = None
+RUTAS_MODELOS = {
+    "modelo1": {
+        "ruta": settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models" / "best.pt",
+        "conf": 0.85
+    },
+    "modelo2": {
+        "ruta": settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models_2" / "best.pt",
+        "conf": 0.5
+    },
+}
+
+MODELOS_YOLO = {}
+for nombre, config in RUTAS_MODELOS.items():
+    try:
+        MODELOS_YOLO[nombre] = {
+            "modelo": YOLO(config["ruta"]),
+            "conf": config["conf"]
+        }
+    except Exception as e:
+        print(f"No se pudo cargar {nombre}: {e}")
 
 
 class ListarConfiguracionesBiometrico(ListView):
@@ -265,26 +279,29 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
         """
         epp = {'casco': False, 'guantes': False, 'mandil': False}
 
-        if MODELO_YOLO is None:
-            print("Error: El modelo YOLO no está cargado en memoria.")
+        if not MODELOS_YOLO:
+            print("Error: No existen modelos YOLO cargados.")
             return epp
 
         try:
-            resultados = MODELO_YOLO(ruta_imagen, conf=0.85)
-            nombres_clases = resultados[0].names
+            for config in MODELOS_YOLO.values():
+                modelo = config["modelo"]
+                conf = config["conf"]
+                resultados = modelo(ruta_imagen, conf=conf)
+                nombres_clases = resultados[0].names
 
-            cajas = resultados[0].boxes
-            for caja in cajas:
-                clase_detectada = int(caja.cls[0].item())
-                nombre_clase = nombres_clases[clase_detectada].lower()
+                cajas = resultados[0].boxes
+                for caja in cajas:
+                    clase_detectada = int(caja.cls[0].item())
+                    nombre_clase = nombres_clases[clase_detectada].lower()
 
-                # Mapeo según los nombres de etiquetas comunes en modelos de EPP
-                if nombre_clase in ['helmet', 'hard-hat', 'casco']:
-                    epp['casco'] = True
-                elif nombre_clase in ['gloves', 'glove', 'guantes']:
-                    epp['guantes'] = True
-                elif nombre_clase in ['vest', 'apron', 'mandil', 'protective-clothing']:
-                    epp['mandil'] = True
+                    # Mapeo según los nombres de etiquetas comunes en modelos de EPP
+                    if nombre_clase in ['helmet', 'hard-hat', 'casco']:
+                        epp['casco'] = True
+                    elif nombre_clase in ['gloves', 'guantes', 'glove', 'heat_glove']:
+                        epp['guantes'] = True
+                    elif nombre_clase in ['vest', 'apron', 'mandil', 'protective-clothing', 'welding_apron', 'welding_suit']:
+                        epp['mandil'] = True
 
             return epp
 
@@ -296,7 +313,7 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
 @method_decorator(csrf_exempt, name='dispatch')
 class DetectarCoordenadasView(View):
     def post(self, request, *args, **kwargs):
-        if MODELO_YOLO is None:
+        if not MODELOS_YOLO:
             return JsonResponse({'result': False, 'message': 'Modelo IA no disponible.'}, status=500)
 
         base64_data = request.POST.get('imagen')
@@ -308,26 +325,28 @@ class DetectarCoordenadasView(View):
             image_bytes = base64.b64decode(imgstr)
             imagen = Image.open(io.BytesIO(image_bytes))
 
-            resultados = MODELO_YOLO(imagen, conf=0.85)
-
             detecciones = []
-            cajas = whitespaces = resultados[0].boxes
-            nombres = resultados[0].names
+            for config in MODELOS_YOLO.values():
+                modelo = config["modelo"]
+                conf = config["conf"]
+                resultados = modelo(imagen, conf=conf)
+                cajas = resultados[0].boxes
+                nombres = resultados[0].names
 
-            for caja in cajas:
-                x1, y1, x2, y2 = caja.xyxy[0].tolist()
-                confianza = float(caja.conf[0].item())
-                clase_id = int(caja.cls[0].item())
-                nombre_clase = nombres[clase_id]
+                for caja in cajas:
+                    x1, y1, x2, y2 = caja.xyxy[0].tolist()
+                    confianza = float(caja.conf[0].item())
+                    clase_id = int(caja.cls[0].item())
+                    nombre_clase = nombres[clase_id]
 
-                detecciones.append({
-                    'x1': x1,
-                    'y1': y1,
-                    'x2': x2,
-                    'y2': y2,
-                    'clase': nombre_clase,
-                    'confianza': confianza
-                })
+                    detecciones.append({
+                        'x1': x1,
+                        'y1': y1,
+                        'x2': x2,
+                        'y2': y2,
+                        'clase': nombre_clase,
+                        'confianza': confianza
+                    })
 
             return JsonResponse({
                 'result': True,
