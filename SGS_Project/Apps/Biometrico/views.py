@@ -32,7 +32,7 @@ RUTAS_MODELOS = {
     },
     "modelo2": {
         "ruta": settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models_2" / "best.pt",
-        "conf": 0.5
+        "conf": 0.45
     },
 }
 
