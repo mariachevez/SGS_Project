@@ -32,7 +32,11 @@ RUTAS_MODELOS = {
     },
     "modelo2": {
         "ruta": settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models_2" / "best.pt",
-        "conf": 0.45
+        "conf": 0.50
+    },
+    "modelo3": {
+        "ruta": settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models_3" / "best.pt",
+        "conf": 0.50
     },
 }
 
@@ -274,8 +278,10 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
 
     def evaluar_epp_ia(self, ruta_imagen):
         """
-        Escanea la imagen buscando múltiples implementos (casco, guantes, mandil)
-        y retorna un diccionario con los estados encontrados.
+        Escanea la imagen utilizando cada modelo para su propósito específico:
+        - Modelo 1: Casco (conf: 0.85)
+        - Modelo 2: Guantes (conf: 0.50)
+        - Modelo 3: Mandil (conf: 0.15)
         """
         epp = {'casco': False, 'guantes': False, 'mandil': False}
 
@@ -284,31 +290,54 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
             return epp
 
         try:
-            for config in MODELOS_YOLO.values():
-                modelo = config["modelo"]
-                conf = config["conf"]
-                resultados = modelo(ruta_imagen, conf=conf)
-                nombres_clases = resultados[0].names
+            # --- EVALUAR MODELO 1: CASCO ---
+            if "modelo1" in MODELOS_YOLO:
+                config1 = MODELOS_YOLO["modelo1"]
+                resultados1 = config1["modelo"](ruta_imagen, conf=config1["conf"])
+                nombres_clases1 = resultados1[0].names
 
-                cajas = resultados[0].boxes
-                for caja in cajas:
-                    clase_detectada = int(caja.cls[0].item())
-                    nombre_clase = nombres_clases[clase_detectada].lower()
-
-                    # Mapeo según los nombres de etiquetas comunes en modelos de EPP
+                for caja in resultados1[0].boxes:
+                    clase_id = int(caja.cls[0].item())
+                    nombre_clase = nombres_clases1[clase_id].lower()
+                    # Solo buscamos cascos en este modelo
                     if nombre_clase in ['helmet', 'hard-hat', 'casco']:
                         epp['casco'] = True
-                    elif nombre_clase in ['gloves', 'guantes', 'glove', 'heat_glove']:
+                        break  # Si ya encontramos uno, podemos pasar al siguiente modelo
+
+            # --- EVALUAR MODELO 2: GUANTES ---
+            if "modelo2" in MODELOS_YOLO:
+                config2 = MODELOS_YOLO["modelo2"]
+                resultados2 = config2["modelo"](ruta_imagen, conf=config2["conf"])
+                nombres_clases2 = resultados2[0].names
+
+                for caja in resultados2[0].boxes:
+                    clase_id = int(caja.cls[0].item())
+                    nombre_clase = nombres_clases2[clase_id].lower()
+                    # Solo buscamos guantes en este modelo
+                    if nombre_clase in ['gloves', 'guantes', 'glove', 'heat_glove']:
                         epp['guantes'] = True
-                    elif nombre_clase in ['vest', 'apron', 'mandil', 'protective-clothing', 'welding_apron', 'welding_suit']:
+                        break
+
+            # --- EVALUAR MODELO 3: MANDIL ---
+            if "modelo3" in MODELOS_YOLO:
+                config3 = MODELOS_YOLO["modelo3"]
+                resultados3 = config3["modelo"](ruta_imagen, conf=config3["conf"])
+                nombres_clases3 = resultados3[0].names
+
+                for caja in resultados3[0].boxes:
+                    clase_id = int(caja.cls[0].item())
+                    nombre_clase = nombres_clases3[clase_id].lower()
+                    # Solo buscamos mandiles en este modelo
+                    if nombre_clase in ['vest', 'apron', 'mandil', 'protective-clothing', 'welding_apron',
+                                        'welding_suit', 'wearing-apron']:
                         epp['mandil'] = True
+                        break
 
             return epp
 
         except Exception as e:
-            print(f"Error crítico procesando la IA: {e}")
+            print(f"Error crítico procesando la IA por separado: {e}")
             return epp
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DetectarCoordenadasView(View):
