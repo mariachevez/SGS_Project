@@ -32,11 +32,11 @@ RUTAS_MODELOS = {
     },
     "modelo2": {
         "ruta": settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models_2" / "best.pt",
-        "conf": 0.35
+        "conf": 0.45
     },
     "modelo3": {
         "ruta": settings.BASE_DIR / "Apps" / "Biometrico" / "ia_models_3" / "best.pt",
-        "conf": 0.50
+        "conf": 0.55
     },
 }
 
@@ -277,12 +277,7 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
             return JsonResponse({'result': False, 'message': f'Error en el procesamiento: {str(e)}'}, status=500)
 
     def evaluar_epp_ia(self, ruta_imagen):
-        """
-        Escanea la imagen utilizando cada modelo para su propósito específico:
-        - Modelo 1: Casco (conf: 0.85)
-        - Modelo 2: Guantes (conf: 0.50)
-        - Modelo 3: Mandil (conf: 0.15)
-        """
+
         epp = {'casco': False, 'guantes': False, 'mandil': False}
 
         if not MODELOS_YOLO:
