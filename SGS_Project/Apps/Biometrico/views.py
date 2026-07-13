@@ -230,6 +230,15 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
                 mandil=False
             )
 
+            faltantes = []
+
+            if not detalle.casco:
+                faltantes.append("casco de seguridad")
+            if not detalle.guantes:
+                faltantes.append("guantes")
+            if not detalle.mandil:
+                faltantes.append("mandil")
+
             ruta_fisica_foto = detalle.foto.path
             resultados_ia = self.evaluar_epp_ia(ruta_fisica_foto)
 
@@ -237,13 +246,33 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
             detalle.guantes = resultados_ia['guantes']
             detalle.mandil = resultados_ia['mandil']
 
-            # Lógica de aprobación basada en el casco obligatorio
+            # Calcular EPP faltantes según el resultado de la IA
+            faltantes = []
+
+            if not detalle.casco:
+                faltantes.append("casco de seguridad")
+            if not detalle.guantes:
+                faltantes.append("guantes")
+            if not detalle.mandil:
+                faltantes.append("mandil")
+
             if detalle.casco:
                 cabecera.estado = 'A'
-                mensaje = "Acceso Autorizado. Uso de casco verificado correctamente."
+
+                if faltantes:
+                    mensaje = (
+                        f"Acceso Autorizado. Se detectó el casco de seguridad. "
+                        f"No se detectó: {', '.join(faltantes)}."
+                    )
+                else:
+                    mensaje = "Acceso Autorizado. Se detectó correctamente todo el EPI."
             else:
                 cabecera.estado = 'R'
                 mensaje = "Acceso Denegado. No se detectó el casco de seguridad obligatorio."
+
+                otros_faltantes = [e for e in faltantes if e != "casco de seguridad"]
+                if otros_faltantes:
+                    mensaje += f" Adicionalmente no se detectó: {', '.join(otros_faltantes)}."
 
             cabecera.save()
             detalle.save()
