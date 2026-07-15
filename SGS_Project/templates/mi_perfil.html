@@ -4,152 +4,160 @@
 {% block title %}Mi Perfil{% endblock %}
 
 {% block content %}
-<div class="container py-2">
-    <div class="mb-4 d-flex justify-content-between align-items-end border-bottom pb-3">
-        <div>
-            <h1 class="fw-bold h3 mb-1 text-dark">
-                <i class="fas fa-user-circle me-2 text-secondary"></i> {{ titulo|default:"Mi Perfil" }}
-            </h1>
-            <p class="text-secondary mb-0">Gestiona tu información personal y de contacto.</p>
+    <div class="container py-2">
+        <div class="col-12 d-flex justify-content-end align-items-center">
+            <div>
+                <a href="/"
+                   class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                   id="urlatrasbutton">
+                    <i class="fa-solid fa-arrow-left me-1"></i>Atrás
+                </a>
+            </div>
+        </div>
+        <div class="mb-4 d-flex justify-content-between align-items-end border-bottom pb-3">
+            <div>
+                <h1 class="fw-bold h3 mb-1 text-dark">
+                    <i class="fas fa-user-circle me-2 text-secondary"></i> {{ titulo|default:"Mi Perfil" }}
+                </h1>
+                <p class="text-secondary mb-0">Gestiona tu información personal y de contacto.</p>
+            </div>
+            <a href="javascript:void(0);"
+               onclick='formModal("{% url "editar_perfil" %}", "Editar Mis Datos Personales", "modal-lg")'
+               class="btn btn-outline-muted rounded-pill px-4 shadow-sm d-flex align-items-center gap-2">
+                <i class="fa-solid fa-pen"></i> <span class="d-none d-sm-inline fw-semibold">Editar Perfil</span>
+            </a>
         </div>
 
-        <a href="javascript:void(0);"
-           onclick='formModal("{% url "editar_perfil" %}", "Editar Mis Datos Personales", "modal-lg")'
-           class="btn btn-outline-muted rounded-pill px-4 shadow-sm d-flex align-items-center gap-2">
-            <i class="fa-solid fa-pen"></i> <span class="d-none d-sm-inline fw-semibold">Editar Perfil</span>
-        </a>
-    </div>
+        <div class="row justify-content-center mt-4">
+            <div class="col-12 col-xl-11">
+                <div class="card w-100 border-0 shadow-sm rounded-4 bg-white">
+                    <div class="card-body p-4 p-md-5">
+                        {% if persona %}
+                            <div class="row g-4 align-items-center">
 
-    <div class="row justify-content-center mt-4">
-        <div class="col-12 col-xl-11">
-            <div class="card w-100 border-0 shadow-sm rounded-4 bg-white">
-                <div class="card-body p-4 p-md-5">
-                    {% if persona %}
-                    <div class="row g-4 align-items-center">
+                                <div class="col-12 col-md-4 col-lg-3 text-center border-md-end border-light pb-4 pb-md-0">
+                                    <div class="position-relative d-inline-block mb-3">
+                                        {% if persona.foto %}
+                                            <img src="{{ persona.foto.url }}" class="rounded-circle object-fit-cover shadow-sm border border-3 border-white" width="160" height="160" alt="Foto de perfil">
+                                        {% else %}
+                                            <img src="{% if persona.sexo == 'M' %}{% static 'img/icono-hombre.svg' %}{% else %}{% static 'img/icono-mujer.svg' %}{% endif %}"
+                                                 class="rounded-circle object-fit-cover shadow-sm bg-light p-3 border border-3 border-white"
+                                                 width="160" height="160" alt="Avatar por defecto">
+                                        {% endif %}
 
-                        <div class="col-12 col-md-4 col-lg-3 text-center border-md-end border-light pb-4 pb-md-0">
-                            <div class="position-relative d-inline-block mb-3">
-                                {% if persona.foto %}
-                                    <img src="{{ persona.foto.url }}" class="rounded-circle object-fit-cover shadow-sm border border-3 border-white" width="160" height="160" alt="Foto de perfil">
-                                {% else %}
-                                    <img src="{% if persona.sexo == 'M' %}{% static 'img/icono-hombre.svg' %}{% else %}{% static 'img/icono-mujer.svg' %}{% endif %}"
-                                         class="rounded-circle object-fit-cover shadow-sm bg-light p-3 border border-3 border-white"
-                                         width="160" height="160" alt="Avatar por defecto">
-                                {% endif %}
+                                        <button type="button"
+                                                onclick='formModal("{% url "cambiar_foto" %}", "Actualizar Foto de Perfil", "modal-md")'
+                                                class="btn btn-muted rounded-circle position-absolute bottom-0 end-0 shadow border border-2 border-white d-flex align-items-center justify-content-center"
+                                                style="width: 42px; height: 42px; padding: 0; right: 5px !important;"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Actualizar foto">
+                                            <i class="fa-solid fa-camera"></i>
+                                        </button>
+                                    </div>
 
-                                <button type="button"
-                                        onclick='formModal("{% url "cambiar_foto" %}", "Actualizar Foto de Perfil", "modal-md")'
-                                        class="btn btn-muted rounded-circle position-absolute bottom-0 end-0 shadow border border-2 border-white d-flex align-items-center justify-content-center"
-                                        style="width: 42px; height: 42px; padding: 0; right: 5px !important;"
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Actualizar foto">
-                                    <i class="fa-solid fa-camera"></i>
-                                </button>
-                            </div>
-
-                            <h4 class="fw-bold mb-1 text-dark">{{ persona.nombres|title }}</h4>
-                            <h6 class="text-secondary mb-3">{{ persona.apellido1|title }} {{ persona.apellido2|title }}</h6>
-                            <span class="badge bg-light text-dark border rounded-pill px-3 py-2 shadow-sm fw-medium">
+                                    <h4 class="fw-bold mb-1 text-dark">{{ persona.nombres|title }}</h4>
+                                    <h6 class="text-secondary mb-3">{{ persona.apellido1|title }} {{ persona.apellido2|title }}</h6>
+                                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2 shadow-sm fw-medium">
                                 <i class="fa-regular fa-id-card me-1 text-muted"></i> {{ persona.identificacion }}
                             </span>
-                        </div>
-
-                        <div class="col-12 col-md-8 col-lg-9 ps-md-5">
-                            <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Información de Contacto</h5>
-
-                            <div class="row g-4">
-                                <div class="col-12 col-sm-6">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                            <i class="fa-regular fa-envelope fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Correo Electrónico</small>
-                                            <span class="text-dark fw-medium">{{ persona.email|default:"No registrado" }}</span>
-                                        </div>
-                                    </div>
                                 </div>
 
-                                <div class="col-12 col-sm-6">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                            <i class="fa-solid fa-phone fs-5"></i>
-                                        </div>
-                                        <div>
-                                            <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Teléfono Móvil</small>
-                                            <span class="text-dark fw-medium">{{ persona.telefono|default:"No registrado" }}</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <div class="col-12 col-md-8 col-lg-9 ps-md-5">
+                                    <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">Información de Contacto</h5>
 
-                                <div class="col-12 col-sm-6">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                            <i class="fa-regular fa-calendar-days fs-5"></i>
+                                    <div class="row g-4">
+                                        <div class="col-12 col-sm-6">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                    <i class="fa-regular fa-envelope fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Correo Electrónico</small>
+                                                    <span class="text-dark fw-medium">{{ persona.email|default:"No registrado" }}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Fecha de Nacimiento</small>
-                                            <span class="text-dark fw-medium">{{ persona.nacimiento|date:"d \d\e F \d\e Y"|default:"No registrada" }}</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div class="col-12 col-sm-6">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                            <i class="fa-solid fa-venus-mars fs-5"></i>
+                                        <div class="col-12 col-sm-6">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                    <i class="fa-solid fa-phone fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Teléfono Móvil</small>
+                                                    <span class="text-dark fw-medium">{{ persona.telefono|default:"No registrado" }}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Sexo</small>
-                                            <span class="text-dark fw-medium">{{ persona.get_sexo_display }}</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div class="col-12">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                            <i class="fa-solid fa-location-dot fs-5"></i>
+                                        <div class="col-12 col-sm-6">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                    <i class="fa-regular fa-calendar-days fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Fecha de Nacimiento</small>
+                                                    <span class="text-dark fw-medium">{{ persona.nacimiento|date:"d \d\e F \d\e Y"|default:"No registrada" }}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Lugar de Residencia</small>
-                                            <span class="text-dark fw-medium">
+
+                                        <div class="col-12 col-sm-6">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                    <i class="fa-solid fa-venus-mars fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Sexo</small>
+                                                    <span class="text-dark fw-medium">{{ persona.get_sexo_display }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                                    <i class="fa-solid fa-location-dot fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted fw-semibold d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Lugar de Residencia</small>
+                                                    <span class="text-dark fw-medium">
                                                 {% if persona.canton %}{{ persona.canton.nombre }}, {% endif %}
                                                 {% if persona.provincia %}{{ persona.provincia.nombre }}, {% endif %}
                                                 {% if persona.pais %}{{ persona.pais.nombre }}{% endif %}
-                                                {% if not persona.pais and not persona.provincia and not persona.canton %}No registrado{% endif %}
+                                                        {% if not persona.pais and not persona.provincia and not persona.canton %}No registrado{% endif %}
                                             </span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
-
-                        </div>
+                        {% else %}
+                            <div class="alert alert-warning text-center rounded-4 shadow-sm border-0 py-5">
+                                <i class="fa-solid fa-circle-exclamation fa-3x text-warning mb-3"></i>
+                                <h4 class="fw-bold">Perfil No Encontrado</h4>
+                                <p class="mb-0 text-secondary">Tu usuario actual no tiene asociado un registro de personal.</p>
+                            </div>
+                        {% endif %}
                     </div>
-                    {% else %}
-                        <div class="alert alert-warning text-center rounded-4 shadow-sm border-0 py-5">
-                            <i class="fa-solid fa-circle-exclamation fa-3x text-warning mb-3"></i>
-                            <h4 class="fw-bold">Perfil No Encontrado</h4>
-                            <p class="mb-0 text-secondary">Tu usuario actual no tiene asociado un registro de personal.</p>
-                        </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade" data-bs-backdrop="static" id="modalBase" tabindex="-1" aria-labelledby="modalBaseTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header border-bottom bg-light py-3 px-4 align-items-center">
-                <h5 class="modal-title fw-bold text-dark fs-5" id="modalBaseTitle"></h5>
-                <button type="button" class="btn-close shadow-none ms-auto" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+    <div class="modal fade" data-bs-backdrop="static" id="modalBase" tabindex="-1" aria-labelledby="modalBaseTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-bottom bg-light py-3 px-4 align-items-center">
+                    <h5 class="modal-title fw-bold text-dark fs-5" id="modalBaseTitle"></h5>
+                    <button type="button" class="btn-close shadow-none ms-auto" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-4" id="modalBaseBody"></div>
+                <div class="modal-footer border-top-0 px-4 pb-4 pt-2 gap-2"></div>
             </div>
-            <div class="modal-body p-4" id="modalBaseBody"></div>
-            <div class="modal-footer border-top-0 px-4 pb-4 pt-2 gap-2"></div>
         </div>
     </div>
-</div>
 {% endblock %}

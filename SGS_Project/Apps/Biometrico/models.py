@@ -7,7 +7,10 @@ class Configuracion(ModeloBase):
     area = models.ForeignKey(Area, verbose_name='Configuración Marcaje para Área', related_name='configuracion', on_delete=models.CASCADE, blank=True, null=True)
     descripcion = models.TextField(verbose_name='Descripción', blank=True, null=True)
     activo = models.BooleanField(verbose_name='Activo para marcaje', default=True)
-    
+    casco = models.BooleanField(verbose_name='Casco activo para detección', default=True)
+    mandil = models.BooleanField(verbose_name='Mandil activo para detección', default=True)
+    guantes = models.BooleanField(verbose_name='Guantes activos para detección', default=True)
+
     def ___str___(self):
         return f'{self.descripcion}'
     

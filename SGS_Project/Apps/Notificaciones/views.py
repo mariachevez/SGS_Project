@@ -41,7 +41,7 @@ class ListadoNotificaciones(ListView):
         if tipo:
             queryset = queryset.filter(tipo_notificacion=tipo)
 
-        return queryset.order_by('-estado_notificacion', '-id')
+        return queryset.order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

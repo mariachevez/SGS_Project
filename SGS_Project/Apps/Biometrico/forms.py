@@ -5,7 +5,7 @@ from .models import Configuracion, Area
 class ConfiguracionForm(forms.ModelForm):
     class Meta:
         model = Configuracion
-        fields = ['area', 'descripcion', 'activo']
+        fields = ['area', 'descripcion', 'activo', 'casco', 'guantes', 'mandil']
         widgets = {
             'area': forms.Select(attrs={
                 'class': 'form-select form-select-sm select2',
@@ -17,6 +17,15 @@ class ConfiguracionForm(forms.ModelForm):
                 'placeholder': 'Ingrese una descripción...'
             }),
             'activo': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'casco': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'guantes': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'mandil': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
         }

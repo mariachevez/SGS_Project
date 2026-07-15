@@ -16,6 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, TemplateView
 
 from core.funciones import log
+from core.models import CoreChoices
 from core.views import AjaxExceptionMixin
 from .models import Configuracion, CabRegistro, DetRegistro
 from .forms import ConfiguracionForm
@@ -24,6 +25,8 @@ from ..Administracion.models import AreaPersona
 
 # --- CARGA GLOBAL DEL MODELO YOLO ---
 from pathlib import Path
+
+from ..Notificaciones.utils import generar_notificacion, enviar_correo_html
 
 RUTAS_MODELOS = {
     "modelo1": {
@@ -194,6 +197,7 @@ class ModuloMarcajeView(EntidadesSesionMixin, TemplateView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class ProcesarMarcajeView(EntidadesSesionMixin, View):
 
     def post(self, request, *args, **kwargs):
@@ -209,11 +213,26 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
             return JsonResponse({'result': False, 'message': 'Faltan parámetros obligatorios.'}, status=400)
 
         try:
+            # 1. Obtener la configuración de marcaje activa del área solicitada
+            configuracion = Configuracion.objects.filter(
+                area_id=area_id,
+                activo=True,
+                status=True
+            ).first()
+
+            if not configuracion:
+                return JsonResponse({
+                    'result': False,
+                    'message': 'No existe una configuración de marcaje activa para esta área.'
+                }, status=400)
+
+            # 2. Procesar y guardar la imagen enviada
             format, imgstr = base64_data.split(';base64,')
             ext = format.split('/')[-1]
             nombre_archivo = f"biometrico_{persona.id}_{timezone.now().strftime('%Y%m%d%H%M%S')}.{ext}"
             archivo_foto = ContentFile(base64.b64decode(imgstr), name=nombre_archivo)
 
+            # Crear cabecera (inicia como rechazada por seguridad hasta evaluar)
             cabecera = CabRegistro.objects.create(
                 persona=persona,
                 area_id=area_id,
@@ -221,7 +240,7 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
                 estado='R'
             )
 
-            # Inicializamos todos los campos requeridos del detalle en False
+            # Crear detalle del registro asignándole la foto
             detalle = DetRegistro.objects.create(
                 cabecera=cabecera,
                 foto=archivo_foto,
@@ -230,62 +249,136 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
                 mandil=False
             )
 
-            faltantes = []
-
-            if not detalle.casco:
-                faltantes.append("casco de seguridad")
-            if not detalle.guantes:
-                faltantes.append("guantes")
-            if not detalle.mandil:
-                faltantes.append("mandil")
-
+            # 3. Evaluar la imagen con los modelos de Inteligencia Artificial
             ruta_fisica_foto = detalle.foto.path
-            resultados_ia = self.evaluar_epp_ia(ruta_fisica_foto)
+            resultados_ia = self.evaluar_epi_ia(ruta_fisica_foto)
 
+            # Almacenar en base de datos lo que la IA efectivamente detectó
             detalle.casco = resultados_ia['casco']
             detalle.guantes = resultados_ia['guantes']
             detalle.mandil = resultados_ia['mandil']
-
-            # Calcular EPP faltantes según el resultado de la IA
-            faltantes = []
-
-            if not detalle.casco:
-                faltantes.append("casco de seguridad")
-            if not detalle.guantes:
-                faltantes.append("guantes")
-            if not detalle.mandil:
-                faltantes.append("mandil")
-
-            if detalle.casco:
-                cabecera.estado = 'A'
-
-                if faltantes:
-                    mensaje = (
-                        f"Acceso Autorizado. Se detectó el casco de seguridad. "
-                        f"No se detectó: {', '.join(faltantes)}."
-                    )
-                else:
-                    mensaje = "Acceso Autorizado. Se detectó correctamente todo el EPI."
-            else:
-                cabecera.estado = 'R'
-                mensaje = "Acceso Denegado. No se detectó el casco de seguridad obligatorio."
-
-                otros_faltantes = [e for e in faltantes if e != "casco de seguridad"]
-                if otros_faltantes:
-                    mensaje += f" Adicionalmente no se detectó: {', '.join(otros_faltantes)}."
-
-            cabecera.save()
             detalle.save()
 
-            # --- SÓLO AQUÍ SE AGREGA EL LOG DE AUDITORÍA TRANSACCIONAL ---
+            # 4. Validar dinámicamente EPIs requeridos vs EPIs detectados
+            obligatorios_faltantes = []
+            alertas_no_obligatorias = []
+
+            # Validación de Casco
+            if configuracion.casco:
+                if not detalle.casco:
+                    obligatorios_faltantes.append("Casco de seguridad")
+            else:
+                if not detalle.casco:
+                    alertas_no_obligatorias.append("Casco de seguridad (No requerido)")
+
+            # Validación de Guantes
+            if configuracion.guantes:
+                if not detalle.guantes:
+                    obligatorios_faltantes.append("Guantes protectores")
+            else:
+                if not detalle.guantes:
+                    alertas_no_obligatorias.append("Guantes protectores (No requeridos)")
+
+            # Validación de Mandil
+            if configuracion.mandil:
+                if not detalle.mandil:
+                    obligatorios_faltantes.append("Mandil de protección")
+            else:
+                if not detalle.mandil:
+                    alertas_no_obligatorias.append("Mandil de protección (No requerido)")
+
+            # 5. Determinar el estado final de la transacción de acceso
+            # Si hay algún EPI obligatorio que no fue detectado, se RECHAZA
+            if obligatorios_faltantes:
+                cabecera.estado = 'R'
+                mensaje = f"Acceso Denegado. No se detectaron los siguientes EPI obligatorios: {', '.join(obligatorios_faltantes)}."
+            else:
+                cabecera.estado = 'A'
+                mensaje = "Acceso Autorizado. Se validaron correctamente todos los EPI requeridos."
+
+            cabecera.save()
+
+            # --- DETECCIÓN DE 3 RECHAZOS EN EL DÍA POR TIPO (INGRESO / SALIDA) ---
+            if cabecera.estado == 'R':
+                ahora = timezone.now()
+                if timezone.is_aware(ahora):
+                    hoy_local = timezone.localtime(ahora)
+                else:
+                    hoy_local = ahora
+
+                inicio_dia = hoy_local.replace(hour=0, minute=0, second=0, microsecond=0)
+                fin_dia = hoy_local.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+                tipo_normalizado = tipo_registro.upper()
+                if tipo_normalizado in ['INGRESO', 'I']:
+                    valor_tipo_db = "I"  # CoreChoices.TipoRegistroBiometrico.INGRESO
+                elif tipo_normalizado in ['SALIDA', 'S']:
+                    valor_tipo_db = "S"  # CoreChoices.TipoRegistroBiometrico.SALIDA
+                else:
+                    valor_tipo_db = tipo_registro
+
+                # Contar cuántos rechazos lleva este usuario hoy en este tipo específico de registro (I o S)
+                cantidad_rechazos = CabRegistro.objects.filter(
+                    persona=persona,
+                    tipo=valor_tipo_db,
+                    estado='R',
+                    fecha_creacion__range=(inicio_dia, fin_dia)
+                ).count()
+
+                if cantidad_rechazos >= 3:
+                    generar_notificacion(
+                        titulo='Alerta de Seguridad',
+                        descripcion=f'{persona} acumuló {cantidad_rechazos} rechazos de tipo {cabecera.get_tipo_display()} hoy.',
+                        tipo_notificacion=CoreChoices.TipoNotificacion.BAJA,
+                        destinatario=cabecera.area.director,
+                        url=f'/mi_area'
+                    )
+                    destinatarios = [cabecera.area.director.email]
+                    copias_cc = [persona.email]
+
+                    # 2. Configurar las variables que se mostrarán en la plantilla del correo
+                    contexto_email = {
+                        'nombre_trabajador': persona,
+                        'identificacion': persona.identificacion,
+                        'area': cabecera.area.nombre,
+                        'tipo_movimiento': cabecera.get_tipo_display(),
+                        'intentos_fallidos': cantidad_rechazos,
+                        'faltantes': ", ".join(obligatorios_faltantes),
+                        'fecha_alerta': hoy_local.strftime('%d/%m/%Y a las %H:%M %p')
+                    }
+
+                    # 3. Si existe una foto en el detalle, la incrustamos directamente en el cuerpo del correo
+                    imagenes_a_incrustar = {}
+                    if detalle.foto and os.path.exists(detalle.foto.path):
+                        imagenes_a_incrustar['foto_epi'] = detalle.foto.path
+
+                    # 4. Enviar el correo
+                    enviar_correo_html(
+                        asunto=f"ALERTA DE SEGURIDAD: Intentos de Acceso Fallidos - {persona}",
+                        plantilla_html='alerta_biometrico.html',
+                        contexto=contexto_email,
+                        destinatarios=destinatarios,
+                        copias=copias_cc,
+                        imagenes_incrustadas=imagenes_a_incrustar
+                    )
+
+                    tipo_movimiento_str = cabecera.get_tipo_display()
+                    print(
+                        f"ALERTA CRÍTICA: {persona} acumuló {cantidad_rechazos} rechazos de tipo {tipo_movimiento_str} hoy.")
+                    pass
+
             log(
-                mensaje=f"Marcaje registrado por {self.nombre_en_sesion}. Área: {cabecera.area.nombre}. EPI detectados -> Casco: {detalle.casco}, Guantes: {detalle.guantes}, Mandil: {detalle.mandil}. Resultado: {cabecera.get_estado_display()}",
+                mensaje=(
+                    f"Marcaje de ingreso registrado por {self.nombre_en_sesion}. Área: {cabecera.area.nombre}. "
+                    f"EPI Detectados -> Casco: {detalle.casco}, Guantes: {detalle.guantes}, Mandil: {detalle.mandil}. "
+                    f"Configuración Requerida -> Casco: {configuracion.casco}, Guantes: {configuracion.guantes}, Mandil: {configuracion.mandil}. "
+                    f"Resultado final: {cabecera.get_estado_display()}"
+                ),
                 request=self.request,
                 accion="add",
                 objeto=cabecera
             )
 
-            # --- FIX DE FECHA NAIVE ---
             fecha_creacion = cabecera.fecha_creacion
             if timezone.is_aware(fecha_creacion):
                 fecha_creacion = timezone.localtime(fecha_creacion)
@@ -305,13 +398,16 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
         except Exception as e:
             return JsonResponse({'result': False, 'message': f'Error en el procesamiento: {str(e)}'}, status=500)
 
-    def evaluar_epp_ia(self, ruta_imagen):
-
-        epp = {'casco': False, 'guantes': False, 'mandil': False}
+    def evaluar_epi_ia(self, ruta_imagen):
+        """
+        Evalúa individualmente cada modelo YOLO y devuelve un diccionario con
+        la detección (True/False) de cada EPI.
+        """
+        epi = {'casco': False, 'guantes': False, 'mandil': False}
 
         if not MODELOS_YOLO:
             print("Error: No existen modelos YOLO cargados.")
-            return epp
+            return epi
 
         try:
             # --- EVALUAR MODELO 1: CASCO ---
@@ -323,10 +419,9 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
                 for caja in resultados1[0].boxes:
                     clase_id = int(caja.cls[0].item())
                     nombre_clase = nombres_clases1[clase_id].lower()
-                    # Solo buscamos cascos en este modelo
                     if nombre_clase in ['helmet', 'hard-hat', 'casco']:
-                        epp['casco'] = True
-                        break  # Si ya encontramos uno, podemos pasar al siguiente modelo
+                        epi['casco'] = True
+                        break
 
             # --- EVALUAR MODELO 2: GUANTES ---
             if "modelo2" in MODELOS_YOLO:
@@ -337,9 +432,8 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
                 for caja in resultados2[0].boxes:
                     clase_id = int(caja.cls[0].item())
                     nombre_clase = nombres_clases2[clase_id].lower()
-                    # Solo buscamos guantes en este modelo
                     if nombre_clase in ['gloves', 'guantes', 'glove', 'heat_glove']:
-                        epp['guantes'] = True
+                        epi['guantes'] = True
                         break
 
             # --- EVALUAR MODELO 3: MANDIL ---
@@ -351,17 +445,16 @@ class ProcesarMarcajeView(EntidadesSesionMixin, View):
                 for caja in resultados3[0].boxes:
                     clase_id = int(caja.cls[0].item())
                     nombre_clase = nombres_clases3[clase_id].lower()
-                    # Solo buscamos mandiles en este modelo
                     if nombre_clase in ['vest', 'apron', 'mandil', 'protective-clothing', 'welding_apron',
                                         'welding_suit', 'wearing-apron']:
-                        epp['mandil'] = True
+                        epi['mandil'] = True
                         break
 
-            return epp
+            return epi
 
         except Exception as e:
             print(f"Error crítico procesando la IA por separado: {e}")
-            return epp
+            return epi
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DetectarCoordenadasView(View):

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; color: #333333; padding: 20px; }
+        .card { background-color: #ffffff; border: 1px solid #e3e6f0; border-radius: 6px; max-width: 600px; margin: 0 auto; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header { background-color: #dc3545; color: #ffffff; padding: 20px; text-align: center; }
+        .content { padding: 25px; }
+        .field { margin-bottom: 15px; }
+        .label { font-weight: bold; color: #495057; }
+        .value { color: #212529; }
+        .alert-box { background-color: #fff3cd; border-left: 5px solid #ffc107; color: #856404; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .img-container { text-align: center; margin-top: 25px; border-top: 1px solid #e3e6f0; padding-top: 20px; }
+        .img-container img { max-width: 100%; height: auto; border-radius: 8px; border: 3px solid #dee2e6; max-height: 350px; }
+        .footer { text-align: center; font-size: 11px; color: #6c757d; padding: 15px; background-color: #f1f3f5; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <h2 style="margin: 0;">⚠️ Alerta de Seguridad EPI</h2>
+        <p style="margin: 5px 0 0 0; font-size: 14px;">Control de Acceso y Detección de EPI</p>
+    </div>
+
+    <div class="content">
+        <div class="alert-box">
+            <strong>Atención:</strong> Se ha detectado que un colaborador ha excedido el límite de intentos fallidos de marcación por falta de EPI obligatorio en su area.
+        </div>
+
+        <div class="field">
+            <span class="label">Colaborador:</span>
+            <span class="value">{{ nombre_trabajador }} (Identificación: {{ identificacion }})</span>
+        </div>
+
+        <div class="field">
+            <span class="label">Área de Acceso:</span>
+            <span class="value">{{ area }}</span>
+        </div>
+
+        <div class="field">
+            <span class="label">Tipo de Intento:</span>
+            <span class="value">{{ tipo_movimiento }}</span>
+        </div>
+
+        <div class="field">
+            <span class="label">Intentos Fallidos Hoy:</span>
+            <span class="value" style="color: #dc3545; font-weight: bold;">{{ intentos_fallidos }} intentos</span>
+        </div>
+
+        <div class="field">
+            <span class="label">EPI Faltantes (Último intento):</span>
+            <span class="value" style="color: #dc3545;">{{ faltantes }}</span>
+        </div>
+
+        <div class="field">
+            <span class="label">Fecha y Hora de la Alerta:</span>
+            <span class="value">{{ fecha_alerta }}</span>
+        </div>
+
+        {% if foto_epi %}
+        <div class="img-container">
+            <p class="label" style="margin-bottom: 10px;">Captura del último intento en cabina:</p>
+            <img src="cid:foto_epi" alt="Foto del Biométrico">
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        Este es un correo automático generado por el Sistema de Seguridad y Gestión Biométrica (SGS).<br>
+        Por favor, no responda a este mensaje.
+    </div>
+</div>
+
+</body>
+</html>

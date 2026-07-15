@@ -12,39 +12,116 @@
 
     <title>Panel Principal</title>
     <style>
-        /* CSS mínimo para variables de marca y ajustes de comportamiento global */
         :root {
             --primary-color: #1c3247;
-            --background-color: #f8f9fa;
+            --primary-light: #f0f4f8;
+            --accent-color: #2b4c6f;
+            --background-color: #f6f8fb;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
         }
 
         body {
             background-color: var(--background-color);
+            /* Fondo con gradiente sutil y patrón de puntos imperceptible para dar textura premium */
+            background-image:
+                    radial-gradient(at 0% 0%, rgba(28, 50, 71, 0.03) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(43, 76, 111, 0.03) 0px, transparent 50%),
+                    radial-gradient(circle, rgba(0,0,0,0.01) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 20px 20px;
             min-height: 100vh;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-dark);
         }
 
         .navbar-custom {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Efecto sutil al pasar el cursor sobre los módulos */
-        .module-link {
-            transition: all 0.2s ease-in-out;
-        }
-        .module-link:hover {
-            border-color: var(--primary-color) !important;
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
+        /* Títulos de Categoría Modernos */
+        .category-header {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-color);
+            font-weight: 700;
         }
 
-        /* Dimensiones controladas para el dropdown de notificaciones */
+        /* Tarjeta de Contenedor de Categoría para Unificar */
+        .category-container {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.015);
+        }
+
+        /* Tarjeta del Módulo Individual */
+        .module-card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+            border-radius: 12px !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Indicador estético superior oculto que se activa en Hover */
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), #3b82f6);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Contenedor del Icono del Módulo */
+        .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Hover de la Tarjeta */
+        .module-link:hover .module-card {
+            transform: translateY(-5px);
+            border-color: rgba(28, 50, 71, 0.25) !important;
+            box-shadow: 0 10px 25px rgba(28, 50, 71, 0.06) !important;
+        }
+
+        .module-link:hover .module-card::before {
+            opacity: 1;
+        }
+
+        .module-link:hover .icon-wrapper {
+            background: var(--primary-color);
+            color: #ffffff;
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 4px 12px rgba(28, 50, 71, 0.15);
+        }
+
+        /* Dropdown de Notificaciones Estilizado */
         .dropdown-notifications {
             width: 340px;
             max-width: calc(100vw - 32px);
             max-height: 400px;
             overflow-y: auto;
+            border-radius: 12px;
         }
 
-        /* Forzar saltos de línea correctos en textos de alertas */
         .notification-item-text {
             white-space: normal !important;
             word-break: break-word;
@@ -53,9 +130,9 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm mb-4">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="/">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm mb-5">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
             <i class="fas fa-layer-group me-2 text-white-50"></i>Sistema Administrativo
         </a>
 
@@ -141,38 +218,42 @@
 </nav>
 
 {% block content %}
-    <div class="container py-2">
-        <!-- Encabezado Principal -->
+    <div class="container px-4 py-2">
         <div class="mb-5">
-            <h1 class="fw-bold h3 mb-1 text-dark">Panel Principal</h1>
-            <p class="text-secondary mb-0">Selecciona el módulo al que deseas acceder.</p>
+            <h1 class="fw-bold h2 mb-1 text-dark" style="letter-spacing: -0.02em;">Panel Principal</h1>
+            <p class="text-secondary fs-6 mb-0">Selecciona el área de gestión y accede a sus respectivos módulos.</p>
         </div>
 
-        <!-- Secciones de Categorías -->
         {% for seccion in secciones %}
-            <div class="mb-5">
-                <!-- Cabecera de Categoría Limpia y Moderna -->
-                <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
-                    <div class="p-2 bg-dark-subtle rounded-3 text-dark me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                        <i class="fas fa-folder fs-6"></i>
+            <div class="mb-5 category-container">
+                <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <div class="p-2 rounded-3 text-white me-3 d-flex align-items-center justify-content-center shadow-sm"
+                             style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);">
+                            <i class="fas fa-folder-open fs-6"></i>
+                        </div>
+                        <div>
+                            <h2 class="category-header m-0">{{ seccion.categoria.nombre }}</h2>
+                            <span class="text-muted d-none d-sm-inline-block" style="font-size: 0.8rem;">Colección de aplicaciones activas</span>
+                        </div>
                     </div>
-                    <h2 class="h5 fw-bold text-dark m-0 tracking-wide">{{ seccion.categoria.nombre }}</h2>
-                    <span class="badge bg-light text-secondary border ms-2 rounded-pill small fw-normal">{{ seccion.modulos|length }} módulos</span>
+                    <span class="badge bg-white text-dark border px-3 py-1.5 rounded-pill small fw-semibold shadow-xs">
+                        {{ seccion.modulos|length }} {% if seccion.modulos|length == 1 %}Módulo{% else %}Módulos{% endif %}
+                    </span>
                 </div>
 
-                <!-- Grilla Adaptativa de Módulos (Hasta 4 por fila) -->
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
                     {% for modulo in seccion.modulos %}
                         <div class="col">
-                            <a href="/{{ modulo.url|lower }}" class="card h-100 text-decoration-none text-dark border-light shadow-sm rounded-3 module-link">
-                                <div class="card-body p-4 d-flex flex-column align-items-center text-center">
-                                    <!-- Contenedor de Icono Minimalista Oscuro -->
-                                    <div class="p-3 bg-light rounded-circle text-dark mb-3 d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
-                                        <i class="{{ modulo.icono|lower|default:'fa-solid fa-gears' }} fs-4"></i>
+                            <a href="/{{ modulo.url|lower }}" class="module-link text-decoration-none text-dark">
+                                <div class="card h-100 module-card shadow-sm border-0">
+                                    <div class="card-body p-4 d-flex flex-column align-items-center text-center">
+                                        <div class="icon-wrapper mb-3 shadow-xs">
+                                            <i class="{{ modulo.icono|lower|default:'fa-solid fa-gears' }} fs-4"></i>
+                                        </div>
+                                        <h3 class="card-title h6 fw-bold mb-1 text-dark" style="font-size: 0.95rem;">{{ modulo.nombre }}</h3>
+                                        <p class="card-text text-secondary mb-0" style="font-size: 0.825rem; line-height: 1.4;">{{ modulo.descripcion|default:'Sin descripción configurada para este módulo.' }}</p>
                                     </div>
-                                    <!-- Textos -->
-                                    <h3 class="card-title h6 fw-bold mb-1 text-dark">{{ modulo.nombre }}</h3>
-                                    <p class="card-text small text-secondary mb-0">{{ modulo.descripcion|default:'' }}</p>
                                 </div>
                             </a>
                         </div>
@@ -180,9 +261,9 @@
                 </div>
             </div>
         {% empty %}
-            <div class="alert alert-info border-0 shadow-sm rounded-3 p-4 text-center">
+            <div class="alert alert-info border-0 shadow-sm rounded-4 p-4 text-center">
                 <i class="fas fa-info-circle fs-4 mb-2 d-block text-info"></i>
-                <span>No tienes módulos asignados o configurados para tus grupos actuales.</span>
+                <span class="fw-medium">No tienes módulos asignados o configurados para tus grupos actuales.</span>
             </div>
         {% endfor %}
     </div>
