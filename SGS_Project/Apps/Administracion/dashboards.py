@@ -4,7 +4,7 @@ from django.db.models import Count, Q
 from django.http import JsonResponse
 import json
 
-from Apps.Biometrico.models import CabRegistro
+from Apps.Biometrico.models import CabRegistro, Configuracion, DetRegistro
 from Apps.Solicitudes.models import Solicitudes
 from Apps.Administracion.models import Persona, Area, Provincia, Canton
 
@@ -28,21 +28,21 @@ class DashboardSolicitudesView(TemplateView):
         if tipo_sol:
             qs_solicitudes = qs_solicitudes.filter(tipo_solicitud=tipo_sol)
 
-        solicitudes_area = qs_solicitudes.filter(
-            area__isnull=False
-        ).values(
-            'area__nombre'
-        ).annotate(
-            total=Count('id'),
-            pendientes=Count('id', filter=Q(estado_solicitud='P')),
-            aprobados=Count('id', filter=Q(estado_solicitud='A')),
-            rechazados=Count('id', filter=Q(estado_solicitud='R')),
-        ).order_by('-total')
+        # --- Pie chart: solo si hay un área seleccionada ---
+        if area_sol_id:
+            pendientes_pie = qs_solicitudes.filter(estado_solicitud='P').count()
+            aprobados_pie = qs_solicitudes.filter(estado_solicitud='A').count()
+            rechazados_pie = qs_solicitudes.filter(estado_solicitud='R').count()
 
-        context['areas_labels'] = json.dumps([x['area__nombre'] for x in solicitudes_area])
-        context['pendientes_data'] = json.dumps([x['pendientes'] for x in solicitudes_area])
-        context['aprobados_data'] = json.dumps([x['aprobados'] for x in solicitudes_area])
-        context['rechazados_data'] = json.dumps([x['rechazados'] for x in solicitudes_area])
+            context['pie_area_nombre'] = Area.objects.filter(id=area_sol_id).values_list('nombre', flat=True).first()
+            context['pendientes_pie'] = pendientes_pie
+            context['aprobados_pie'] = aprobados_pie
+            context['rechazados_pie'] = rechazados_pie
+        else:
+            context['pie_area_nombre'] = None
+            context['pendientes_pie'] = 0
+            context['aprobados_pie'] = 0
+            context['rechazados_pie'] = 0
 
         context['areas'] = Area.objects.filter(status=True).order_by('nombre')
 
@@ -194,5 +194,88 @@ class DashboardConcurrenciaView(TemplateView):
         context['area_id'] = area_id
         context['fecha_desde'] = fecha_desde
         context['fecha_hasta'] = fecha_hasta
+
+        return context
+
+
+class DashboardMarcadasView(TemplateView):
+    template_name = 'Dashboards/marcadas_index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        area_marc_id = self.request.GET.get('area_marc')
+        estado_marc = self.request.GET.get('estado_marc')
+        tipo_marc = self.request.GET.get('tipo_marc')
+
+        qs_registros = CabRegistro.objects.filter(status=True)
+
+        if area_marc_id:
+            qs_registros = qs_registros.filter(area_id=area_marc_id)
+        if estado_marc:
+            qs_registros = qs_registros.filter(estado=estado_marc)
+        if tipo_marc:
+            qs_registros = qs_registros.filter(tipo=tipo_marc)
+
+        # --- KPIs generales ---
+        context['kpi_total_marcadas'] = qs_registros.count()
+        context['kpi_entradas'] = qs_registros.filter(tipo='I').count()
+        context['kpi_salidas'] = qs_registros.filter(tipo='S').count()
+        context['kpi_areas_configuradas'] = Configuracion.objects.filter(
+            status=True, activo=True
+        ).count()
+
+        # --- Radar: % cumplimiento por ítem EPP (solo si hay área seleccionada) ---
+        context['config_area_nombre'] = None
+        context['epp_labels'] = json.dumps([])
+        context['epp_data'] = json.dumps([])
+
+        if area_marc_id:
+            config = Configuracion.objects.filter(
+                area_id=area_marc_id, status=True, activo=True
+            ).first()
+
+            if config:
+                context['config_area_nombre'] = config.area.nombre if config.area else None
+
+                detalles = DetRegistro.objects.filter(
+                    cabecera__in=qs_registros, status=True
+                )
+                total_detalles = detalles.count()
+
+                items_config = {
+                    'Casco': config.casco,
+                    'Guantes': config.guantes,
+                    'Mandil': config.mandil,
+                }
+                campo_por_label = {
+                    'Casco': 'casco',
+                    'Guantes': 'guantes',
+                    'Mandil': 'mandil',
+                }
+
+                labels = []
+                porcentajes = []
+
+                if total_detalles > 0:
+                    for label, exigido in items_config.items():
+                        if not exigido:
+                            continue
+                        campo = campo_por_label[label]
+                        cumplidos = detalles.filter(**{campo: True}).count()
+                        porcentaje = round((cumplidos / total_detalles) * 100, 1)
+                        labels.append(label)
+                        porcentajes.append(porcentaje)
+
+                context['epp_labels'] = json.dumps(labels)
+                context['epp_data'] = json.dumps(porcentajes)
+
+        context['areas'] = Area.objects.filter(
+            configuracion__status=True, configuracion__activo=True
+        ).distinct().order_by('nombre')
+
+        context['area_marc_id'] = area_marc_id
+        context['estado_marc'] = estado_marc
+        context['tipo_marc'] = tipo_marc
 
         return context

@@ -121,8 +121,10 @@ urlpatterns = [
     path('dashboards/personal/', DashboardPersonalView.as_view(), name='dashboard_personal'),
     path('dashboards/accesos_areas/', DashboardConcurrenciaView.as_view(), name='dashboard_acceso'),
 
+    path('dashboards/marcadas/', DashboardMarcadasView.as_view(), name='dashboard_marcadas'),
+
     # ==========================================
-    # BÚSQUEDAS AJAX (Públicas o globales)
+    # BÚSQUEDAS AJAX
     # ==========================================
     path('buscar_provincias/', ObtenerProvincias.as_view(), name='buscar_provincias'),
     path('buscar_cantones/', ObtenerCantones.as_view(), name='buscar_cantones'),

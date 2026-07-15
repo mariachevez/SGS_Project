@@ -1,7 +1,7 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    <div class="container-fluid dashboard-wrapper">
+    <div class="container-fluid dashboard-wrapper my-3">
 
         <div class="d-flex align-items-center justify-content-between mb-4">
             <div>
@@ -37,6 +37,12 @@
                 <a class="nav-link {% block tab_acceso_area_active %}{% endblock %}"
                    href="{% url 'dashboard_acceso' %}">
                     <i class="fa-solid fa-door-open me-2"></i>Acceso Área
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% block tab_marcadas_active %}{% endblock %}"
+                   href="{% url 'dashboard_marcadas' %}">
+                    <i class="fa-solid fa-fingerprint me-2"></i>Marcadas
                 </a>
             </li>
         </ul>

@@ -1,0 +1,212 @@
+{% extends 'Dashboards/base_dashboard.html' %}
+{% block dashboard_subtitle %}Resumen general de marcaje y cumplimiento de EPP{% endblock %}
+{% block tab_marcadas_active %}active{% endblock %}
+{% block block_dashboard %}
+    <div>
+
+        <form method="get" class="dashboard-filter-card mb-4">
+            <input type="hidden" name="tab" value="marcadas">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-sitemap me-1"></i>Área
+                    </label>
+                    <select name="area_marc" class="form-select filter-select">
+                        <option value="">Selecciona un área</option>
+                        {% for area in areas %}
+                            <option value="{{ area.id }}"
+                                    {% if area_marc_id == area.id|stringformat:"s" %}selected{% endif %}>
+                                {{ area.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-circle-check me-1"></i>Estado
+                    </label>
+                    <select name="estado_marc" class="form-select filter-select">
+                        <option value="">Todos los estados</option>
+                        {# Ajusta value= según CoreChoices.EstadoBiometrico real #}
+                        <option value="A" {% if estado_marc == "A" %}selected{% endif %}>Autorizado</option>
+                        <option value="R" {% if estado_marc == "R" %}selected{% endif %}>Rechazado</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label filter-label">
+                        <i class="fa-solid fa-right-left me-1"></i>Tipo
+                    </label>
+                    <select name="tipo_marc" class="form-select filter-select">
+                        <option value="">Todos los tipos</option>
+                        {# Ajusta value= según CoreChoices.TipoRegistroBiometrico real #}
+                        <option value="E" {% if tipo_marc == "E" %}selected{% endif %}>Entrada</option>
+                        <option value="S" {% if tipo_marc == "S" %}selected{% endif %}>Salida</option>
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                    <a href="{% url 'dashboard_marcadas' %}" class="btn btn-filter-clear">
+                        <i class="fa-solid fa-arrow-rotate-left me-1"></i>Limpiar
+                    </a>
+                    <button type="submit" class="btn btn-filter-primary">
+                        <i class="fa-solid fa-filter me-1"></i>Filtrar
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- KPIs MARCADAS -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Total marcadas</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_total_marcadas }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-primary-soft text-primary">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Entradas</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_entradas }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-info-soft text-primary">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Salidas</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_salidas }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-purple-soft text-purple">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="dashboard-kpi-card">
+                    <div>
+                        <p class="dashboard-kpi-label">Áreas configuradas</p>
+                        <h3 class="dashboard-kpi-value">{{ kpi_areas_configuradas }}</h3>
+                    </div>
+                    <span class="dashboard-kpi-icon bg-success-soft text-success">
+                            <i class="fa-solid fa-gear"></i>
+                        </span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dashboard-chart-card">
+            <div class="dashboard-chart-header">
+                <div>
+                    <h5 class="mb-0">
+                        {% if config_area_nombre %}
+                            Cumplimiento de EPP por ítem — {{ config_area_nombre }}
+                        {% else %}
+                            Cumplimiento de EPP por ítem
+                        {% endif %}
+                    </h5>
+                    <small class="text-muted">% de marcadas que cumplieron cada requisito configurado</small>
+                </div>
+                <span class="dashboard-icon-badge bg-primary-soft text-primary">
+                <i class="fa-solid fa-shield-halved"></i>
+            </span>
+            </div>
+
+            <div class="dashboard-chart-body">
+                <canvas id="chartCumplimientoEpp"></canvas>
+
+                <div id="emptyCumplimientoEpp" class="dashboard-empty-state d-none">
+                    <i class="fa-solid fa-inbox"></i>
+                    <p class="mb-0" id="emptyCumplimientoEppMsg"></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block dashboard_js %}
+    <script>
+        const areaSeleccionada = {{ config_area_nombre|yesno:"true,false" }};
+        const eppLabels = {{ epp_labels|safe }};
+        const eppData = {{ epp_data|safe }};
+
+        const hasEppData = areaSeleccionada && eppLabels.length > 0;
+
+        document.getElementById('emptyCumplimientoEppMsg').textContent = !areaSeleccionada
+            ? 'Selecciona un área con configuración de marcaje activa.'
+            : 'El área seleccionada no exige ítems de EPP o no hay registros para evaluar.';
+
+        toggleEmptyState(
+            'chartCumplimientoEpp',
+            'emptyCumplimientoEpp',
+            hasEppData
+        );
+
+        const chartCumplimientoEpp = hasEppData ? new Chart(
+            document.getElementById('chartCumplimientoEpp'),
+            {
+                type: 'radar',
+                data: {
+                    labels: eppLabels,
+                    datasets: [
+                        {
+                            label: '% Cumplimiento',
+                            data: eppData,
+                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                            borderColor: '#22c55e',
+                            pointBackgroundColor: '#16a34a',
+                            pointBorderColor: '#fff',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                callback: (value) => value + '%'
+                            },
+                            grid: {
+                                color: '#eef0f5'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.formattedValue}% cumplimiento`
+                            }
+                        }
+                    }
+                }
+            }
+        ) : null;
+    </script>
+{% endblock %}
