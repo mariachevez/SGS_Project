@@ -3,19 +3,28 @@
 {% block atras %}/mi_area{% endblock %}
 
 {% block botones_accion %}
-    <a href="{% url 'mi_area' %}" class="btn btn-sm btn-outline-secondary shadow-sm rounded-3 d-inline-flex align-items-center gap-2 px-3 py-2">
+    <a href="{% url 'mi_area' %}"
+       class="btn btn-sm btn-outline-secondary shadow-sm rounded-3 d-inline-flex align-items-center gap-2 px-3 py-2">
         <i class="fa-solid fa-arrow-left"></i>
         <span>Volver a la Plantilla</span>
     </a>
 {% endblock %}
-
 {% block more_filters %}
     <div class="col-12 mb-2">
         <div class="p-2 rounded bg-light border-start border-3 border-primary">
             <span class="fs-7 text-muted text-uppercase d-block fw-bold" style="font-size: 0.65rem;">Historial de Accesos para:</span>
             <span class="fs-6 fw-bold text-dark">{{ persona.nombre_completo_minus }}</span>
-            <small class="text-muted d-block" style="font-size: 0.75rem;">Área de Control: <strong>{{ area.nombre }}</strong></small>
+            <small class="text-muted d-block" style="font-size: 0.75rem;">Área de Control:
+                <strong>{{ area.nombre }}</strong></small>
         </div>
+    </div>
+    <div class="col-12 col-lg-3 col-md-6">
+        <label for="desde" class="fw-semibold">Desde:</label>
+        <input type="date" name="desde" value="{{ desde }}" class="form-control">
+    </div>
+    <div class="col-12 col-lg-3 col-md-6">
+        <label for="hasta" class="fw-semibold">Hasta:</label>
+        <input type="date" name="hasta" value="{{ hasta }}" class="form-control">
     </div>
 {% endblock %}
 
@@ -60,7 +69,7 @@
             </td>
             <td class="fs-7 align-middle text-center">
                 <a href="javascript:void(0);"
-                   onclick="formModal('{% url 'detalle_ingresos_salidas' reg.pk %}', 'Ver Detección de EPI')"
+                   onclick="formModal('{% url 'detalle_ingresos_salidas' reg.pk %}', 'Ver Detección de EPI', 'modal-lg')"
                    class="btn btn-sm btn-light border"
                    data-bs-toggle="tooltip"
                    data-bs-placement="top"

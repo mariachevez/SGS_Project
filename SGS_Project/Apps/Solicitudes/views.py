@@ -194,7 +194,7 @@ class ResponderSolicitudView(BaseUpdateView):
         form.instance.fecha_resolucion = timezone.now()
 
         solicitud = self.get_object()
-        estado_nuevo = form.cleaned_data.get('estado_solicitud')
+        estado_nuevo = solicitud.get_estado_solicitud_display()
 
         if solicitud.persona:
             generar_notificacion('Su solicitud ha sido atendida',

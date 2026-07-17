@@ -385,7 +385,7 @@
                                     </div>
                                     <i class="fa-solid {% if mov.estado == 'A' %}text-success fa-check-circle{% else %}text-danger fa-times-circle{% endif %} fs-4"></i>
                                     <a href="javascript:void(0);"
-                                       onclick="formModal('{% url 'detalle_ingresos_salidas' mov.pk %}', 'Ver Detección de EPI', 'modal-xl')"
+                                       onclick="formModal('{% url 'detalle_ingresos' mov.pk %}', 'Ver Detección de EPI', 'modal-xl')"
                                        class="btn btn-sm btn-light border"
                                        data-bs-toggle="tooltip"
                                        data-bs-placement="top"

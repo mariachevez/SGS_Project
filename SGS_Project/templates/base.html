@@ -106,7 +106,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 col-xl-auto">
+                            <div class="col-12 col-xl-auto w-100">
                                 <form method="get" class="m-0">
                                     <div class="row g-2 align-items-end justify-content-xl-end">
 
@@ -127,7 +127,7 @@
                                                     </button>
                                                 </div>
 
-                                                {% if request.GET.s or request.GET.items|length > 0 %}
+                                                {% if request.GET %}
                                                     <a href="{{ request.path }}" class="btn btn-sm btn-light border shadow-sm px-2 d-flex align-items-center" title="Limpiar Filtros">
                                                         <i class="fa-solid fa-rotate-right text-secondary"></i>
                                                     </a>

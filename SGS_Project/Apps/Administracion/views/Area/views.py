@@ -14,58 +14,64 @@ from ...forms import *
 from core.views import AjaxExceptionMixin
 from Apps.Notificaciones.utils import generar_notificacion
 
+
 class ListarArea(ListView):
     model = Area
     template_name = 'Area/index.html'
     paginate_by = 10
     context_object_name = 'areas'
-    
+
     def get_queryset(self):
         return Area.objects.filter(status=True)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de Áreas'
         context['url_formcrear'] = reverse('crear_area')
         context['titulo'] = 'Registrar Área'
         return context
-    
+
+
 class CrearArea(BaseCreateView):
     model = Area
     template_name = 'formulario.html'
     form_class = AreaForm
     success_url = reverse_lazy('listado_areas')
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('crear_area')
         return context
-    
+
+
 class EditarArea(BaseUpdateView):
     model = Area
     template_name = 'formulario.html'
     form_class = AreaForm
     success_url = reverse_lazy('listado_areas')
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('editar_area', kwargs={'pk': self.object.pk})
         return context
-    
+
+
 class EliminarArea(BaseDeleteView):
     model = Area
     redirect_url = reverse_lazy('listado_areas')
-    
+
+
 class AsignarDirectorArea(BaseUpdateView):
     model = Area
     template_name = 'formulario.html'
     form_class = AsignacionDirectorForm
     success_url = reverse_lazy('listado_areas')
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['guardar'] = reverse('asignar_director', kwargs={'pk': self.object.pk})
         return context
+
 
 class ListarPlantillaArea(ListView):
     model = AreaPersona
@@ -185,10 +191,12 @@ class BuscarPersonalArea(View):
             'result': True,
             'id': persona.pk,
             'foto': foto_completa,
-            'nombres': persona.nombre_completo_minus() if callable(persona.nombre_completo_minus) else persona.nombre_completo_minus,
+            'nombres': persona.nombre_completo_minus() if callable(
+                persona.nombre_completo_minus) else persona.nombre_completo_minus,
             'identificacion': persona.identificacion
         })
-    
+
+
 class EliminarPersonalArea(BaseDeleteView):
     model = AreaPersona
 
@@ -221,13 +229,16 @@ class PlantillaPersonalDirectorListView(EntidadesSesionMixin, ListView):
 
         # 3. Aplicar Filtro por Buscador (Nombre, apellido, identificación o email de la persona)
         search_query = self.request.GET.get('s', '').strip()
+        filtro = Q(status=True)
+        if search_query.isdigit():
+            filtro &= Q(persona__identificacion__icontains=search_query)
+        else:
+            filtro &= (Q(persona__nombres__icontains=search_query)
+                       | Q(persona__apellido1__icontains=search_query)
+                       | Q(persona__apellido2__icontains=search_query)
+                       | Q(persona__email__icontains=search_query))
         if search_query:
-            queryset = queryset.filter(
-                Q(persona__first_name__icontains=search_query) |
-                Q(persona__last_name__icontains=search_query) |
-                Q(persona__cedula__icontains=search_query) |  # Ajusta según el campo único que uses
-                Q(persona__email__icontains=search_query)
-            )
+            queryset = queryset.filter(filtro)
 
         # 4. Aplicar Filtro por Estado (Asumiendo que AreaPersona o Persona tienen el atributo 'status')
         status_query = self.request.GET.get('estado', '').strip()
@@ -249,6 +260,7 @@ class PlantillaPersonalDirectorListView(EntidadesSesionMixin, ListView):
 
         return context
 
+
 class ReporteAreasView(View):
     """
     Vista Basada en Clases (VBC) para lanzar el reporte de personas.
@@ -260,12 +272,14 @@ class ReporteAreasView(View):
         filtros['status'] = True
         reportador = DjangoReportThreadPool(usuario_solicitante=request.user)
         reportador.reporte_areas_thread(**filtros)
-        messages.success(request, 'Tu reporte se está procesando. Te llegará una notificación cuando esté listo para descargar.')
+        messages.success(request,
+                         'Tu reporte se está procesando. Te llegará una notificación cuando esté listo para descargar.')
         url_actual = request.META.get('HTTP_REFERER')
         if url_actual:
             return redirect(url_actual)
         else:
             return redirect('panel_principal')
+
 
 class ReportePlantillaAreasView(View):
     """
@@ -292,6 +306,7 @@ class ReportePlantillaAreasView(View):
             return redirect(url_actual)
         return redirect('panel_principal')
 
+
 class ListadoMarcajesPersonalView(EntidadesSesionMixin, ListView):
     model = CabRegistro
     template_name = 'Area/ver_registros_ingresos_salidas.html'  # Define tu ruta de template
@@ -305,8 +320,17 @@ class ListadoMarcajesPersonalView(EntidadesSesionMixin, ListView):
 
     def get_queryset(self):
         # Filtramos estrictamente las transacciones que correspondan a esa persona y en esa área específica
+        filtro = Q(status=True)
+        desde = self.request.GET.get('desde')
+        hasta = self.request.GET.get('hasta')
+        if desde:
+            filtro &= Q(fecha_creacion__date__gte=desde)
+
+        if hasta:
+            filtro &= Q(fecha_creacion__date__lte=hasta)
+
         return CabRegistro.objects.filter(
-            status=True,
+            filtro,
             persona=self.area_persona.persona,
             area=self.area_persona.area
         ).order_by('-id')
@@ -314,9 +338,13 @@ class ListadoMarcajesPersonalView(EntidadesSesionMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Devolvemos el área y la persona al contexto tal como lo solicitaste
+        desde = self.request.GET.get('desde')
+        hasta = self.request.GET.get('hasta')
         context['area'] = self.area_persona.area
         context['persona'] = self.area_persona.persona
         context['nombre_tabla'] = f"Historial de Accesos - {self.area_persona.persona.nombre_completo_minus()}"
+        context['desde'] = desde
+        context['hasta'] = hasta
         return context
 
 
