@@ -1,114 +1,59 @@
 {% extends 'nav.html' %}
 
-{% block contenido %}
-<div class="container-fluid p-0 w-100 h-100">
-    <div class="card w-100 border-0 shadow-sm rounded-4 bg-white">
+<!-- 1. BLOQUE DE FILTROS (Inyecta perfectamente en el formulario de la base) -->
+{% block more_filters %}
+    <div class="col-12 col-md-auto">
+        <label class="form-label fw-semibold small text-secondary mb-1">Estado:</label>
+        <select name="estado" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            <option value="0" {% if estado == "0" %}selected{% endif %}>Sin leer</option>
+            <option value="1" {% if estado == "1" %}selected{% endif %}>Leídas</option>
+        </select>
+    </div>
 
-        <!-- CABECERA: TÍTULO Y BOTÓN ATRÁS (Idéntico a base.html) -->
-        <div class="card-header bg-white border-0 pt-4 px-4 pb-2">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-light border-0 btn-sm p-2 text-dark rounded-3 shadow-sm me-1"
-                            type="button"
-                            id="sidebarToggle">
-                        <i class="fa-solid fa-bars fs-5"></i>
-                    </button>
-                    <h1 class="h5 m-0 border-start border-3 border-danger ps-3 fw-bold text-dark">
-                        {{ nombre_tabla|default:"Listado de Notificaciones" }}
-                    </h1>
-                </div>
+    <div class="col-12 col-md-auto">
+        <label class="form-label fw-semibold small text-secondary mb-1">Prioridad:</label>
+        <select name="tipo" class="form-select form-select-sm">
+            <option value="">Todas</option>
+            {% for value, label in tipos_notificacion %}
+                <option value="{{ value }}" {% if tipo == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+{% endblock %}
 
-                <a href="{% if ret %}{{ ret }}{% else %}/{% endif %}"
-                   class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-secondary-subtle"
-                   id="urlatrasbutton">
-                    <i class="fa-solid fa-arrow-left me-1"></i>Atrás
-                </a>
-            </div>
-        </div>
+<!-- 2. TRUCO DE INYECCIÓN DE CONTENIDO PRINCIPAL -->
+{% block block_tbody %}
+    <!--
+       Como 'block_tbody' se renderiza dentro de un <tbody>, usamos este contenedor
+       para "escapar" visualmente de la tabla externa y renderizar nuestro acordeón limpio.
+    -->
+    <tr class="p-0 m-0 bg-transparent" style="border: none !important;">
+        <td colspan="100%" class="p-0 border-0 bg-transparent text-start">
 
-        <!-- FILTROS Y BUSCADOR (Estructura limpia de base.html) -->
-        <div class="card-body px-4 pb-4 pt-3">
-            <div class="row gy-3 align-items-end mb-4">
-                <!-- Espacio a la izquierda -->
-                <div class="col-12 col-xl-auto me-auto"></div>
-
-                <!-- Formularios de Filtro y Búsqueda -->
-                <div class="col-12 col-xl-auto">
-                    <form method="get" class="m-0">
-                        <div class="row g-2 align-items-end justify-content-xl-end">
-
-                            <!-- Filtro de Estado -->
-                            <div class="col-12 col-md-auto">
-                                <label class="form-label fw-semibold small text-secondary mb-1">Estado:</label>
-                                <select name="estado" class="form-select form-select-sm">
-                                    <option value="">Todos</option>
-                                    <option value="0" {% if estado == "0" %}selected{% endif %}>Sin leer</option>
-                                    <option value="1" {% if estado == "1" %}selected{% endif %}>Leídas</option>
-                                </select>
-                            </div>
-
-                            <!-- Filtro de Prioridad -->
-                            <div class="col-12 col-md-auto">
-                                <label class="form-label fw-semibold small text-secondary mb-1">Prioridad:</label>
-                                <select name="tipo" class="form-select form-select-sm">
-                                    <option value="">Todas</option>
-                                    {% for value, label in tipos_notificacion %}
-                                        <option value="{{ value }}" {% if tipo == value %}selected{% endif %}>
-                                            {{ label }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <!-- Buscador por Nombre/Título -->
-                            <div class="col-12 col-md-auto">
-                                <label for="s" class="form-label fw-semibold small text-secondary mb-1">Buscador:</label>
-                                <div class="d-flex gap-2">
-                                    <div class="input-group input-group-sm flex-grow-1" style="min-width: 240px;">
-                                        <input type="text"
-                                               class="form-control"
-                                               name="s"
-                                               id="s"
-                                               value="{{ request.GET.s|default:'' }}"
-                                               placeholder="Buscar...">
-                                        <button type="submit" class="btn btn-primary px-3 shadow-sm">
-                                            <i class="fa-solid fa-search"></i>
-                                        </button>
-                                    </div>
-
-                                    {% if request.GET.s or request.GET.estado or request.GET.tipo %}
-                                        <a href="{{ request.path }}" class="btn btn-sm btn-light border shadow-sm px-2 d-flex align-items-center" title="Limpiar Filtros">
-                                            <i class="fa-solid fa-rotate-right text-secondary"></i>
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- CONTENEDOR PRINCIPAL DE LOS ACORDEONES (¡Sin tablas corruptas!) -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <!-- BOTÓN SUPERIOR: MARCAR TODAS COMO LEÍDAS -->
+            <div class="d-flex justify-content-between align-items-center mb-3 mt-2 px-1">
                 <h5 class="text-secondary m-0 fw-semibold fs-6">Organizado por Destinatario</h5>
                 <form action="{% url 'marcar_todas_leidas' %}" method="POST" class="m-0 p-0">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-primary px-3 py-1.5 fw-semibold border border-primary text-primary bg-transparent d-inline-flex align-items-center gap-1.5 transition-all shadow-none" style="border-radius: 30px !important;">
+                    <button type="submit" class="btn btn-sm btn-outline-primary px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 transition-all shadow-none" style="border-radius: 30px !important;">
                         <i class="fa-solid fa-envelope-open"></i> Marcar todas como leídas
                     </button>
                 </form>
             </div>
 
+            <!-- AGRUPACIÓN POR DESTINATARIO -->
             {% regroup notificaciones by destinatario as destinatario_list %}
 
             <div class="accordion-container-custom">
                 {% for grupo in destinatario_list %}
-                    <div class="custom-card-collapse mb-2.5 border rounded-3 bg-white overflow-hidden">
+                    <div class="custom-card-collapse mb-2.5 border rounded-3 bg-white overflow-hidden shadow-sm">
 
-                        <!-- Header del colapsable -->
-                        <div class="header-trigger py-3 px-4 d-flex justify-content-between align-items-center bg-light-subtle border-bottom"
-                             style="cursor: pointer; background-color: #f8f9fa;"
+                        <!-- Cabecera del Colapsable -->
+                        <div class="header-trigger py-3 px-4 d-flex justify-content-between align-items-center bg-light border-bottom"
+                             style="cursor: pointer;"
                              data-bs-toggle="collapse"
                              data-bs-target="#collapse-grupo-{{ forloop.counter }}"
                              aria-expanded="false"
@@ -129,7 +74,7 @@
                             </div>
                         </div>
 
-                        <!-- Body del colapsable conteniendo la tabla de notificaciones específicas del grupo -->
+                        <!-- Contenido Colapsable (Su propia tabla interna perfecta) -->
                         <div id="collapse-grupo-{{ forloop.counter }}" class="collapse">
                             <div class="p-0 border-top bg-white">
                                 <div class="table-responsive">
@@ -137,11 +82,11 @@
                                         <thead class="table-light text-uppercase small fw-semibold text-muted border-bottom">
                                             <tr>
                                                 <th class="py-2.5 px-3 text-start" style="width: 25%;">Título</th>
-                                                <th class="py-2.5 text-start" style="width: 35%;">Descripción</th>
+                                                <th class="py-2.5 text-start" style="width: 33%;">Descripción</th>
                                                 <th class="py-2.5" style="width: 15%;">F. Notificación</th>
                                                 <th class="py-2.5" style="width: 10%;">Prioridad</th>
-                                                <th class="py-2.5" style="width: 8%;">Archivo</th>
-                                                <th class="py-2.5" style="width: 7%;">Acción</th>
+                                                <th class="py-2.5" style="width: 7%;">Archivo</th>
+                                                <th class="py-2.5" style="width: 10%;">Acción</th>
                                             </tr>
                                         </thead>
                                         <tbody class="text-secondary">
@@ -178,11 +123,14 @@
                                                     </td>
                                                     <td class="py-2.5">
                                                         {% if not notificacion.estado_notificacion %}
-                                                            <a href="{% url 'marcar_notificacion_leida' notificacion.pk %}" class="btn btn-xs btn-success py-1 px-2 fs-8 rounded-pill" data-bs-toggle="tooltip" title="Marcar como atendido">
-                                                                <i class="fa-solid fa-check"></i> Atender
+                                                            <a href="{% url 'marcar_notificacion_leida' notificacion.pk %}"
+                                                               class="btn btn-xs btn-success py-1 px-2.5 fs-8 rounded-pill text-nowrap d-inline-flex align-items-center gap-1 shadow-sm"
+                                                               data-bs-toggle="tooltip"
+                                                               title="Marcar como leído">
+                                                                <i class="fa-solid fa-check"></i> Marcar leído
                                                             </a>
                                                         {% else %}
-                                                            <span class="text-success fs-8 fw-bold">Atendido <i class="fa-solid fa-check-double"></i></span>
+                                                            <span class="text-success fs-8 fw-bold text-nowrap">Leído <i class="fa-solid fa-check-double"></i></span>
                                                         {% endif %}
                                                     </td>
                                                 </tr>
@@ -202,57 +150,59 @@
                 {% endfor %}
             </div>
 
-            <!-- PAGINADOR INFERIOR -->
-            <div class="bg-light p-3 border-top rounded-bottom-4 mt-3">
-                {% include 'paginador_base.html' %}
-            </div>
+        </td>
+    </tr>
 
-        </div>
-    </div>
-</div>
+    <!-- SCRIPT DE COMPORTAMIENTO -->
+    <script>
+        $(function () {
+            // Auto-submit para los selects de filtro
+            $('select').change(function(){
+                $(this).closest('form').submit()
+            });
 
-<!-- SCRIPTS DE COMPORTAMIENTO -->
-<script>
-    $(function () {
-        // Enviar filtros automáticamente al cambiar de opción
-        $('select').change(function(){
-            $(this).closest('form').submit()
+            // Rotación suave del ícono chevron al colapsar/abrir
+            $('.collapse').on('show.bs.collapse', function () {
+                $(this).parent().find('.transition-icon').css('transform', 'rotate(180deg)');
+            }).on('hide.bs.collapse', function () {
+                $(this).parent().find('.transition-icon').css('transform', 'rotate(0deg)');
+            });
+
+            // Re-inicializar tooltips para elementos dinámicos
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
         });
+    </script>
 
-        // Rotar suavemente el ícono del chevron al colapsar/abrir
-        $('.collapse').on('show.bs.collapse', function () {
-            $(this).parent().find('.transition-icon').css('transform', 'rotate(180deg)');
-        }).on('hide.bs.collapse', function () {
-            $(this).parent().find('.transition-icon').css('transform', 'rotate(0deg)');
-        });
+    <!-- ESTILOS EXCLUSIVOS -->
+    <style>
+        /* 1. TRUCO CRUCIAL: Ocultamos los bordes de la tabla base vacía para que no interfiera */
+        .custom-table {
+            border: none !important;
+        }
+        .custom-table > thead {
+            display: none !important; /* Oculta el thead vacío de base.html */
+        }
 
-        // Inicializar tooltips de forma segura
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
-    });
-</script>
-
-<!-- ESTILOS EXCLUSIVOS PARA GARANTIZAR LA ESTÉTICA -->
-<style>
-    .custom-card-collapse {
-        border-color: rgba(0,0,0,.125) !important;
-        transition: box-shadow 0.15s ease-in-out;
-    }
-    .custom-card-collapse:hover {
-        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
-    }
-    .transition-icon {
-        transition: transform 0.2s ease-in-out;
-    }
-    .header-trigger:hover {
-        background-color: #f1f3f5 !important;
-    }
-    /* Estilo del botón de marcas limpias sin borders duplicados */
-    .btn-outline-primary:hover {
-        background-color: var(--bs-primary) !important;
-        color: white !important;
-    }
-</style>
+        /* 2. Estilos propios de las tarjetas colapsables */
+        .custom-card-collapse {
+            border-color: rgba(0,0,0,.08) !important;
+            transition: box-shadow 0.15s ease-in-out;
+        }
+        .custom-card-collapse:hover {
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+        }
+        .transition-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+        .header-trigger:hover {
+            background-color: #f1f3f5 !important;
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--bs-primary) !important;
+            color: white !important;
+        }
+    </style>
 {% endblock %}

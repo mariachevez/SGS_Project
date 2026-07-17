@@ -258,6 +258,9 @@ class PersonaGruposForm(FormModeloBase):
     def save(self, commit=True):
         grupopersona = super().save(commit=False)
         grupopersona.persona = self.persona
+        if grupopersona.grupo.id == 1:
+            self.persona.usuario.is_superuser = True
+            self.persona.usuario.save()
         if commit:
             grupopersona.save()
         return grupopersona
