@@ -3,12 +3,11 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.views.generic import ListView
+from django.db.models import Q
 from SGS_Project.forms_utils import AjaxExceptionMixin, EntidadesSesionMixin
 from core.funciones import log
 from .models import Notificaciones
 from SGS_Project.middleware import obtener_entidades_sesion
-
-# Create your views here.
 
 class ListadoNotificaciones(ListView):
     model = Notificaciones
@@ -33,7 +32,12 @@ class ListadoNotificaciones(ListView):
         tipo = self.request.GET.get('tipo', '').strip()
 
         if search:
-            queryset = queryset.filter(titulo__icontains=search)
+            queryset = queryset.filter(
+                Q(titulo__icontains=search) |
+                Q(destinatario__nombres__icontains=search) |
+                Q(destinatario__apellido1__icontains=search) |
+                Q(destinatario__apellido2__icontains=search)
+            )
 
         if estado != '':
             queryset = queryset.filter(estado_notificacion=estado == '1')
@@ -41,11 +45,20 @@ class ListadoNotificaciones(ListView):
         if tipo:
             queryset = queryset.filter(tipo_notificacion=tipo)
 
-        return queryset.order_by('-id')
+        return queryset.order_by('destinatario', '-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de Notificaciones'
+
+        query_params = self.request.GET.copy()
+
+        if 'page' in query_params:
+            del query_params['page']
+
+            # 3. Creamos el string url_vars:
+            # Si hay filtros, devuelve "&s=texto&estado=1", si no, devuelve ""
+        context['url_vars'] = f"&{query_params.urlencode()}" if query_params else ""
 
         context['s'] = self.request.GET.get('s', '')
         context['estado'] = self.request.GET.get('estado', '')
@@ -56,7 +69,6 @@ class ListadoNotificaciones(ListView):
         ).choices
 
         return context
-
 
 class LeerNotificacion(AjaxExceptionMixin, EntidadesSesionMixin, View):
     model = None  # Se define en la subclase
@@ -149,3 +161,41 @@ class MarcarNotificacionLeida(AjaxExceptionMixin, EntidadesSesionMixin, View):
 
     def get_redirect_url(self):
         return str(self.redirect_url)
+
+
+class MarcarTodasLeidas(AjaxExceptionMixin, EntidadesSesionMixin, View):
+    def post(self, request, *args, **kwargs):
+        entidades = obtener_entidades_sesion()
+        persona = entidades['persona']
+
+        try:
+            # Si hay una persona en sesión, lee solo las suyas. Si es superuser sin persona asignada, lee todas.
+            if persona:
+                notificaciones_sin_leer = Notificaciones.objects.filter(
+                    destinatario=persona,
+                    estado_notificacion=False,
+                    status=True
+                )
+            else:
+                notificaciones_sin_leer = Notificaciones.objects.filter(
+                    estado_notificacion=False,
+                    status=True
+                )
+
+            cantidad = notificaciones_sin_leer.count()
+            if cantidad > 0:
+                notificaciones_sin_leer.update(estado_notificacion=True)
+
+                log(
+                    mensaje=f"{self.nombre_en_sesion} marcó todas sus ({cantidad}) notificaciones como leídas.",
+                    request=self.request,
+                    accion="edit"
+                )
+                messages.success(request, f"Se marcaron {cantidad} notificaciones como leídas.")
+            else:
+                messages.info(request, "No tienes notificaciones pendientes por leer.")
+
+        except Exception as e:
+            messages.error(request, f"Error al actualizar las notificaciones: {str(e)}")
+
+        return redirect('/notificaciones/')

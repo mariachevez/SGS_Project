@@ -1,103 +1,258 @@
 {% extends 'nav.html' %}
-{% block more_filters %}
 
-    <div class="col-12 col-md-auto">
-        <label class="form-label fw-semibold small text-secondary mb-1">Estado:</label>
-        <select name="estado" class="form-select form-select-sm">
-            <option value="">Todos</option>
-            <option value="0" {% if estado == "0" %}selected{% endif %}>Sin leer</option>
-            <option value="1" {% if estado == "1" %}selected{% endif %}>Leídas</option>
-        </select>
-    </div>
+{% block contenido %}
+<div class="container-fluid p-0 w-100 h-100">
+    <div class="card w-100 border-0 shadow-sm rounded-4 bg-white">
 
-    <div class="col-12 col-md-auto">
-        <label class="form-label fw-semibold small text-secondary mb-1">Prioridad:</label>
-        <select name="tipo" class="form-select form-select-sm">
-            <option value="">Todas</option>
-            {% for value, label in tipos_notificacion %}
-                <option value="{{ value }}" {% if tipo == value %}selected{% endif %}>
-                    {{ label }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
+        <!-- CABECERA: TÍTULO Y BOTÓN ATRÁS (Idéntico a base.html) -->
+        <div class="card-header bg-white border-0 pt-4 px-4 pb-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-light border-0 btn-sm p-2 text-dark rounded-3 shadow-sm me-1"
+                            type="button"
+                            id="sidebarToggle">
+                        <i class="fa-solid fa-bars fs-5"></i>
+                    </button>
+                    <h1 class="h5 m-0 border-start border-3 border-danger ps-3 fw-bold text-dark">
+                        {{ nombre_tabla|default:"Listado de Notificaciones" }}
+                    </h1>
+                </div>
 
-{% endblock %}
-{% block block_thead %}
-    <tr>
-        <th class="fs-7">#</th>
-        {% if persona_sesion.usuario.is_superuser or usuario_sesion.is_superuser %}
-            <th class="fs-7">Destinatario</th>
-        {% endif %}
-        <th class="fs-7">Titulo</th>
-        <th class="fs-7">Descripción</th>
-        <th class="fs-7 text-center">Estado</th>
-        <th class="fs-7 text-center">Prioridad</th>
-        <th class="fs-7 text-center">URL</th>
-    </tr>
-{% endblock %}
-
-{% block block_tbody %}
-    {% for notificacion in notificaciones %}
-        <tr>
-            <td class="fs-7">{{ forloop.counter }}</td>
-            {% if persona_sesion.usuario.is_superuser or usuario_sesion.is_superuser %}
-                <td class="fs-7">{{ notificacion.destinatario.nombre_completo_minus }}</td>
-            {% endif %}
-            <td class="fs-7 fw-semibold">{{ notificacion.titulo }}</td>
-            <td class="fs-7 text-muted">{{ notificacion.descripcion|default:"Sin descripción" }}</td>
-            <td class="fs-7">
-                {% if notificacion.estado_notificacion %}
-                    <i title="Leido" data-bs-toggle="tooltip" data-bs-placement="top"
-                       class="fa fa-check-double fs-7 text-success"></i>
-                {% else %}
-                    <i title="Sin Leer" data-bs-toggle="tooltip" data-bs-placement="top"
-                       class="fa fa-hourglass-half fs-7 text-danger"></i>
-                {% endif %}
-            </td>
-            <td class="fs-7">{{ notificacion.get_tipo_notificacion_display }}</td>
-            <td class="fs-7">
-                <a href="{% if notificacion.url %}{{ notificacion.url }}{% else %}{{ request.path }}{% endif %}"
-                   data-bs-toggle="tooltip"
-                   data-bs-placement="top"
-                   data-bs-title="Ir al enlacer">
-                    <i class="fa-solid fa-link fs-6 icon-color"></i>
+                <a href="{% if ret %}{{ ret }}{% else %}/{% endif %}"
+                   class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-secondary-subtle"
+                   id="urlatrasbutton">
+                    <i class="fa-solid fa-arrow-left me-1"></i>Atrás
                 </a>
-            </td>
-            {#            <td class="text-center position-relative fs-7">#}
-            {#                <div class="d-flex align-items-center justify-content-center gap-2">#}
-            {##}
-            {#                    <a onclick='formModal("{% url "editar_grupo" grupo.pk %}", "Editar Grupo")'#}
-            {#                       href="javascript:void(0);"#}
-            {#                       data-bs-toggle="tooltip"#}
-            {#                       data-bs-placement="top"#}
-            {#                       data-bs-title="Editar">#}
-            {#                        <i class="fa-solid fa-pen-to-square fs-6 icon-color"></i>#}
-            {#                    </a>#}
-            {##}
-            {#                    <a onclick="eliminarAjax('Está por eliminar un grupo', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_grupo' grupo.pk %}')"#}
-            {#                       href="javascript:void(0);"#}
-            {#                       data-bs-toggle="tooltip"#}
-            {#                       data-bs-placement="top"#}
-            {#                       data-bs-title="Eliminar">#}
-            {#                        <i class="fa-solid fa-trash fs-6 icon-color"></i>#}
-            {#                    </a>#}
-            {#                </div>#}
-            {#            </td>#}
-        </tr>
-    {% empty %}
-        <tr>
-            <td colspan="{% if persona_sesion.usuario.is_superuser or usuario_sesion.is_superuser %}7{% else %}6{% endif %}"
-                class="text-muted fs-7 text-center py-3">
-                Aún no ha recibido notificaciones
-            </td>
-        </tr>
-    {% endfor %}
-    <script>
-        $(function () {
-            $('select').change(function(){
-                $(this).closest('form').submit()
-            })
-        })
-    </script>
+            </div>
+        </div>
+
+        <!-- FILTROS Y BUSCADOR (Estructura limpia de base.html) -->
+        <div class="card-body px-4 pb-4 pt-3">
+            <div class="row gy-3 align-items-end mb-4">
+                <!-- Espacio a la izquierda -->
+                <div class="col-12 col-xl-auto me-auto"></div>
+
+                <!-- Formularios de Filtro y Búsqueda -->
+                <div class="col-12 col-xl-auto">
+                    <form method="get" class="m-0">
+                        <div class="row g-2 align-items-end justify-content-xl-end">
+
+                            <!-- Filtro de Estado -->
+                            <div class="col-12 col-md-auto">
+                                <label class="form-label fw-semibold small text-secondary mb-1">Estado:</label>
+                                <select name="estado" class="form-select form-select-sm">
+                                    <option value="">Todos</option>
+                                    <option value="0" {% if estado == "0" %}selected{% endif %}>Sin leer</option>
+                                    <option value="1" {% if estado == "1" %}selected{% endif %}>Leídas</option>
+                                </select>
+                            </div>
+
+                            <!-- Filtro de Prioridad -->
+                            <div class="col-12 col-md-auto">
+                                <label class="form-label fw-semibold small text-secondary mb-1">Prioridad:</label>
+                                <select name="tipo" class="form-select form-select-sm">
+                                    <option value="">Todas</option>
+                                    {% for value, label in tipos_notificacion %}
+                                        <option value="{{ value }}" {% if tipo == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Buscador por Nombre/Título -->
+                            <div class="col-12 col-md-auto">
+                                <label for="s" class="form-label fw-semibold small text-secondary mb-1">Buscador:</label>
+                                <div class="d-flex gap-2">
+                                    <div class="input-group input-group-sm flex-grow-1" style="min-width: 240px;">
+                                        <input type="text"
+                                               class="form-control"
+                                               name="s"
+                                               id="s"
+                                               value="{{ request.GET.s|default:'' }}"
+                                               placeholder="Buscar...">
+                                        <button type="submit" class="btn btn-primary px-3 shadow-sm">
+                                            <i class="fa-solid fa-search"></i>
+                                        </button>
+                                    </div>
+
+                                    {% if request.GET.s or request.GET.estado or request.GET.tipo %}
+                                        <a href="{{ request.path }}" class="btn btn-sm btn-light border shadow-sm px-2 d-flex align-items-center" title="Limpiar Filtros">
+                                            <i class="fa-solid fa-rotate-right text-secondary"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- CONTENEDOR PRINCIPAL DE LOS ACORDEONES (¡Sin tablas corruptas!) -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-secondary m-0 fw-semibold fs-6">Organizado por Destinatario</h5>
+                <form action="{% url 'marcar_todas_leidas' %}" method="POST" class="m-0 p-0">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-primary px-3 py-1.5 fw-semibold border border-primary text-primary bg-transparent d-inline-flex align-items-center gap-1.5 transition-all shadow-none" style="border-radius: 30px !important;">
+                        <i class="fa-solid fa-envelope-open"></i> Marcar todas como leídas
+                    </button>
+                </form>
+            </div>
+
+            {% regroup notificaciones by destinatario as destinatario_list %}
+
+            <div class="accordion-container-custom">
+                {% for grupo in destinatario_list %}
+                    <div class="custom-card-collapse mb-2.5 border rounded-3 bg-white overflow-hidden">
+
+                        <!-- Header del colapsable -->
+                        <div class="header-trigger py-3 px-4 d-flex justify-content-between align-items-center bg-light-subtle border-bottom"
+                             style="cursor: pointer; background-color: #f8f9fa;"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#collapse-grupo-{{ forloop.counter }}"
+                             aria-expanded="false"
+                             aria-controls="collapse-grupo-{{ forloop.counter }}">
+
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-user text-primary fs-6"></i>
+                                <strong class="fs-7 text-dark fw-semibold">
+                                    {{ grupo.grouper.nombre_completo_minus|default:"Destinatario General" }}
+                                </strong>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2.5">
+                                <span class="badge bg-secondary rounded-pill px-2.5 py-1 fs-8 fw-normal">
+                                    {{ grupo.list|length }} notificación(es)
+                                </span>
+                                <i class="fa-solid fa-chevron-down text-muted fs-8 transition-icon"></i>
+                            </div>
+                        </div>
+
+                        <!-- Body del colapsable conteniendo la tabla de notificaciones específicas del grupo -->
+                        <div id="collapse-grupo-{{ forloop.counter }}" class="collapse">
+                            <div class="p-0 border-top bg-white">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped mb-0 align-middle text-center" style="font-size: 0.85rem;">
+                                        <thead class="table-light text-uppercase small fw-semibold text-muted border-bottom">
+                                            <tr>
+                                                <th class="py-2.5 px-3 text-start" style="width: 25%;">Título</th>
+                                                <th class="py-2.5 text-start" style="width: 35%;">Descripción</th>
+                                                <th class="py-2.5" style="width: 15%;">F. Notificación</th>
+                                                <th class="py-2.5" style="width: 10%;">Prioridad</th>
+                                                <th class="py-2.5" style="width: 8%;">Archivo</th>
+                                                <th class="py-2.5" style="width: 7%;">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-secondary">
+                                            {% for notificacion in grupo.list %}
+                                                <tr class="{% if not notificacion.estado_notificacion %}table-warning-subtle fw-semibold text-dark{% endif %}">
+                                                    <td class="text-start px-3 py-2.5">
+                                                        {% if notificacion.estado_notificacion %}
+                                                            <i class="fa-solid fa-circle-check text-success me-1.5" title="Leído"></i>
+                                                        {% else %}
+                                                            <i class="fa-solid fa-circle text-danger me-1.5" title="Sin Leer"></i>
+                                                        {% endif %}
+                                                        {{ notificacion.titulo }}
+                                                    </td>
+                                                    <td class="text-start text-muted py-2.5">{{ notificacion.descripcion|default:"Sin descripción" }}</td>
+                                                    <td class="text-secondary py-2.5">
+                                                        {{ notificacion.fecha_creacion|date:"d/m/Y H:i"|default:"-" }}
+                                                    </td>
+                                                    <td class="py-2.5">
+                                                        <span class="badge bg-opacity-10
+                                                            {% if notificacion.tipo_notificacion == 'ALTA' %}text-danger bg-danger
+                                                            {% elif notificacion.tipo_notificacion == 'MEDIA' %}text-warning bg-warning
+                                                            {% else %}text-info bg-info{% endif %} fs-8">
+                                                            {{ notificacion.get_tipo_notificacion_display }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="py-2.5">
+                                                        {% if notificacion.url and ".pdf" in notificacion.url or ".xls" in notificacion.url or ".xlsx" in notificacion.url or ".doc" in notificacion.url or ".docx" in notificacion.url or ".csv" in notificacion.url or ".zip" in notificacion.url %}
+                                                            <a href="{{ notificacion.url }}" target="_blank" data-bs-toggle="tooltip" title="Descargar Reporte / Archivo">
+                                                                <i class="fa-solid fa-file-arrow-down fs-5 text-primary"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="text-muted fs-8">- No aplica -</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="py-2.5">
+                                                        {% if not notificacion.estado_notificacion %}
+                                                            <a href="{% url 'marcar_notificacion_leida' notificacion.pk %}" class="btn btn-xs btn-success py-1 px-2 fs-8 rounded-pill" data-bs-toggle="tooltip" title="Marcar como atendido">
+                                                                <i class="fa-solid fa-check"></i> Atender
+                                                            </a>
+                                                        {% else %}
+                                                            <span class="text-success fs-8 fw-bold">Atendido <i class="fa-solid fa-check-double"></i></span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                {% empty %}
+                    <div class="text-muted fs-7 text-center py-5 border rounded-4 bg-light shadow-sm">
+                        <i class="fa-regular fa-bell-slash fs-2 mb-2.5 d-block text-secondary"></i>
+                        Aún no ha recibido notificaciones que coincidan con la búsqueda.
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- PAGINADOR INFERIOR -->
+            <div class="bg-light p-3 border-top rounded-bottom-4 mt-3">
+                {% include 'paginador_base.html' %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS DE COMPORTAMIENTO -->
+<script>
+    $(function () {
+        // Enviar filtros automáticamente al cambiar de opción
+        $('select').change(function(){
+            $(this).closest('form').submit()
+        });
+
+        // Rotar suavemente el ícono del chevron al colapsar/abrir
+        $('.collapse').on('show.bs.collapse', function () {
+            $(this).parent().find('.transition-icon').css('transform', 'rotate(180deg)');
+        }).on('hide.bs.collapse', function () {
+            $(this).parent().find('.transition-icon').css('transform', 'rotate(0deg)');
+        });
+
+        // Inicializar tooltips de forma segura
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
+
+<!-- ESTILOS EXCLUSIVOS PARA GARANTIZAR LA ESTÉTICA -->
+<style>
+    .custom-card-collapse {
+        border-color: rgba(0,0,0,.125) !important;
+        transition: box-shadow 0.15s ease-in-out;
+    }
+    .custom-card-collapse:hover {
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+    }
+    .transition-icon {
+        transition: transform 0.2s ease-in-out;
+    }
+    .header-trigger:hover {
+        background-color: #f1f3f5 !important;
+    }
+    /* Estilo del botón de marcas limpias sin borders duplicados */
+    .btn-outline-primary:hover {
+        background-color: var(--bs-primary) !important;
+        color: white !important;
+    }
+</style>
 {% endblock %}
