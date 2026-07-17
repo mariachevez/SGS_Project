@@ -1,5 +1,15 @@
 {% extends 'nav.html' %}
-
+{% block more_filters %}
+    <div class="col-12 col-lg-3 col-md-6">
+        <label for="area" class="fw-semibold">Área:</label>
+        <select name="area" class="form-select form-select-sm" id="area">
+            <option value="">Todas las áreas</option>
+            {% for item in eAreas %}
+                <option {% if s_area == item.0 %}selected{% endif %} value="{{ item.0 }}">{{ item.1 }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endblock %}
 {% block block_thead %}
     <tr>
         <th class="fs-7">#</th>
@@ -10,7 +20,8 @@
     </tr>
 {% endblock %}
 {% block botones_accion %}
-    <a href="{% url 'generar_reporte_areas' %}" class="btn btn-sm btn-outline-primary shadow-sm rounded-3 d-inline-flex align-items-center gap-2 px-3 py-2">
+    <a href="{% url 'generar_reporte_areas' %}"
+       class="btn btn-sm btn-outline-primary shadow-sm rounded-3 d-inline-flex align-items-center gap-2 px-3 py-2">
         <i class="fa-solid fa-file-excel"></i>
         <span>Reporte Excel</span>
     </a>
@@ -46,50 +57,50 @@
                         <i class="fa-solid fa-pen-to-square fa-fw fs-6 icon-color"></i>
                     </a>
 
-                        <a onclick="eliminarAjax('Está por eliminar un área', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_area' area.pk %}')"
-                           href="javascript: void(0);"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="top"
-                           title="Eliminar">
-                            <i class="fa-solid fa-trash fa-fw fs-6 icon-color"></i>
-                        </a>
+                    <a onclick="eliminarAjax('Está por eliminar un área', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_area' area.pk %}')"
+                       href="javascript: void(0);"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="top"
+                       title="Eliminar">
+                        <i class="fa-solid fa-trash fa-fw fs-6 icon-color"></i>
+                    </a>
                 </div>
             </td>
-{#            <td class="text-center position-relative fs-7">#}
-{#                <div class="dropdown">#}
-{#                    <button class="btn btn-light btn-rounded rounded-3 btn-sm fs-7" type="button"#}
-{#                            data-bs-toggle="dropdown"#}
-{#                            data-bs-display="static" aria-expanded="false">#}
-{#                        <i class="fa-solid fa-ellipsis-v"></i>#}
-{#                    </button>#}
-{#                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">#}
-{#                        <li>#}
-{#                            <a onclick='formModal("{% url "editar_area" area.pk %}", "Editar un área")'#}
-{#                               class="dropdown-item cursor-pointer fs-7">#}
-{#                                <i class="fa-solid fa-pen"></i> Editar#}
-{#                            </a>#}
-{#                        </li>#}
-{#                        <li>#}
-{#                            <a onclick="eliminarAjax('Está por eliminar un área', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_area' area.pk %}')"#}
-{#                               class="dropdown-item cursor-pointer fs-7">#}
-{#                                <i class="fa-solid fa-trash"></i> Eliminar#}
-{#                            </a>#}
-{#                        </li>#}
-{#                        <li>#}
-{#                            <a onclick='formModal("{% url "asignar_director" area.pk %}", "Asignación de Director, Área: {{ area.nombre }}", "modal-lg")'#}
-{#                               class="dropdown-item cursor-pointer fs-7">#}
-{#                                <i class="fa-solid fa-user"></i> Asignar Director#}
-{#                            </a>#}
-{#                        </li>#}
-{#                        <li>#}
-{#                            <a onclick='formModal("{% url "adicionar_personal" area.pk %}", "Adición de personal al departamento: {{ area.nombre }}", "modal-lg")'#}
-{#                               class="dropdown-item fs-7 cursor-pointer">#}
-{#                                <i class="fa-solid fa-user-plus"></i> Adicionar Personal#}
-{#                            </a>#}
-{#                        </li>#}
-{#                    </ul>#}
-{#                </div>#}
-{#            </td>#}
+            {#            <td class="text-center position-relative fs-7">#}
+            {#                <div class="dropdown">#}
+            {#                    <button class="btn btn-light btn-rounded rounded-3 btn-sm fs-7" type="button"#}
+            {#                            data-bs-toggle="dropdown"#}
+            {#                            data-bs-display="static" aria-expanded="false">#}
+            {#                        <i class="fa-solid fa-ellipsis-v"></i>#}
+            {#                    </button>#}
+            {#                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">#}
+            {#                        <li>#}
+            {#                            <a onclick='formModal("{% url "editar_area" area.pk %}", "Editar un área")'#}
+            {#                               class="dropdown-item cursor-pointer fs-7">#}
+            {#                                <i class="fa-solid fa-pen"></i> Editar#}
+            {#                            </a>#}
+            {#                        </li>#}
+            {#                        <li>#}
+            {#                            <a onclick="eliminarAjax('Está por eliminar un área', '¿Está seguro de realizar esta acción?', '{% url 'eliminar_area' area.pk %}')"#}
+            {#                               class="dropdown-item cursor-pointer fs-7">#}
+            {#                                <i class="fa-solid fa-trash"></i> Eliminar#}
+            {#                            </a>#}
+            {#                        </li>#}
+            {#                        <li>#}
+            {#                            <a onclick='formModal("{% url "asignar_director" area.pk %}", "Asignación de Director, Área: {{ area.nombre }}", "modal-lg")'#}
+            {#                               class="dropdown-item cursor-pointer fs-7">#}
+            {#                                <i class="fa-solid fa-user"></i> Asignar Director#}
+            {#                            </a>#}
+            {#                        </li>#}
+            {#                        <li>#}
+            {#                            <a onclick='formModal("{% url "adicionar_personal" area.pk %}", "Adición de personal al departamento: {{ area.nombre }}", "modal-lg")'#}
+            {#                               class="dropdown-item fs-7 cursor-pointer">#}
+            {#                                <i class="fa-solid fa-user-plus"></i> Adicionar Personal#}
+            {#                            </a>#}
+            {#                        </li>#}
+            {#                    </ul>#}
+            {#                </div>#}
+            {#            </td>#}
         </tr>
     {% empty %}
         <tr>
