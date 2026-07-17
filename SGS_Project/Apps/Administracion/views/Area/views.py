@@ -22,13 +22,29 @@ class ListarArea(ListView):
     context_object_name = 'areas'
 
     def get_queryset(self):
-        return Area.objects.filter(status=True)
+        filtro = Q(status=True)
+        search_query = self.request.GET.get('s')
+        area = self.request.GET.get('area')
+
+        if area:
+            filtro &= Q(pk=int(area))
+
+        if search_query:
+            filtro &= (Q(director__identificacion__icontains=search_query)
+                       | Q(director__nombres__icontains=search_query)
+                       | Q(director__apellido1__icontains=search_query)
+                       | Q(director__apellido2__icontains=search_query))
+
+        return Area.objects.filter(filtro)
 
     def get_context_data(self, **kwargs):
+        s_area = self.request.GET.get('area')
         context = super().get_context_data(**kwargs)
         context['nombre_tabla'] = 'Listado de Áreas'
         context['url_formcrear'] = reverse('crear_area')
         context['titulo'] = 'Registrar Área'
+        context['s_area'] = int(s_area) if s_area else ''
+        context['eAreas'] = Area.objects.filter(status=True).values_list('id', 'nombre')
         return context
 
 

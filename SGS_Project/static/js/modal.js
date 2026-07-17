@@ -52,7 +52,7 @@ function eliminarAjax(titulo, mensaje, url) {
         text: mensaje,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
+        confirmButtonText: 'Sí, confirmar',
         cancelButtonText: 'Cancelar',
         background: '#1e1e1e',
         color: '#fff'

@@ -1,5 +1,5 @@
 {% extends 'Dashboards/base_dashboard.html' %}
-{% block dashboard_subtitle %}Resumen general de marcaje y cumplimiento de EPP{% endblock %}
+{% block dashboard_subtitle %}Resumen general de marcaje y cumplimiento de EPI{% endblock %}
 {% block tab_marcadas_active %}active{% endblock %}
 {% block block_dashboard %}
     <div>
@@ -118,9 +118,9 @@
                 <div>
                     <h5 class="mb-0">
                         {% if config_area_nombre %}
-                            Cumplimiento de EPP por ítem — {{ config_area_nombre }}
+                            Cumplimiento de EPI por ítem — {{ config_area_nombre }}
                         {% else %}
-                            Cumplimiento de EPP por ítem
+                            Cumplimiento de EPI por ítem
                         {% endif %}
                     </h5>
                     <small class="text-muted">% de marcadas que cumplieron cada requisito configurado</small>
