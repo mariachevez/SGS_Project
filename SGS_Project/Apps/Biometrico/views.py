@@ -167,7 +167,7 @@ class ModuloMarcajeView(EntidadesSesionMixin, TemplateView):
         if not persona:
             mensaje_bloqueo = "No se ha detectado un perfil de trabajador asociado a su cuenta."
         else:
-            areas_persona = AreaPersona.objects.filter(persona=persona, status=True)
+            areas_persona = AreaPersona.objects.filter(persona=persona, status=True, area__status=True)
 
             if not areas_persona.exists():
                 mensaje_bloqueo = "No se encuentra configurado en ningún área de ingreso. Por favor, comuníquese con el director de su área."
