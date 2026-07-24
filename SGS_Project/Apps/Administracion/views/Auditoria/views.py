@@ -2,7 +2,7 @@ from django.views.generic import ListView
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from Apps.Administracion.models import Persona  # Asegúrate de importar tu modelo
 from SGS_Project.forms_utils import BasePaginadaListView
-
+from django.urls import reverse
 
 class AuditoriaPersonaListView(BasePaginadaListView):
     model = LogEntry
@@ -47,7 +47,7 @@ class AuditoriaPersonaListView(BasePaginadaListView):
         context['nombre_tabla'] = 'Auditoría de Usuarios'
         context['titulo'] = 'Auditoría'
         context['placeholder'] = 'Buscar en los logs...'
-
+        context['ret'] = reverse('modulos_administracion')
         context['personas'] = Persona.objects.filter(
             usuario__isnull=False
         ).order_by('apellido1', 'apellido2', 'nombres')

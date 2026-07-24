@@ -49,7 +49,7 @@
                 <span class="rounded-3 px-2 py-1 text-white bg-{{ solicitud.get_estado_color }}">{{ solicitud.get_estado_solicitud_display }}</span>
             </td>
             <td>
-                <a onclick='formModal("{% url "ver_mi_respuesta" solicitud.pk %}", "Respuesta del director")' href="javascript: void(0);"><i class="fa-solid fa-message text-primary"></i></a>
+                <a onclick='formModal("{% url "ver_mi_respuesta" solicitud.pk %}", "Respuesta del administrador")' href="javascript: void(0);"><i class="fa-solid fa-message text-primary"></i></a>
             </td>
             <td>{{ solicitud.fecha_resolucion|default:'Pendiente de Resolución' }}</td>
             <td>
